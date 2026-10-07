@@ -11,3 +11,27 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum SexoBiologico {
+  MASCULINO
+  FEMENINO
+}
+
+model Donante {
+  id              Int           @id @default(autoincrement())
+  nombre          String
+  apellido        String
+  dni             String        @unique
+  fechaNacimiento DateTime      @db.Date
+  lugarNacimiento String
+  sexoBiologico   SexoBiologico
+  domicilio       String
+  codigoPostal    String
+  email           String
+  telefonoFijo    String?
+  telefonoCelular String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("donantes")
+}
