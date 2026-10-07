@@ -1,0 +1,152 @@
+.alta {
+  --tinta: #1f2430;
+  --papel: #f7f5f3;
+  --superficie: #ffffff;
+  --linea: #cfcac4;
+  --acento: #9b1c31;
+  --error: #a4262c;
+  --ok: #1d6b4f;
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.alta *,
+.alta *::before,
+.alta *::after {
+  box-sizing: border-box;
+}
+
+.alta-header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.75rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.alta-header p {
+  margin: 0 0 1.5rem;
+  color: #55596a;
+}
+
+.alta fieldset {
+  margin: 0 0 1.5rem;
+  padding: 1rem 1.25rem 1.25rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 6px;
+}
+
+.alta legend {
+  padding: 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.alta-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .alta-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.alta-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.alta-field label {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.alta-optional {
+  font-weight: 400;
+  color: #55596a;
+}
+
+.alta input,
+.alta select {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  color: var(--tinta);
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 4px;
+}
+
+.alta input:focus-visible,
+.alta select:focus-visible,
+.alta button:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 2px;
+}
+
+.alta input[aria-invalid="true"],
+.alta select[aria-invalid="true"] {
+  border-color: var(--error);
+  border-width: 2px;
+}
+
+.alta-error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--error);
+}
+
+.alta-banner {
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-left-width: 5px;
+  border-radius: 4px;
+}
+
+.alta-banner-ok {
+  border-left-color: var(--ok);
+}
+
+.alta-banner-error {
+  border-left-color: var(--error);
+}
+
+.alta-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.alta button {
+  padding: 0.65rem 1.5rem;
+  font: inherit;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--acento);
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.alta button:hover:not(:disabled) {
+  background: #7d1526;
+}
+
+.alta button:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}

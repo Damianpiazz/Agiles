@@ -53,7 +53,7 @@ Agiles/
    PostgreSQL queda disponible en `localhost:5432`
    (usuario/clave/base: `florhema`).
 
-## Límites conocidos
+## Restricciones
 
 ### HU-001 · Alta de donante
 - **Autorización pendiente (CA1):** hoy `POST /api/donantes` no valida usuario ni rol.
@@ -88,15 +88,4 @@ npx prisma init --datasource-provider postgresql
 # Estructura en capas
 mkdir -p src/types src/services src/controllers src/routes
 touch src/index.ts Dockerfile .dockerignore .env.example
-```
-
-### ✅ Punto 3 — HU-001 · Modelo y migración
-
-- `backend/prisma/schema.prisma`: enum `SexoBiologico` (MASCULINO/FEMENINO) y modelo `Donante`
-  (`@@map("donantes")`), con `dni` `@unique` (CA2) e `id` autoincremental (CA3).
-- Migración `20261007224939_crear_donante` aplicada contra `florhema_db`
-  (tabla `donantes` + enum `SexoBiologico` + índice único sobre `dni`).
-
-```bash
-docker compose exec api npx prisma migrate dev --name crear-donante
 ```
