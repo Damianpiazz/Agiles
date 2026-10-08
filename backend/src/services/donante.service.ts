@@ -1,6 +1,9 @@
 import { prisma } from "../config/prisma";
 import { Prisma } from "../../generated/prisma/client";
-import type { CrearDonanteInput } from "../types/donante.types";
+import type {
+  CrearDonanteInput,
+  BuscarDonanteInput,
+} from "../types/donante.types";
 
 export class DonanteDuplicadoError extends Error {
   constructor() {
@@ -19,4 +22,34 @@ export async function create(datos: CrearDonanteInput) {
     }
     throw e;
   }
+}
+
+export async function buscar(filtros: BuscarDonanteInput) {
+  return prisma.donante.findMany({
+    where: filtros.dni
+      ? {
+          dni: filtros.dni,
+        }
+      : {
+          nombre: {
+            contains: filtros.nombre,
+            mode: "insensitive",
+          },
+          apellido: {
+            contains: filtros.apellido,
+            mode: "insensitive",
+          },
+        },
+    orderBy: {
+      apellido: "asc",
+    },
+  });
+}
+
+export async function buscarPorId(id: number) {
+  return prisma.donante.findUnique({
+    where: {
+      id,
+    },
+  });
 }
