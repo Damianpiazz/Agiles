@@ -127,6 +127,9 @@ npm run dev
 |--------|------|-------------|-------|---------|
 | GET | `/` | Estado de la API | 200 | |
 | POST | `/api/donantes` | Alta de donante (HU-001) | 201 | 400, 409, 500 |
+| GET | `/api/donantes?dni={dni}` | Buscar donante por DNI (HU-002) | 200 | 400, 500 |
+| GET | `/api/donantes?nombre={nombre}&apellido={apellido}` | Buscar donante por nombre y apellido (HU-002) | 200 | 400, 500 |
+| GET | `/api/donantes/:id` | Consultar datos de un donante (HU-002) | 200 | 400, 404, 500 |
 
 ## Comandos del día a día
 
