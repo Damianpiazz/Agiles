@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+build/
+
+# Env
+.env
+.env.local
+
+# Prisma
+backend/prisma/*.db
+
+# Docker volumes (si se montan en host)
+pgdata/
+
+# IDE / OS
+.vscode/
+.idea/
+*.log
+.DS_Store
+Thumbs.db
