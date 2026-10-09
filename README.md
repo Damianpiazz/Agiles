@@ -30,7 +30,7 @@ Cubre donantes, calificación biológica, inventario de hemocomponentes, pacient
 │   ├── Dockerfile
 │   ├── .env.example
 │   └── prisma.config.ts
-├── frontend2/               # app React
+├── frontend/               # app React
 ├── docker-compose.yml       # servicios: api + db
 └── README.md
 ```
@@ -101,14 +101,14 @@ Después, en VS Code: `Ctrl+Shift+P` → "TypeScript: Restart TS Server".
 
 ### 5. Levantar el frontend
 
-Creá `frontend2/.env` con:
+Creá `frontend/.env` con:
 
 ```env
 VITE_API_URL=http://localhost:3000
 ```
 
 ```bash
-cd frontend2
+cd frontend
 npm install
 npm run dev
 ```
@@ -124,6 +124,7 @@ npm run dev
 ## Endpoints
 
 | Método | Ruta | Descripción | Éxito | Errores |
+
 |--------|------|-------------|-------|---------|
 | GET | `/` | Estado de la API | 200 | |
 | POST | `/api/donantes` | Alta de donante (HU-001) | 201 | 400, 409, 500 |
@@ -176,7 +177,7 @@ docker compose build api
 docker compose up -d
 ```
 
-Y en el host, `npm install` dentro de `backend/` y/o `frontend2/`.
+Y en el host, `npm install` dentro de `backend/` y/o `frontend/`.
 
 ## Arquitectura del backend
 
