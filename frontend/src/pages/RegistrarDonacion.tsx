@@ -10,21 +10,40 @@ import "../styles/RegistrarDonacion.css";
 
 type Props = {
   donanteInicial?: Donante | null;
+  onCargarEstudios?: (donacionId: number) => void;
 };
 
 type Banner = { tipo: "ok" | "error"; texto: string } | null;
 
 const busquedaInicial: BuscarDonanteForm = { dni: "", nombre: "", apellido: "" };
 
-export default function RegistrarDonacion({ donanteInicial = null }: Props) {
+/** Devuelve la fecha y hora actual en el formato que consume <input type="datetime-local">. */
+function ahoraLocal(): string {
+  const ahora = new Date();
+  const local = new Date(ahora.getTime() - ahora.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
+}
+
+export default function RegistrarDonacion({
+  donanteInicial = null,
+  onCargarEstudios,
+}: Props) {
   const [busqueda, setBusqueda] = useState<BuscarDonanteForm>(busquedaInicial);
   const [resultados, setResultados] = useState<Donante[]>([]);
   const [donante, setDonante] = useState<Donante | null>(donanteInicial);
   const [operador, setOperador] = useState("");
+  const [fechaHora, setFechaHora] = useState(ahoraLocal());
+  const [peso, setPeso] = useState("");
+  const [tensionArterial, setTensionArterial] = useState("");
+  const [hemoglobina, setHemoglobina] = useState("");
+  const [voluntario, setVoluntario] = useState(false);
+  const [reposicion, setReposicion] = useState(false);
+  const [autoExcluido, setAutoExcluido] = useState(false);
   const [observaciones, setObservaciones] = useState("");
   const [banner, setBanner] = useState<Banner>(null);
   const [buscando, setBuscando] = useState(false);
   const [enviando, setEnviando] = useState(false);
+  const [donacionCreada, setDonacionCreada] = useState<number | null>(null);
 
   async function buscar(e: FormEvent) {
     e.preventDefault();
@@ -76,10 +95,18 @@ export default function RegistrarDonacion({ donanteInicial = null }: Props) {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setBanner(null);
+    setDonacionCreada(null);
 
     const parsed = donacionSchema.safeParse({
       donanteId: donante?.id,
       operador,
+      peso,
+      tensionArterial,
+      hemoglobina,
+      voluntario,
+      reposicion,
+      autoExcluido,
+      fechaHora: fechaHora ? new Date(fechaHora).toISOString() : undefined,
       observaciones,
     });
 
@@ -105,7 +132,15 @@ export default function RegistrarDonacion({ donanteInicial = null }: Props) {
           tipo: "ok",
           texto: `Donación #${donacion.id} registrada (estado: ${donacion.estado}). Podés continuar con la calificación biológica.`,
         });
+        setDonacionCreada(donacion.id);
         setOperador("");
+        setFechaHora(ahoraLocal());
+        setPeso("");
+        setTensionArterial("");
+        setHemoglobina("");
+        setVoluntario(false);
+        setReposicion(false);
+        setAutoExcluido(false);
         setObservaciones("");
         return;
       }
@@ -137,6 +172,17 @@ export default function RegistrarDonacion({ donanteInicial = null }: Props) {
           role="status"
         >
           {banner.texto}
+        </div>
+      )}
+
+      {donacionCreada !== null && onCargarEstudios && (
+        <div className="donacion-actions">
+          <button
+            type="button"
+            onClick={() => onCargarEstudios(donacionCreada)}
+          >
+            Cargar PCI y Serología
+          </button>
         </div>
       )}
 
@@ -248,15 +294,95 @@ export default function RegistrarDonacion({ donanteInicial = null }: Props) {
             </div>
 
             <div className="donacion-field">
-              <label htmlFor="observaciones">
-                Observaciones <span className="donacion-optional">(opcional)</span>
-              </label>
+              <label htmlFor="fechaHora">Fecha y hora de la extracción</label>
               <input
-                id="observaciones"
-                value={observaciones}
-                onChange={(e) => setObservaciones(e.target.value)}
+                id="fechaHora"
+                type="datetime-local"
+                value={fechaHora}
+                onChange={(e) => setFechaHora(e.target.value)}
               />
             </div>
+
+            <div className="donacion-field">
+              <label htmlFor="peso">
+                Peso (kg) <span className="donacion-optional">(opcional)</span>
+              </label>
+              <input
+                id="peso"
+                value={peso}
+                onChange={(e) => setPeso(e.target.value)}
+                inputMode="decimal"
+              />
+            </div>
+
+            <div className="donacion-field">
+              <label htmlFor="tensionArterial">
+                Tensión arterial{" "}
+                <span className="donacion-optional">(opcional)</span>
+              </label>
+              <input
+                id="tensionArterial"
+                value={tensionArterial}
+                onChange={(e) => setTensionArterial(e.target.value)}
+                placeholder="120/80"
+              />
+            </div>
+
+            <div className="donacion-field">
+              <label htmlFor="hemoglobina">
+                Hemoglobina{" "}
+                <span className="donacion-optional">(opcional)</span>
+              </label>
+              <input
+                id="hemoglobina"
+                value={hemoglobina}
+                onChange={(e) => setHemoglobina(e.target.value)}
+                inputMode="decimal"
+              />
+            </div>
+          </div>
+
+          <div className="donacion-banderas">
+            <label className="donacion-bandera" htmlFor="voluntario">
+              <input
+                id="voluntario"
+                type="checkbox"
+                checked={voluntario}
+                onChange={(e) => setVoluntario(e.target.checked)}
+              />
+              Voluntario
+            </label>
+
+            <label className="donacion-bandera" htmlFor="reposicion">
+              <input
+                id="reposicion"
+                type="checkbox"
+                checked={reposicion}
+                onChange={(e) => setReposicion(e.target.checked)}
+              />
+              Reposición
+            </label>
+
+            <label className="donacion-bandera" htmlFor="autoExcluido">
+              <input
+                id="autoExcluido"
+                type="checkbox"
+                checked={autoExcluido}
+                onChange={(e) => setAutoExcluido(e.target.checked)}
+              />
+              Autoexcluido
+            </label>
+          </div>
+
+          <div className="donacion-field">
+            <label htmlFor="observaciones">
+              Observaciones <span className="donacion-optional">(opcional)</span>
+            </label>
+            <input
+              id="observaciones"
+              value={observaciones}
+              onChange={(e) => setObservaciones(e.target.value)}
+            />
           </div>
 
           <div className="donacion-actions">
