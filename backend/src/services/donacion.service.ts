@@ -32,7 +32,14 @@ export async function create(datos: CrearDonacionInput, db: DonacionDb = prisma)
     data: {
       donanteId: datos.donanteId,
       operador: datos.operador,
+      peso: datos.peso || null,
+      tensionArterial: datos.tensionArterial || null,
+      hemoglobina: datos.hemoglobina || null,
+      voluntario: datos.voluntario ?? false,
+      reposicion: datos.reposicion ?? false,
+      autoExcluido: datos.autoExcluido ?? false,
       observaciones: datos.observaciones || null,
+      ...(datos.fechaHora ? { fechaHora: datos.fechaHora } : {}),
     },
   });
 }
