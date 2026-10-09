@@ -61,9 +61,8 @@ export default function AltaDonante() {
       });
 
       if (res.status === 201) {
-        const donante = await res.json();
         setForm(formInicial);
-        setBanner({ tipo: "ok", texto: `Donante registrado con ID ${donante.id}.` });
+        setBanner({ tipo: "ok", texto: "Registro exitoso." });
         return;
       }
 

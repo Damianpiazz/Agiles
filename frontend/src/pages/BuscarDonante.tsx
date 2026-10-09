@@ -21,13 +21,17 @@ type Donante = {
   telefonoCelular: string;
 };
 
+type Props = {
+  onNuevaEntrevista?: (donante: Donante) => void;
+};
+
 const formInicial: BuscarDonanteForm = {
   dni: "",
   nombre: "",
   apellido: "",
 };
 
-export default function BuscarDonante() {
+export default function BuscarDonante({ onNuevaEntrevista }: Props) {
   const [form, setForm] = useState<BuscarDonanteForm>(formInicial);
   const [resultados, setResultados] = useState<Donante[]>([]);
   const [seleccionado, setSeleccionado] = useState<Donante | null>(null);
@@ -196,12 +200,22 @@ export default function BuscarDonante() {
                 <p>DNI: {donante.dni}</p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => verDetalle(donante.id)}
-              >
-                Ver detalle
-              </button>
+              <div className="consulta-resultado-acciones">
+                <button
+                  type="button"
+                  onClick={() => verDetalle(donante.id)}
+                >
+                  Ver detalle
+                </button>
+                {onNuevaEntrevista && (
+                  <button
+                    type="button"
+                    onClick={() => onNuevaEntrevista(donante)}
+                  >
+                    Nueva entrevista
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </section>
@@ -255,6 +269,17 @@ export default function BuscarDonante() {
               </p>
             </div>
           </fieldset>
+
+          {onNuevaEntrevista && (
+            <div className="consulta-actions">
+              <button
+                type="button"
+                onClick={() => onNuevaEntrevista(seleccionado)}
+              >
+                Nueva entrevista
+              </button>
+            </div>
+          )}
         </section>
       )}
     </main>
