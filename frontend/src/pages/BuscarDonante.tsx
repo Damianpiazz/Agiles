@@ -4,21 +4,11 @@ import {
   buscarDonanteSchema,
   type BuscarDonanteForm,
 } from "../schemas/buscarDonante";
+import type { Donante } from "../types/donante";
 import "../styles/BuscarDonante.css";
 
-type Donante = {
-  id: number;
-  nombre: string;
-  apellido: string;
-  dni: string;
-  fechaNacimiento: string;
-  lugarNacimiento: string;
-  sexoBiologico: "MASCULINO" | "FEMENINO";
-  domicilio: string;
-  codigoPostal: string;
-  email: string;
-  telefonoFijo: string | null;
-  telefonoCelular: string;
+type Props = {
+  onRegistrarDonacion?: (donante: Donante) => void;
 };
 
 const formInicial: BuscarDonanteForm = {
@@ -27,7 +17,7 @@ const formInicial: BuscarDonanteForm = {
   apellido: "",
 };
 
-export default function BuscarDonante() {
+export default function BuscarDonante({ onRegistrarDonacion }: Props) {
   const [form, setForm] = useState<BuscarDonanteForm>(formInicial);
   const [resultados, setResultados] = useState<Donante[]>([]);
   const [seleccionado, setSeleccionado] = useState<Donante | null>(null);
@@ -210,6 +200,17 @@ export default function BuscarDonante() {
       {seleccionado && (
         <section className="consulta-detalle">
           <h2>Datos del donante</h2>
+
+          {onRegistrarDonacion && (
+            <div className="consulta-actions">
+              <button
+                type="button"
+                onClick={() => onRegistrarDonacion(seleccionado)}
+              >
+                Registrar donación
+              </button>
+            </div>
+          )}
 
           <fieldset>
             <legend>Datos filiatorios</legend>
