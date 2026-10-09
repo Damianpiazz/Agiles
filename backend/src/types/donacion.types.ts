@@ -8,6 +8,13 @@ export const crearDonacionSchema = z.object({
     .int("Donante inválido")
     .positive("Donante inválido"),
   operador: obligatorio,
+  peso: z.string().trim().optional(),
+  tensionArterial: z.string().trim().optional(),
+  hemoglobina: z.string().trim().optional(),
+  voluntario: z.boolean({ error: "Valor inválido" }).default(false),
+  reposicion: z.boolean({ error: "Valor inválido" }).default(false),
+  autoExcluido: z.boolean({ error: "Valor inválido" }).default(false),
+  fechaHora: z.coerce.date({ error: "Fecha inválida" }).optional(),
   observaciones: z.string().trim().optional(),
 });
 
