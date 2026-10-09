@@ -89,6 +89,26 @@
   color: #55596a;
 }
 
+.donacion-banderas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  margin-top: 1rem;
+}
+
+.donacion-bandera {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.donacion-bandera input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
 .donacion-actions {
   display: flex;
   justify-content: flex-end;
