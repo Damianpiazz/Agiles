@@ -137,6 +137,12 @@
   border-radius: 6px;
 }
 
+.consulta-resultado-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .consulta-resultado p {
   margin-top: 0.25rem;
   color: #55596a;
