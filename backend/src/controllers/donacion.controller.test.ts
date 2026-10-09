@@ -52,7 +52,13 @@ describe("donacion.controller create", () => {
       res,
     );
 
-    expect(mockCreate).toHaveBeenCalledWith({ donanteId: 1, operador: "Ana" });
+    expect(mockCreate).toHaveBeenCalledWith({
+      donanteId: 1,
+      operador: "Ana",
+      voluntario: false,
+      reposicion: false,
+      autoExcluido: false,
+    });
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({ id: 1, estado: "REGISTRADA" });
   });
