@@ -1,0 +1,207 @@
+.entrevista {
+  --tinta: #1f2430;
+  --papel: #f7f5f3;
+  --superficie: #ffffff;
+  --linea: #cfcac4;
+  --acento: #9b1c31;
+  --error: #a4262c;
+  --ok: #1d6b4f;
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.entrevista *,
+.entrevista *::before,
+.entrevista *::after {
+  box-sizing: border-box;
+}
+
+.entrevista-header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.75rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.entrevista-header p {
+  margin: 0 0 1.5rem;
+  color: #55596a;
+}
+
+.entrevista fieldset {
+  margin: 0 0 1.5rem;
+  padding: 1rem 1.25rem 1.25rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 6px;
+}
+
+.entrevista legend {
+  padding: 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.entrevista-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.entrevista-field label,
+.entrevista-pregunta p {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.entrevista input,
+.entrevista select,
+.entrevista textarea {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  color: var(--tinta);
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 4px;
+}
+
+.entrevista textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+
+.entrevista input:focus-visible,
+.entrevista select:focus-visible,
+.entrevista textarea:focus-visible,
+.entrevista button:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 2px;
+}
+
+.entrevista-error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--error);
+}
+
+.entrevista-banner {
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-left-width: 5px;
+  border-radius: 4px;
+}
+
+.entrevista-banner-ok {
+  border-left-color: var(--ok);
+}
+
+.entrevista-banner-error {
+  border-left-color: var(--error);
+}
+
+.entrevista-confidencial {
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: #f3ecea;
+  border: 1px solid var(--linea);
+  border-left: 5px solid var(--acento);
+  border-radius: 4px;
+  color: #55596a;
+}
+
+.entrevista-donante {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+}
+
+.entrevista-pregunta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--linea);
+}
+
+.entrevista-pregunta:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.entrevista-opciones {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.entrevista-opciones label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 400;
+}
+
+.entrevista-opciones input {
+  width: auto;
+}
+
+.entrevista-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.entrevista button {
+  padding: 0.65rem 1.5rem;
+  font: inherit;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--acento);
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.entrevista button[type="button"] {
+  color: var(--tinta);
+  background: #ffffff;
+  border: 1px solid var(--linea);
+}
+
+.entrevista button:hover:not(:disabled) {
+  background: #7d1526;
+}
+
+.entrevista button[type="button"]:hover:not(:disabled) {
+  background: #ffffff;
+  border-color: var(--acento);
+}
+
+.entrevista button:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+.entrevista-secundario {
+  margin-top: 0.75rem;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--acento);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}

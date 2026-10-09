@@ -32,6 +32,32 @@ model Donante {
   telefonoCelular String
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+  donaciones      Donacion[]
+  entrevistas     EntrevistaPreDonacion[]
 
   @@map("donantes")
+}
+
+model Donacion {
+  id         Int                     @id @default(autoincrement())
+  donanteId  Int
+  donante    Donante                 @relation(fields: [donanteId], references: [id])
+  entrevista EntrevistaPreDonacion?
+  createdAt  DateTime                @default(now())
+  updatedAt  DateTime                @updatedAt
+
+  @@map("donaciones")
+}
+
+model EntrevistaPreDonacion {
+  id                Int               @id @default(autoincrement())
+  donanteId         Int
+  donacionId        Int               @unique
+  donante           Donante           @relation(fields: [donanteId], references: [id])
+  donacion          Donacion          @relation(fields: [donacionId], references: [id])
+  respuestas        Json
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@map("entrevistas_pre_donacion")
 }
