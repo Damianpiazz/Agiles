@@ -1,0 +1,29 @@
+.app-nav {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #f7f5f3;
+  border-bottom: 1px solid #cfcac4;
+}
+
+.app-nav button {
+  padding: 0.55rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  color: #1f2430;
+  background: #ffffff;
+  border: 1px solid #cfcac4;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.app-nav button:hover {
+  border-color: #9b1c31;
+}
+
+.app-nav button.activo {
+  color: #ffffff;
+  background: #9b1c31;
+  border-color: #9b1c31;
+}
