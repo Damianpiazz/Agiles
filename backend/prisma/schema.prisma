@@ -17,6 +17,16 @@ enum SexoBiologico {
   FEMENINO
 }
 
+enum ResultadoAdmision {
+  ADMITIDO
+  DIFERIDO
+}
+
+enum TipoDiferimiento {
+  TEMPORAL
+  PERMANENTE
+}
+
 model Donante {
   id              Int           @id @default(autoincrement())
   nombre          String
@@ -52,9 +62,13 @@ model Donacion {
 model EntrevistaPreDonacion {
   id                Int               @id @default(autoincrement())
   donanteId         Int
-  donacionId        Int               @unique
+  donacionId        Int?              @unique
+  resultadoAdmision ResultadoAdmision
+  tipoDiferimiento  TipoDiferimiento?
+  causaDiferimiento String?
+  entrevistador     String?
   donante           Donante           @relation(fields: [donanteId], references: [id])
-  donacion          Donacion          @relation(fields: [donacionId], references: [id])
+  donacion          Donacion?         @relation(fields: [donacionId], references: [id])
   respuestas        Json
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
