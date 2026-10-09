@@ -17,6 +17,13 @@ enum SexoBiologico {
   FEMENINO
 }
 
+enum EstadoDonacion {
+  REGISTRADA
+  EN_CALIFICACION
+  CALIFICADA
+  RECHAZADA
+}
+
 model Donante {
   id              Int           @id @default(autoincrement())
   nombre          String
@@ -32,6 +39,21 @@ model Donante {
   telefonoCelular String
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+  donaciones      Donacion[]
 
   @@map("donantes")
+}
+
+model Donacion {
+  id            Int             @id @default(autoincrement())
+  donanteId     Int
+  donante       Donante         @relation(fields: [donanteId], references: [id])
+  fechaHora     DateTime        @default(now())
+  operador      String
+  estado        EstadoDonacion  @default(REGISTRADA)
+  observaciones String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@map("donaciones")
 }
