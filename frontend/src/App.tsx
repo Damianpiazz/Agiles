@@ -2,15 +2,19 @@ import { useState } from "react";
 import AltaDonante from "./pages/AltaDonante";
 import BuscarDonante from "./pages/BuscarDonante";
 import RegistrarDonacion from "./pages/RegistrarDonacion";
+import CargarEstudios from "./pages/CargarEstudios";
 import type { Donante } from "./types/donante";
 import "./App.css";
 
-type Vista = "alta" | "buscar" | "donacion";
+type Vista = "alta" | "buscar" | "donacion" | "estudios";
 
 export default function App() {
   const [vista, setVista] = useState<Vista>("buscar");
   const [donanteParaDonacion, setDonanteParaDonacion] =
     useState<Donante | null>(null);
+  const [donacionParaEstudios, setDonacionParaEstudios] = useState<
+    number | null
+  >(null);
 
   function irARegistrarDonacion(donante: Donante) {
     setDonanteParaDonacion(donante);
@@ -20,6 +24,11 @@ export default function App() {
   function abrirDonacion() {
     setDonanteParaDonacion(null);
     setVista("donacion");
+  }
+
+  function irACargarEstudios(donacionId: number) {
+    setDonacionParaEstudios(donacionId);
+    setVista("estudios");
   }
 
   return (
@@ -55,7 +64,16 @@ export default function App() {
       )}
       {vista === "alta" && <AltaDonante />}
       {vista === "donacion" && (
-        <RegistrarDonacion donanteInicial={donanteParaDonacion} />
+        <RegistrarDonacion
+          donanteInicial={donanteParaDonacion}
+          onCargarEstudios={irACargarEstudios}
+        />
+      )}
+      {vista === "estudios" && donacionParaEstudios !== null && (
+        <CargarEstudios
+          donacionId={donacionParaEstudios}
+          onVolver={() => setVista("donacion")}
+        />
       )}
     </>
   );
