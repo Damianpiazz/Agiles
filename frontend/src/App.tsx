@@ -3,10 +3,15 @@ import AltaDonante from "./pages/AltaDonante";
 import BuscarDonante from "./pages/BuscarDonante";
 import RegistrarDonacion from "./pages/RegistrarDonacion";
 import CargarEstudios from "./pages/CargarEstudios";
+import Entrevista from "./pages/Entrevista";
 import type { Donante } from "./types/donante";
 import "./App.css";
 
-type Vista = "alta" | "buscar" | "donacion" | "estudios";
+type Vista = "alta" | "buscar" | "donacion" | "estudios" | "entrevista";
+type DonanteEntrevista = Pick<
+  Donante,
+  "id" | "nombre" | "apellido" | "dni" | "sexoBiologico"
+>;
 
 export default function App() {
   const [vista, setVista] = useState<Vista>("buscar");
@@ -15,6 +20,8 @@ export default function App() {
   const [donacionParaEstudios, setDonacionParaEstudios] = useState<
     number | null
   >(null);
+  const [donanteEntrevista, setDonanteEntrevista] =
+    useState<DonanteEntrevista | null>(null);
 
   function irARegistrarDonacion(donante: Donante) {
     setDonanteParaDonacion(donante);
@@ -29,6 +36,11 @@ export default function App() {
   function irACargarEstudios(donacionId: number) {
     setDonacionParaEstudios(donacionId);
     setVista("estudios");
+  }
+
+  function irAEntrevista(donante?: DonanteEntrevista) {
+    setDonanteEntrevista(donante ?? null);
+    setVista("entrevista");
   }
 
   return (
@@ -57,10 +69,21 @@ export default function App() {
         >
           Registrar donación
         </button>
+
+        <button
+          type="button"
+          className={vista === "entrevista" ? "activo" : ""}
+          onClick={() => irAEntrevista()}
+        >
+          Entrevista pre-donación
+        </button>
       </nav>
 
       {vista === "buscar" && (
-        <BuscarDonante onRegistrarDonacion={irARegistrarDonacion} />
+        <BuscarDonante
+          onRegistrarDonacion={irARegistrarDonacion}
+          onNuevaEntrevista={irAEntrevista}
+        />
       )}
       {vista === "alta" && <AltaDonante />}
       {vista === "donacion" && (
@@ -73,6 +96,12 @@ export default function App() {
         <CargarEstudios
           donacionId={donacionParaEstudios}
           onVolver={() => setVista("donacion")}
+        />
+      )}
+      {vista === "entrevista" && (
+        <Entrevista
+          key={donanteEntrevista?.id ?? "sin-donante"}
+          donanteInicial={donanteEntrevista}
         />
       )}
     </>

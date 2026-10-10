@@ -9,7 +9,19 @@ import "../styles/BuscarDonante.css";
 
 type Props = {
   onRegistrarDonacion?: (donante: Donante) => void;
+  onNuevaEntrevista?: (donante: Donante) => void;
 };
+
+type Entrevista = {
+  id: number;
+  resultadoAdmision: "ADMITIDO" | "DIFERIDO";
+  tipoDiferimiento: "TEMPORAL" | "PERMANENTE" | null;
+  causaDiferimiento: string | null;
+  entrevistador: string | null;
+  createdAt: string;
+};
+
+type DonanteDetalle = Donante & { entrevistas?: Entrevista[] };
 
 const formInicial: BuscarDonanteForm = {
   dni: "",
@@ -17,16 +29,26 @@ const formInicial: BuscarDonanteForm = {
   apellido: "",
 };
 
-export default function BuscarDonante({ onRegistrarDonacion }: Props) {
+export default function BuscarDonante({
+  onRegistrarDonacion,
+  onNuevaEntrevista,
+}: Props) {
   const [form, setForm] = useState<BuscarDonanteForm>(formInicial);
-  const [resultados, setResultados] = useState<Donante[]>([]);
-  const [seleccionado, setSeleccionado] = useState<Donante | null>(null);
+  const [resultados, setResultados] = useState<DonanteDetalle[]>([]);
+  const [seleccionado, setSeleccionado] = useState<DonanteDetalle | null>(null);
   const [mensaje, setMensaje] = useState("");
   const [buscando, setBuscando] = useState(false);
 
   function formatearFecha(fecha: string) {
     const [anio, mes, dia] = fecha.slice(0, 10).split("-");
     return `${dia}/${mes}/${anio}`;
+  }
+
+  function formatearFechaHora(fecha: string) {
+    return new Intl.DateTimeFormat("es-AR", {
+      dateStyle: "short",
+      timeStyle: "short",
+    }).format(new Date(fecha));
   }
 
   async function buscar(e: FormEvent) {
@@ -186,12 +208,22 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
                 <p>DNI: {donante.dni}</p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => verDetalle(donante.id)}
-              >
-                Ver detalle
-              </button>
+              <div className="consulta-resultado-acciones">
+                <button
+                  type="button"
+                  onClick={() => verDetalle(donante.id)}
+                >
+                  Ver detalle
+                </button>
+                {onNuevaEntrevista && (
+                  <button
+                    type="button"
+                    onClick={() => onNuevaEntrevista(donante)}
+                  >
+                    Nueva entrevista
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </section>
@@ -256,6 +288,60 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
               </p>
             </div>
           </fieldset>
+
+          <fieldset>
+            <legend>Evaluaciones pre-donación</legend>
+            {seleccionado.entrevistas?.length ? (
+              <div className="consulta-evaluaciones">
+                {seleccionado.entrevistas.map((entrevista) => (
+                  <article className="consulta-evaluacion" key={entrevista.id}>
+                    <p>
+                      <strong>Resultado:</strong>{" "}
+                      {entrevista.resultadoAdmision === "ADMITIDO"
+                        ? "Admitido (puede continuar)"
+                        : "Diferido"}
+                    </p>
+                    {entrevista.resultadoAdmision === "DIFERIDO" && (
+                      <>
+                        <p>
+                          <strong>Tipo:</strong>{" "}
+                          {entrevista.tipoDiferimiento === "TEMPORAL"
+                            ? "Temporal"
+                            : entrevista.tipoDiferimiento === "PERMANENTE"
+                              ? "Permanente"
+                              : "No registrado"}
+                        </p>
+                        <p>
+                          <strong>Causa:</strong>{" "}
+                          {entrevista.causaDiferimiento || "No registrada"}
+                        </p>
+                      </>
+                    )}
+                    <p>
+                      <strong>Entrevistador:</strong>{" "}
+                      {entrevista.entrevistador || "No registrado"}
+                    </p>
+                    <p>
+                      <strong>Fecha:</strong> {formatearFechaHora(entrevista.createdAt)}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p>No hay evaluaciones pre-donación registradas.</p>
+            )}
+          </fieldset>
+
+          {onNuevaEntrevista && (
+            <div className="consulta-actions">
+              <button
+                type="button"
+                onClick={() => onNuevaEntrevista(seleccionado)}
+              >
+                Nueva entrevista
+              </button>
+            </div>
+          )}
         </section>
       )}
     </main>

@@ -137,6 +137,12 @@
   border-radius: 6px;
 }
 
+.consulta-resultado-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .consulta-resultado p {
   margin-top: 0.25rem;
   color: #55596a;
@@ -150,6 +156,22 @@
 
 .consulta-datos p {
   margin: 0;
+}
+
+.consulta-evaluaciones {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.consulta-evaluacion {
+  padding: 0.85rem;
+  background: #f7f5f3;
+  border: 1px solid var(--linea);
+  border-radius: 4px;
+}
+
+.consulta-evaluacion p {
+  margin: 0.25rem 0;
 }
 
 @media (min-width: 640px) {

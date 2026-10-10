@@ -133,6 +133,7 @@ npm run dev
 | GET | `/api/donantes/:id` | Consultar datos de un donante (HU-002) | 200 | 400, 404, 500 |
 | POST | `/api/donaciones` | Registrar donación de un donante (HU-008) | 201 | 400, 404, 500 |
 | GET | `/api/donaciones/:id` | Consultar una donación (HU-008) | 200 | 400, 404, 500 |
+| POST | `/api/donantes/:id/entrevistas` | Registrar entrevista, resultado de admisión y datos de diferimiento (HU-003, HU-004) | 201 | 400, 404, 500 |
 
 ## Comandos del día a día
 
@@ -225,6 +226,11 @@ Convenciones de rutas REST: sustantivos en plural (`/api/donantes`), el verbo lo
 | "Module not found" dentro del contenedor | Se agregó una dependencia: `docker compose build api && docker compose up -d` |
 
 ## Límites conocidos
+
+### HU-004 · Registrar resultado diferido
+
+- Las evaluaciones guardan el resultado, el tipo y la causa del diferimiento cuando corresponde, además del nombre del personal entrevistador. El historial se consulta en el detalle del donante; solo las evaluaciones admitidas crean un registro de donación.
+- La autenticación y autorización de personal sanitario todavía no están implementadas; el nombre del entrevistador se registra manualmente hasta las HU-020 y HU-021.
 
 ### HU-001 · Alta de donante
 

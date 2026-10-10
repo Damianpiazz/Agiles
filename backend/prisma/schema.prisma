@@ -24,12 +24,22 @@ enum EstadoDonacion {
   RECHAZADA
 }
 
+enum ResultadoAdmision {
+  ADMITIDO
+  DIFERIDO
+}
+
+enum TipoDiferimiento {
+  TEMPORAL
+  PERMANENTE
+}
+
 model Donante {
-  id              Int           @id @default(autoincrement())
+  id              Int                     @id @default(autoincrement())
   nombre          String
   apellido        String
-  dni             String        @unique
-  fechaNacimiento DateTime      @db.Date
+  dni             String                  @unique
+  fechaNacimiento DateTime                @db.Date
   lugarNacimiento String
   sexoBiologico   SexoBiologico
   domicilio       String
@@ -37,31 +47,33 @@ model Donante {
   email           String
   telefonoFijo    String?
   telefonoCelular String
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
   donaciones      Donacion[]
+  entrevistas     EntrevistaPreDonacion[]
 
   @@map("donantes")
 }
 
 model Donacion {
-  id                  Int                 @id @default(autoincrement())
+  id                  Int                    @id @default(autoincrement())
   donanteId           Int
-  donante             Donante             @relation(fields: [donanteId], references: [id])
-  fechaHora           DateTime            @default(now())
+  donante             Donante                @relation(fields: [donanteId], references: [id])
+  fechaHora           DateTime               @default(now())
   operador            String
-  estado              EstadoDonacion      @default(REGISTRADA)
+  estado              EstadoDonacion         @default(REGISTRADA)
   peso                String?
   tensionArterial     String?
   hemoglobina         String?
-  voluntario          Boolean             @default(false)
-  reposicion          Boolean             @default(false)
-  autoExcluido        Boolean             @default(false)
+  voluntario          Boolean                @default(false)
+  reposicion          Boolean                @default(false)
+  autoExcluido        Boolean                @default(false)
   observaciones       String?
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
   pciDonaciones       PciDonacion[]
   serologiaDonaciones SerologiaDonacion[]
+  entrevista          EntrevistaPreDonacion?
 
   @@map("donaciones")
 }
@@ -159,4 +171,21 @@ model SerologiaDonacion {
 
   @@id([serologiaId, donacionId])
   @@map("serologia_donaciones")
+}
+
+model EntrevistaPreDonacion {
+  id                Int               @id @default(autoincrement())
+  donanteId         Int
+  donacionId        Int?              @unique
+  resultadoAdmision ResultadoAdmision
+  tipoDiferimiento  TipoDiferimiento?
+  causaDiferimiento String?
+  entrevistador     String?
+  donante           Donante           @relation(fields: [donanteId], references: [id])
+  donacion          Donacion?         @relation(fields: [donacionId], references: [id])
+  respuestas        Json
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@map("entrevistas_pre_donacion")
 }
