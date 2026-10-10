@@ -4,22 +4,12 @@ import {
   buscarDonanteSchema,
   type BuscarDonanteForm,
 } from "../schemas/buscarDonante";
+import type { Donante } from "../types/donante";
 import "../styles/BuscarDonante.css";
 
-type Donante = {
-  id: number;
-  nombre: string;
-  apellido: string;
-  dni: string;
-  fechaNacimiento: string;
-  lugarNacimiento: string;
-  sexoBiologico: "MASCULINO" | "FEMENINO";
-  domicilio: string;
-  codigoPostal: string;
-  email: string;
-  telefonoFijo: string | null;
-  telefonoCelular: string;
-  entrevistas?: Entrevista[];
+type Props = {
+  onRegistrarDonacion?: (donante: Donante) => void;
+  onNuevaEntrevista?: (donante: Donante) => void;
 };
 
 type Entrevista = {
@@ -31,9 +21,7 @@ type Entrevista = {
   createdAt: string;
 };
 
-type Props = {
-  onNuevaEntrevista?: (donante: Donante) => void;
-};
+type DonanteDetalle = Donante & { entrevistas?: Entrevista[] };
 
 const formInicial: BuscarDonanteForm = {
   dni: "",
@@ -41,10 +29,13 @@ const formInicial: BuscarDonanteForm = {
   apellido: "",
 };
 
-export default function BuscarDonante({ onNuevaEntrevista }: Props) {
+export default function BuscarDonante({
+  onRegistrarDonacion,
+  onNuevaEntrevista,
+}: Props) {
   const [form, setForm] = useState<BuscarDonanteForm>(formInicial);
-  const [resultados, setResultados] = useState<Donante[]>([]);
-  const [seleccionado, setSeleccionado] = useState<Donante | null>(null);
+  const [resultados, setResultados] = useState<DonanteDetalle[]>([]);
+  const [seleccionado, setSeleccionado] = useState<DonanteDetalle | null>(null);
   const [mensaje, setMensaje] = useState("");
   const [buscando, setBuscando] = useState(false);
 
@@ -241,6 +232,17 @@ export default function BuscarDonante({ onNuevaEntrevista }: Props) {
       {seleccionado && (
         <section className="consulta-detalle">
           <h2>Datos del donante</h2>
+
+          {onRegistrarDonacion && (
+            <div className="consulta-actions">
+              <button
+                type="button"
+                onClick={() => onRegistrarDonacion(seleccionado)}
+              >
+                Registrar donación
+              </button>
+            </div>
+          )}
 
           <fieldset>
             <legend>Datos filiatorios</legend>

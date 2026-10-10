@@ -35,7 +35,9 @@ export async function create(donanteId: number, datos: CrearEntrevistaInput) {
   return prisma.$transaction(async (tx) => {
     const donacion =
       datos.resultadoAdmision === "ADMITIDO"
-        ? await tx.donacion.create({ data: { donanteId } })
+        ? await tx.donacion.create({
+            data: { donanteId, operador: datos.entrevistador },
+          })
         : null;
 
     return tx.entrevistaPreDonacion.create({

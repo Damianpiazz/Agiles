@@ -21,3 +21,9 @@ pgdata/
 *.log
 .DS_Store
 Thumbs.db
+
+# IA
+.atl
+
+# OpenCode
+opencode.json

@@ -1,0 +1,185 @@
+.donacion {
+  --tinta: #1f2430;
+  --papel: #f7f5f3;
+  --superficie: #ffffff;
+  --linea: #cfcac4;
+  --acento: #9b1c31;
+  --error: #a4262c;
+  --ok: #1b6b3a;
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.donacion * {
+  box-sizing: border-box;
+}
+
+.donacion-header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.75rem;
+  font-weight: 650;
+}
+
+.donacion-header p {
+  margin: 0 0 1.5rem;
+  color: #55596a;
+}
+
+.donacion fieldset {
+  margin: 0 0 1.5rem;
+  padding: 1rem 1.25rem 1.25rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 6px;
+}
+
+.donacion legend {
+  padding: 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.donacion-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.donacion-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.donacion-field label {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.donacion-optional {
+  font-weight: 400;
+  color: #55596a;
+}
+
+.donacion input {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  color: var(--tinta);
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 4px;
+}
+
+.donacion input[aria-invalid="true"] {
+  border-color: var(--error);
+}
+
+.donacion-separador {
+  text-align: center;
+  color: #55596a;
+}
+
+.donacion-banderas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  margin-top: 1rem;
+}
+
+.donacion-bandera {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.donacion-bandera input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.donacion-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.donacion button {
+  padding: 0.65rem 1.2rem;
+  font: inherit;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--acento);
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.donacion button:hover:not(:disabled) {
+  background: #7d1526;
+}
+
+.donacion button:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+.donacion button.donacion-secundario {
+  color: var(--acento);
+  background: transparent;
+  border: 1px solid var(--acento);
+}
+
+.donacion button.donacion-secundario:hover:not(:disabled) {
+  background: rgba(155, 28, 49, 0.08);
+}
+
+.donacion-banner {
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-left: 5px solid var(--error);
+  border-radius: 4px;
+}
+
+.donacion-banner-ok {
+  border-left-color: var(--ok);
+}
+
+.donacion-banner-error {
+  border-left-color: var(--error);
+}
+
+.donacion-donante,
+.donacion-resultado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--papel);
+  border: 1px solid var(--linea);
+  border-radius: 6px;
+}
+
+.donacion-resultado {
+  margin-top: 0.75rem;
+}
+
+.donacion-donante p,
+.donacion-resultado p {
+  margin-top: 0.25rem;
+  color: #55596a;
+}

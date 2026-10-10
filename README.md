@@ -131,6 +131,8 @@ npm run dev
 | GET | `/api/donantes?dni={dni}` | Buscar donante por DNI (HU-002) | 200 | 400, 500 |
 | GET | `/api/donantes?nombre={nombre}&apellido={apellido}` | Buscar donante por nombre y apellido (HU-002) | 200 | 400, 500 |
 | GET | `/api/donantes/:id` | Consultar datos de un donante (HU-002) | 200 | 400, 404, 500 |
+| POST | `/api/donaciones` | Registrar donación de un donante (HU-008) | 201 | 400, 404, 500 |
+| GET | `/api/donaciones/:id` | Consultar una donación (HU-008) | 200 | 400, 404, 500 |
 | POST | `/api/donantes/:id/entrevistas` | Registrar entrevista, resultado de admisión y datos de diferimiento (HU-003, HU-004) | 201 | 400, 404, 500 |
 
 ## Comandos del día a día
@@ -147,6 +149,13 @@ docker compose exec db psql -U postgres -d florhema_db   # consola de Postgres
 ```
 
 Los cambios en `backend/src` se recargan solos (`tsx watch`). No hace falta reiniciar.
+
+### Tests
+
+```bash
+cd backend && npm test     # Vitest: validaciones, servicio y controller
+cd frontend && npm test    # Vitest: schemas de formularios
+```
 
 ## Trabajar con la base de datos
 
@@ -228,3 +237,9 @@ Convenciones de rutas REST: sustantivos en plural (`/api/donantes`), el verbo lo
 - **Autorización pendiente (CA1):** hoy `POST /api/donantes` no valida usuario ni rol. Se agrega con las HU-020 (login) y HU-021 (roles).
 - **Documento:** solo DNI. Pasaporte queda fuera por ahora, aunque el CA2 lo contempla.
 - **Sexo biológico:** solo `MASCULINO` / `FEMENINO`.
+
+### HU-008 · Registrar donación
+
+- **Operador sin autenticación:** hoy `operador` se ingresa como texto en el formulario. Se reemplaza por la identidad autenticada cuando estén las HU-020 (login) y HU-021 (roles).
+- **Calificación biológica:** la donación se crea en estado `REGISTRADA`. Los estados `EN_CALIFICACION`, `CALIFICADA` y `RECHAZADA` quedan modelados para la historia de calificación.
+- **Datos clínicos:** el modelo guarda donante, fecha/hora, operador y observaciones. Tipo de donación y datos de la entrevista pre-donación quedan para sus historias.

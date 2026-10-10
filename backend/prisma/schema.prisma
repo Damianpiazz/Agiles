@@ -17,6 +17,13 @@ enum SexoBiologico {
   FEMENINO
 }
 
+enum EstadoDonacion {
+  REGISTRADA
+  EN_CALIFICACION
+  CALIFICADA
+  RECHAZADA
+}
+
 enum ResultadoAdmision {
   ADMITIDO
   DIFERIDO
@@ -28,11 +35,11 @@ enum TipoDiferimiento {
 }
 
 model Donante {
-  id              Int           @id @default(autoincrement())
+  id              Int                     @id @default(autoincrement())
   nombre          String
   apellido        String
-  dni             String        @unique
-  fechaNacimiento DateTime      @db.Date
+  dni             String                  @unique
+  fechaNacimiento DateTime                @db.Date
   lugarNacimiento String
   sexoBiologico   SexoBiologico
   domicilio       String
@@ -40,8 +47,8 @@ model Donante {
   email           String
   telefonoFijo    String?
   telefonoCelular String
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
   donaciones      Donacion[]
   entrevistas     EntrevistaPreDonacion[]
 
@@ -49,14 +56,121 @@ model Donante {
 }
 
 model Donacion {
-  id         Int                     @id @default(autoincrement())
-  donanteId  Int
-  donante    Donante                 @relation(fields: [donanteId], references: [id])
-  entrevista EntrevistaPreDonacion?
-  createdAt  DateTime                @default(now())
-  updatedAt  DateTime                @updatedAt
+  id                  Int                    @id @default(autoincrement())
+  donanteId           Int
+  donante             Donante                @relation(fields: [donanteId], references: [id])
+  fechaHora           DateTime               @default(now())
+  operador            String
+  estado              EstadoDonacion         @default(REGISTRADA)
+  peso                String?
+  tensionArterial     String?
+  hemoglobina         String?
+  voluntario          Boolean                @default(false)
+  reposicion          Boolean                @default(false)
+  autoExcluido        Boolean                @default(false)
+  observaciones       String?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  pciDonaciones       PciDonacion[]
+  serologiaDonaciones SerologiaDonacion[]
+  entrevista          EntrevistaPreDonacion?
 
   @@map("donaciones")
+}
+
+model Antigeno {
+  id         Int            @id @default(autoincrement())
+  nombre     String         @unique
+  resultados PciResultado[]
+
+  @@map("antigenos")
+}
+
+model DeterminacionSerologica {
+  id         Int                  @id @default(autoincrement())
+  nombre     String               @unique
+  resultados SerologiaResultado[]
+
+  @@map("determinaciones_serologicas")
+}
+
+model Pci {
+  id            Int            @id @default(autoincrement())
+  fecha         DateTime       @db.Date
+  hora          DateTime       @db.Time
+  observaciones String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  resultados    PciResultado[]
+  donaciones    PciDonacion[]
+
+  @@map("pci")
+}
+
+model PciResultado {
+  id          Int      @id @default(autoincrement())
+  pciId       Int
+  pci         Pci      @relation(fields: [pciId], references: [id])
+  antigenoId  Int
+  antigeno    Antigeno @relation(fields: [antigenoId], references: [id])
+  resultado   String
+  intensidad  String?
+  observacion String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([pciId, antigenoId])
+  @@map("pci_resultados")
+}
+
+model PciDonacion {
+  pciId      Int
+  pci        Pci      @relation(fields: [pciId], references: [id])
+  donacionId Int
+  donacion   Donacion @relation(fields: [donacionId], references: [id])
+
+  @@id([pciId, donacionId])
+  @@map("pci_donaciones")
+}
+
+model Serologia {
+  id            Int                  @id @default(autoincrement())
+  fecha         DateTime             @db.Date
+  hora          DateTime             @db.Time
+  observaciones String?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  resultados    SerologiaResultado[]
+  donaciones    SerologiaDonacion[]
+
+  @@map("serologias")
+}
+
+model SerologiaResultado {
+  id                        Int                     @id @default(autoincrement())
+  serologiaId               Int
+  serologia                 Serologia               @relation(fields: [serologiaId], references: [id])
+  determinacionSerologicaId Int
+  determinacionSerologica   DeterminacionSerologica @relation(fields: [determinacionSerologicaId], references: [id])
+  resultado                 String
+  valor                     String?
+  unidad                    String?
+  observacion               String?
+  createdAt                 DateTime                @default(now())
+  updatedAt                 DateTime                @updatedAt
+
+  @@unique([serologiaId, determinacionSerologicaId])
+  @@map("serologia_resultados")
+}
+
+model SerologiaDonacion {
+  serologiaId Int
+  serologia   Serologia @relation(fields: [serologiaId], references: [id])
+  donacionId  Int
+  donacion    Donacion  @relation(fields: [donacionId], references: [id])
+
+  @@id([serologiaId, donacionId])
+  @@map("serologia_donaciones")
 }
 
 model EntrevistaPreDonacion {

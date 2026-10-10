@@ -1,0 +1,12 @@
+-- CreateEnum
+CREATE TYPE "EstadoDonacion" AS ENUM ('REGISTRADA', 'EN_CALIFICACION', 'CALIFICADA', 'RECHAZADA');
+
+-- AlterTable
+ALTER TABLE "donaciones"
+ADD COLUMN "fechaHora" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN "operador" TEXT NOT NULL DEFAULT 'No especificado',
+ADD COLUMN "estado" "EstadoDonacion" NOT NULL DEFAULT 'REGISTRADA',
+ADD COLUMN "observaciones" TEXT;
+
+ALTER TABLE "donaciones"
+ALTER COLUMN "operador" DROP DEFAULT;

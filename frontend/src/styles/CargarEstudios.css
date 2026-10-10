@@ -1,0 +1,163 @@
+.estudios {
+  --tinta: #1f2430;
+  --papel: #f7f5f3;
+  --superficie: #ffffff;
+  --linea: #cfcac4;
+  --acento: #9b1c31;
+  --error: #a4262c;
+  --ok: #1b6b3a;
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.estudios * {
+  box-sizing: border-box;
+}
+
+.estudios-header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.75rem;
+  font-weight: 650;
+}
+
+.estudios-header p {
+  margin: 0 0 1rem;
+  color: #55596a;
+}
+
+.estudios fieldset {
+  margin: 0 0 1.5rem;
+  padding: 1rem 1.25rem 1.25rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 6px;
+}
+
+.estudios legend {
+  padding: 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.estudios-subtitulo {
+  margin: 1.25rem 0 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #55596a;
+}
+
+.estudios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.estudios-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.estudios-field label {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.estudios-optional {
+  font-weight: 400;
+  color: #55596a;
+}
+
+.estudios input,
+.estudios select {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  color: var(--tinta);
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 4px;
+}
+
+.estudios-fila {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  background: var(--papel);
+  border: 1px solid var(--linea);
+  border-radius: 6px;
+}
+
+.estudios-fila-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.estudios-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.estudios button {
+  padding: 0.65rem 1.2rem;
+  font: inherit;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--acento);
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.estudios button:hover:not(:disabled) {
+  background: #7d1526;
+}
+
+.estudios button:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+.estudios button.estudios-secundario {
+  color: var(--acento);
+  background: transparent;
+  border: 1px solid var(--acento);
+}
+
+.estudios button.estudios-secundario:hover:not(:disabled) {
+  background: rgba(155, 28, 49, 0.08);
+}
+
+.estudios-banner {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-left: 5px solid var(--error);
+  border-radius: 4px;
+}
+
+.estudios-banner-ok {
+  border-left-color: var(--ok);
+}
+
+.estudios-banner-error {
+  border-left-color: var(--error);
+}
