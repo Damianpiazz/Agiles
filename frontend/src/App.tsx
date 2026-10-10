@@ -64,18 +64,18 @@ export default function App() {
 
         <button
           type="button"
-          className={vista === "donacion" ? "activo" : ""}
-          onClick={abrirDonacion}
-        >
-          Registrar donación
-        </button>
-
-        <button
-          type="button"
           className={vista === "entrevista" ? "activo" : ""}
           onClick={() => irAEntrevista()}
         >
           Entrevista pre-donación
+        </button>
+
+        <button
+          type="button"
+          className={vista === "donacion" ? "activo" : ""}
+          onClick={abrirDonacion}
+        >
+          Registrar donación
         </button>
       </nav>
 
