@@ -33,15 +33,22 @@ export async function create(donanteId: number, datos: CrearEntrevistaInput) {
   }
 
   return prisma.$transaction(async (tx) => {
-    const donacion = await tx.donacion.create({
-      data: { donanteId },
-    });
+    const donacion =
+      datos.resultadoAdmision === "ADMITIDO"
+        ? await tx.donacion.create({ data: { donanteId } })
+        : null;
 
     return tx.entrevistaPreDonacion.create({
       data: {
         donanteId,
-        donacionId: donacion.id,
+        donacionId: donacion?.id ?? null,
         respuestas: datos.respuestas as Prisma.InputJsonValue,
+        resultadoAdmision: datos.resultadoAdmision,
+        tipoDiferimiento:
+          datos.resultadoAdmision === "DIFERIDO" ? datos.tipoDiferimiento : null,
+        causaDiferimiento:
+          datos.resultadoAdmision === "DIFERIDO" ? datos.causaDiferimiento : null,
+        entrevistador: datos.entrevistador,
       },
     });
   });

@@ -51,5 +51,20 @@ export async function buscarPorId(id: number) {
     where: {
       id,
     },
+    include: {
+      entrevistas: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          resultadoAdmision: true,
+          tipoDiferimiento: true,
+          causaDiferimiento: true,
+          entrevistador: true,
+          createdAt: true,
+        },
+      },
+    },
   });
 }

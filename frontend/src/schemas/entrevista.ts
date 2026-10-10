@@ -226,7 +226,36 @@ export function preguntasParaSexo(sexo: "MASCULINO" | "FEMENINO") {
 }
 
 export const entrevistaSchema = z.object({
-  respuestas: z.record(z.string(), z.enum(["SI", "NO"])),
+  respuestas: z.record(z.string(), z.boolean()),
+  resultadoAdmision: z.enum(["ADMITIDO", "DIFERIDO"], {
+    error: "Seleccioná el resultado de la evaluación.",
+  }),
+  tipoDiferimiento: z.enum(["TEMPORAL", "PERMANENTE"]).optional(),
+  causaDiferimiento: z.string().trim().optional(),
+  entrevistador: z.string().trim().min(1, "Ingresá el nombre del personal entrevistador."),
+}).superRefine((data, ctx) => {
+  if (data.resultadoAdmision === "DIFERIDO") {
+    if (!data.tipoDiferimiento) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["tipoDiferimiento"],
+        message: "Indicá si el diferimiento es temporal o permanente.",
+      });
+    }
+    if (!data.causaDiferimiento) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["causaDiferimiento"],
+        message: "Ingresá la causa del diferimiento.",
+      });
+    }
+  } else if (data.tipoDiferimiento || data.causaDiferimiento) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["resultadoAdmision"],
+      message: "Un donante admitido no puede tener datos de diferimiento.",
+    });
+  }
 });
 
 export type EntrevistaForm = z.infer<typeof entrevistaSchema>;

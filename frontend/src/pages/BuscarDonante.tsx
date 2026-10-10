@@ -19,6 +19,16 @@ type Donante = {
   email: string;
   telefonoFijo: string | null;
   telefonoCelular: string;
+  entrevistas?: Entrevista[];
+};
+
+type Entrevista = {
+  id: number;
+  resultadoAdmision: "ADMITIDO" | "DIFERIDO";
+  tipoDiferimiento: "TEMPORAL" | "PERMANENTE" | null;
+  causaDiferimiento: string | null;
+  entrevistador: string | null;
+  createdAt: string;
 };
 
 type Props = {
@@ -41,6 +51,13 @@ export default function BuscarDonante({ onNuevaEntrevista }: Props) {
   function formatearFecha(fecha: string) {
     const [anio, mes, dia] = fecha.slice(0, 10).split("-");
     return `${dia}/${mes}/${anio}`;
+  }
+
+  function formatearFechaHora(fecha: string) {
+    return new Intl.DateTimeFormat("es-AR", {
+      dateStyle: "short",
+      timeStyle: "short",
+    }).format(new Date(fecha));
   }
 
   async function buscar(e: FormEvent) {
@@ -268,6 +285,49 @@ export default function BuscarDonante({ onNuevaEntrevista }: Props) {
                 {seleccionado.telefonoCelular}
               </p>
             </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Evaluaciones pre-donación</legend>
+            {seleccionado.entrevistas?.length ? (
+              <div className="consulta-evaluaciones">
+                {seleccionado.entrevistas.map((entrevista) => (
+                  <article className="consulta-evaluacion" key={entrevista.id}>
+                    <p>
+                      <strong>Resultado:</strong>{" "}
+                      {entrevista.resultadoAdmision === "ADMITIDO"
+                        ? "Admitido (puede continuar)"
+                        : "Diferido"}
+                    </p>
+                    {entrevista.resultadoAdmision === "DIFERIDO" && (
+                      <>
+                        <p>
+                          <strong>Tipo:</strong>{" "}
+                          {entrevista.tipoDiferimiento === "TEMPORAL"
+                            ? "Temporal"
+                            : entrevista.tipoDiferimiento === "PERMANENTE"
+                              ? "Permanente"
+                              : "No registrado"}
+                        </p>
+                        <p>
+                          <strong>Causa:</strong>{" "}
+                          {entrevista.causaDiferimiento || "No registrada"}
+                        </p>
+                      </>
+                    )}
+                    <p>
+                      <strong>Entrevistador:</strong>{" "}
+                      {entrevista.entrevistador || "No registrado"}
+                    </p>
+                    <p>
+                      <strong>Fecha:</strong> {formatearFechaHora(entrevista.createdAt)}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p>No hay evaluaciones pre-donación registradas.</p>
+            )}
           </fieldset>
 
           {onNuevaEntrevista && (

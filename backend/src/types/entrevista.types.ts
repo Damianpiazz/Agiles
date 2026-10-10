@@ -61,6 +61,12 @@ const respuestasMujeresSchema = objetoRespuestas(CLAVES_PREGUNTAS_MUJERES);
 
 export const crearEntrevistaSchema = z.object({
   respuestas: z.record(z.string(), z.boolean(), { error: "Obligatorio" }),
+  resultadoAdmision: z.enum(["ADMITIDO", "DIFERIDO"], {
+    error: "Seleccioná el resultado de la evaluación",
+  }),
+  tipoDiferimiento: z.enum(["TEMPORAL", "PERMANENTE"]).optional(),
+  causaDiferimiento: z.string().trim().min(1, "Ingresá la causa del diferimiento").optional(),
+  entrevistador: z.string().trim().min(1, "Ingresá el nombre del personal entrevistador"),
 }).superRefine((data, ctx) => {
   const comunes = respuestasComunesSchema.safeParse(data.respuestas);
   if (!comunes.success) {
@@ -68,6 +74,29 @@ export const crearEntrevistaSchema = z.object({
       code: "custom",
       path: ["respuestas"],
       message: "Completá todas las preguntas del cuestionario",
+    });
+  }
+
+  if (data.resultadoAdmision === "DIFERIDO") {
+    if (!data.tipoDiferimiento) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["tipoDiferimiento"],
+        message: "Indicá si el diferimiento es temporal o permanente",
+      });
+    }
+    if (!data.causaDiferimiento) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["causaDiferimiento"],
+        message: "Ingresá la causa del diferimiento",
+      });
+    }
+  } else if (data.tipoDiferimiento || data.causaDiferimiento) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["resultadoAdmision"],
+      message: "Un donante admitido no puede tener datos de diferimiento",
     });
   }
 });

@@ -18,6 +18,8 @@ type Donante = {
 
 type Respuesta = "SI" | "NO" | "";
 type Banner = { tipo: "ok" | "error"; texto: string } | null;
+type ResultadoAdmision = "" | "ADMITIDO" | "DIFERIDO";
+type TipoDiferimiento = "" | "TEMPORAL" | "PERMANENTE";
 
 type Props = {
   donanteInicial?: Donante | null;
@@ -54,6 +56,10 @@ export default function Entrevista({ donanteInicial = null }: Props) {
       ? respuestasVacias(preguntasParaSexo(donanteInicial.sexoBiologico))
       : {},
   );
+  const [resultadoAdmision, setResultadoAdmision] = useState<ResultadoAdmision>("");
+  const [tipoDiferimiento, setTipoDiferimiento] = useState<TipoDiferimiento>("");
+  const [causaDiferimiento, setCausaDiferimiento] = useState("");
+  const [entrevistador, setEntrevistador] = useState("");
   const [banner, setBanner] = useState<Banner>(null);
   const [buscando, setBuscando] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -111,6 +117,10 @@ export default function Entrevista({ donanteInicial = null }: Props) {
   function cambiarDonante() {
     setDonante(null);
     setRespuestas({});
+    setResultadoAdmision("");
+    setTipoDiferimiento("");
+    setCausaDiferimiento("");
+    setEntrevistador("");
     setBanner(null);
     setErrorCuestionario("");
   }
@@ -129,30 +139,33 @@ export default function Entrevista({ donanteInicial = null }: Props) {
       return;
     }
 
-    const parsed = entrevistaSchema.safeParse({ respuestas });
+    const parsed = entrevistaSchema.safeParse({
+      respuestas: Object.fromEntries(
+        Object.entries(respuestas).map(([clave, valor]) => [clave, valor === "SI"]),
+      ),
+      resultadoAdmision,
+      ...(resultadoAdmision === "DIFERIDO"
+        ? { tipoDiferimiento, causaDiferimiento }
+        : {}),
+      entrevistador,
+    });
 
     if (!parsed.success) {
-      setBanner({ tipo: "error", texto: "Revisá los campos marcados." });
+      setBanner({
+        tipo: "error",
+        texto: parsed.error.issues[0]?.message ?? "Revisá los campos marcados.",
+      });
       return;
     }
 
     setEnviando(true);
     try {
-      const payload = {
-        respuestas: Object.fromEntries(
-          Object.entries(parsed.data.respuestas).map(([clave, valor]) => [
-            clave,
-            valor === "SI",
-          ]),
-        ),
-      };
-
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/donantes/${donante.id}/entrevistas`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(parsed.data),
         },
       );
 
@@ -160,9 +173,16 @@ export default function Entrevista({ donanteInicial = null }: Props) {
 
       if (res.status === 201) {
         setRespuestas(respuestasVacias(preguntas));
+        setResultadoAdmision("");
+        setTipoDiferimiento("");
+        setCausaDiferimiento("");
+        setEntrevistador("");
         setBanner({
           tipo: "ok",
-          texto: `Entrevista registrada. Donación N.º ${data.donacionId}. Podés cargar otra entrevista para este u otro donante.`,
+          texto:
+            parsed.data.resultadoAdmision === "ADMITIDO"
+              ? `Entrevista registrada como admitido. Donación N.º ${data.donacionId}. El donante puede continuar con el proceso.`
+              : "Entrevista registrada como diferido. Se conservó el tipo y la causa del diferimiento.",
         });
         return;
       }
@@ -289,6 +309,66 @@ export default function Entrevista({ donanteInicial = null }: Props) {
               ))}
             </fieldset>
           ))}
+
+          <fieldset>
+            <legend>Resultado de la evaluación</legend>
+            <div className="entrevista-field">
+              <label htmlFor="resultadoAdmision">Resultado</label>
+              <select
+                id="resultadoAdmision"
+                value={resultadoAdmision}
+                onChange={(e) => {
+                  const value = e.target.value as ResultadoAdmision;
+                  setResultadoAdmision(value);
+                  if (value !== "DIFERIDO") {
+                    setTipoDiferimiento("");
+                    setCausaDiferimiento("");
+                  }
+                }}
+              >
+                <option value="">Seleccioná el resultado</option>
+                <option value="ADMITIDO">Admitido: puede continuar</option>
+                <option value="DIFERIDO">Diferido</option>
+              </select>
+            </div>
+
+            {resultadoAdmision === "DIFERIDO" && (
+              <>
+                <div className="entrevista-field">
+                  <label htmlFor="tipoDiferimiento">Tipo de diferimiento</label>
+                  <select
+                    id="tipoDiferimiento"
+                    value={tipoDiferimiento}
+                    onChange={(e) =>
+                      setTipoDiferimiento(e.target.value as TipoDiferimiento)
+                    }
+                  >
+                    <option value="">Seleccioná el tipo</option>
+                    <option value="TEMPORAL">Temporal</option>
+                    <option value="PERMANENTE">Permanente</option>
+                  </select>
+                </div>
+                <div className="entrevista-field">
+                  <label htmlFor="causaDiferimiento">Causa del diferimiento</label>
+                  <textarea
+                    id="causaDiferimiento"
+                    value={causaDiferimiento}
+                    onChange={(e) => setCausaDiferimiento(e.target.value)}
+                  />
+                </div>
+              </>
+            )}
+
+            <div className="entrevista-field">
+              <label htmlFor="entrevistador">Personal que realizó la entrevista</label>
+              <input
+                id="entrevistador"
+                autoComplete="name"
+                value={entrevistador}
+                onChange={(e) => setEntrevistador(e.target.value)}
+              />
+            </div>
+          </fieldset>
 
           {errorCuestionario && (
             <p className="entrevista-error">{errorCuestionario}</p>

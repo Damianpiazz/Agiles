@@ -158,6 +158,22 @@
   margin: 0;
 }
 
+.consulta-evaluaciones {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.consulta-evaluacion {
+  padding: 0.85rem;
+  background: #f7f5f3;
+  border: 1px solid var(--linea);
+  border-radius: 4px;
+}
+
+.consulta-evaluacion p {
+  margin: 0.25rem 0;
+}
+
 @media (min-width: 640px) {
   .consulta-datos {
     grid-template-columns: 1fr 1fr;
