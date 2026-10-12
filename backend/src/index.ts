@@ -5,6 +5,7 @@ import donacionRoutes from "./routes/donacion.routes";
 import pciRoutes from "./routes/pci.routes";
 import serologiaRoutes from "./routes/serologia.routes";
 import catalogoRoutes from "./routes/catalogo.routes";
+import calificacionBiologicaRoutes from "./routes/calificacionBiologica.routes";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -21,5 +22,6 @@ app.use("/api/donaciones", donacionRoutes);
 app.use("/api/pci", pciRoutes);
 app.use("/api/serologias", serologiaRoutes);
 app.use("/api/catalogos", catalogoRoutes);
+app.use("/api/calificaciones-biologicas", calificacionBiologicaRoutes);
 
 app.listen(PORT, () => console.log(`API en http://localhost:${PORT}`));

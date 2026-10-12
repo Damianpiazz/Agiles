@@ -34,6 +34,10 @@ enum TipoDiferimiento {
   PERMANENTE
 }
 
+enum EstadoCalificacionBiologica {
+  INICIADA
+}
+
 model Donante {
   id              Int                     @id @default(autoincrement())
   nombre          String
@@ -56,24 +60,25 @@ model Donante {
 }
 
 model Donacion {
-  id                  Int                    @id @default(autoincrement())
-  donanteId           Int
-  donante             Donante                @relation(fields: [donanteId], references: [id])
-  fechaHora           DateTime               @default(now())
-  operador            String
-  estado              EstadoDonacion         @default(REGISTRADA)
-  peso                String?
-  tensionArterial     String?
-  hemoglobina         String?
-  voluntario          Boolean                @default(false)
-  reposicion          Boolean                @default(false)
-  autoExcluido        Boolean                @default(false)
-  observaciones       String?
-  createdAt           DateTime               @default(now())
-  updatedAt           DateTime               @updatedAt
-  pciDonaciones       PciDonacion[]
-  serologiaDonaciones SerologiaDonacion[]
-  entrevista          EntrevistaPreDonacion?
+  id                    Int                    @id @default(autoincrement())
+  donanteId             Int
+  donante               Donante                @relation(fields: [donanteId], references: [id])
+  fechaHora             DateTime               @default(now())
+  operador              String
+  estado                EstadoDonacion         @default(REGISTRADA)
+  peso                  String?
+  tensionArterial       String?
+  hemoglobina           String?
+  voluntario            Boolean                @default(false)
+  reposicion            Boolean                @default(false)
+  autoExcluido          Boolean                @default(false)
+  observaciones         String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  pciDonaciones         PciDonacion[]
+  serologiaDonaciones   SerologiaDonacion[]
+  entrevista            EntrevistaPreDonacion?
+  calificacionBiologica CalificacionBiologica?
 
   @@map("donaciones")
 }
@@ -188,4 +193,17 @@ model EntrevistaPreDonacion {
   updatedAt         DateTime          @updatedAt
 
   @@map("entrevistas_pre_donacion")
+}
+
+model CalificacionBiologica {
+  id          Int                         @id @default(autoincrement())
+  donacionId  Int                         @unique
+  donacion    Donacion                    @relation(fields: [donacionId], references: [id])
+  estado      EstadoCalificacionBiologica @default(INICIADA)
+  operador    String
+  fechaInicio DateTime                    @default(now())
+  createdAt   DateTime                    @default(now())
+  updatedAt   DateTime                    @updatedAt
+
+  @@map("calificaciones_biologicas")
 }
