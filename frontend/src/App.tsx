@@ -1,13 +1,22 @@
+
 import { useState } from "react";
 import AltaDonante from "./pages/AltaDonante";
 import BuscarDonante from "./pages/BuscarDonante";
 import RegistrarDonacion from "./pages/RegistrarDonacion";
 import CargarEstudios from "./pages/CargarEstudios";
 import Entrevista from "./pages/Entrevista";
+import CalificacionBiologica from "./pages/CalificacionBiologica";
 import type { Donante } from "./types/donante";
 import "./App.css";
 
-type Vista = "alta" | "buscar" | "donacion" | "estudios" | "entrevista";
+type Vista =
+  | "alta"
+  | "buscar"
+  | "donacion"
+  | "estudios"
+  | "entrevista"
+  | "calificacion";
+
 type DonanteEntrevista = Pick<
   Donante,
   "id" | "nombre" | "apellido" | "dni" | "sexoBiologico"
@@ -77,6 +86,14 @@ export default function App() {
         >
           Registrar donación
         </button>
+
+        <button
+          type="button"
+          className={vista === "calificacion" ? "activo" : ""}
+          onClick={() => setVista("calificacion")}
+        >
+          Calificación biológica
+        </button>
       </nav>
 
       {vista === "buscar" && (
@@ -85,25 +102,31 @@ export default function App() {
           onNuevaEntrevista={irAEntrevista}
         />
       )}
+
       {vista === "alta" && <AltaDonante />}
+
       {vista === "donacion" && (
         <RegistrarDonacion
           donanteInicial={donanteParaDonacion}
           onCargarEstudios={irACargarEstudios}
         />
       )}
+
       {vista === "estudios" && donacionParaEstudios !== null && (
         <CargarEstudios
           donacionId={donacionParaEstudios}
           onVolver={() => setVista("donacion")}
         />
       )}
+
       {vista === "entrevista" && (
         <Entrevista
           key={donanteEntrevista?.id ?? "sin-donante"}
           donanteInicial={donanteEntrevista}
         />
       )}
+
+      {vista === "calificacion" && <CalificacionBiologica />}
     </>
   );
 }
