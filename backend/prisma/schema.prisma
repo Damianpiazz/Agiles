@@ -1,7 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
   provider = "prisma-client"
@@ -38,12 +34,24 @@ enum EstadoCalificacionBiologica {
   INICIADA
 }
 
+enum GrupoSanguineoABO {
+  A
+  B
+  AB
+  O
+}
+
+enum FactorRhD {
+  POSITIVO
+  NEGATIVO
+}
+
 model Donante {
-  id              Int                     @id @default(autoincrement())
+  id              Int      @id @default(autoincrement())
   nombre          String
   apellido        String
-  dni             String                  @unique
-  fechaNacimiento DateTime                @db.Date
+  dni             String   @unique
+  fechaNacimiento DateTime @db.Date
   lugarNacimiento String
   sexoBiologico   SexoBiologico
   domicilio       String
@@ -51,34 +59,37 @@ model Donante {
   email           String
   telefonoFijo    String?
   telefonoCelular String
-  createdAt       DateTime                @default(now())
-  updatedAt       DateTime                @updatedAt
-  donaciones      Donacion[]
-  entrevistas     EntrevistaPreDonacion[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  donaciones Donacion[]
+  entrevistas EntrevistaPreDonacion[]
 
   @@map("donantes")
 }
 
 model Donacion {
-  id                    Int                    @id @default(autoincrement())
-  donanteId             Int
-  donante               Donante                @relation(fields: [donanteId], references: [id])
-  fechaHora             DateTime               @default(now())
-  operador              String
-  estado                EstadoDonacion         @default(REGISTRADA)
-  peso                  String?
-  tensionArterial       String?
-  hemoglobina           String?
-  voluntario            Boolean                @default(false)
-  reposicion            Boolean                @default(false)
-  autoExcluido          Boolean                @default(false)
-  observaciones         String?
-  createdAt             DateTime               @default(now())
-  updatedAt             DateTime               @updatedAt
+  id              Int           @id @default(autoincrement())
+  donanteId       Int
+  donante         Donante       @relation(fields: [donanteId], references: [id])
+  fechaHora       DateTime      @default(now())
+  operador        String
+  estado          EstadoDonacion @default(REGISTRADA)
+  peso            String?
+  tensionArterial String?
+  hemoglobina     String?
+  voluntario      Boolean       @default(false)
+  reposicion      Boolean       @default(false)
+  autoExcluido    Boolean       @default(false)
+  observaciones   String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
   pciDonaciones         PciDonacion[]
   serologiaDonaciones   SerologiaDonacion[]
   entrevista            EntrevistaPreDonacion?
   calificacionBiologica CalificacionBiologica?
+  tipificacionesSanguineas TipificacionSanguinea[]
 
   @@map("donaciones")
 }
@@ -106,8 +117,9 @@ model Pci {
   observaciones String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
-  resultados    PciResultado[]
-  donaciones    PciDonacion[]
+
+  resultados PciResultado[]
+  donaciones PciDonacion[]
 
   @@map("pci")
 }
@@ -139,14 +151,15 @@ model PciDonacion {
 }
 
 model Serologia {
-  id            Int                  @id @default(autoincrement())
-  fecha         DateTime             @db.Date
-  hora          DateTime             @db.Time
+  id            Int      @id @default(autoincrement())
+  fecha         DateTime @db.Date
+  hora          DateTime @db.Time
   observaciones String?
-  createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @updatedAt
-  resultados    SerologiaResultado[]
-  donaciones    SerologiaDonacion[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  resultados SerologiaResultado[]
+  donaciones SerologiaDonacion[]
 
   @@map("serologias")
 }
@@ -206,4 +219,19 @@ model CalificacionBiologica {
   updatedAt   DateTime                    @updatedAt
 
   @@map("calificaciones_biologicas")
+}
+
+model TipificacionSanguinea {
+  id         Int              @id @default(autoincrement())
+  donacionId Int
+  donacion   Donacion         @relation(fields: [donacionId], references: [id])
+  grupoABO   GrupoSanguineoABO
+  factorRhD  FactorRhD
+  operador   String
+  fechaHora  DateTime         @default(now())
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@index([donacionId, fechaHora])
+  @@map("tipificaciones_sanguineas")
 }
