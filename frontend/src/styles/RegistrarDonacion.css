@@ -1,133 +1,180 @@
+
 .donacion {
-  --tinta: #1f2430;
-  --papel: #f7f5f3;
+  --tinta: #292631;
+  --papel: #f6f7f9;
   --superficie: #ffffff;
-  --linea: #cfcac4;
+  --linea: #e3e5e9;
   --acento: #9b1c31;
   --error: #a4262c;
   --ok: #1b6b3a;
 
   box-sizing: border-box;
   width: 100%;
-  max-width: 760px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 2rem 1.25rem 3rem;
+  padding: 2rem clamp(1rem, 3vw, 2.5rem) 3rem;
   background: var(--papel);
   color: var(--tinta);
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   text-align: left;
+  border-radius: 12px;
 }
 
-.donacion * {
+.donacion *,
+.donacion *::before,
+.donacion *::after {
   box-sizing: border-box;
 }
 
+.donacion-header {
+  margin-bottom: 1.75rem;
+}
+
 .donacion-header h1 {
-  margin: 0 0 0.25rem;
-  font-size: 1.75rem;
-  font-weight: 650;
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.65rem, 3vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  color: var(--tinta);
 }
 
 .donacion-header p {
   margin: 0 0 1.5rem;
-  color: #55596a;
+  color: #706d78;
 }
 
 .donacion fieldset {
+  min-width: 0;
   margin: 0 0 1.5rem;
-  padding: 1rem 1.25rem 1.25rem;
+  padding: 1.5rem;
   background: var(--superficie);
   border: 1px solid var(--linea);
-  border-radius: 6px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgb(31 36 48 / 4%);
 }
 
 .donacion legend {
-  padding: 0 0.5rem;
+  padding: 0 0.6rem;
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--tinta);
 }
 
 .donacion-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem 1.5rem;
 }
 
 .donacion-field {
   display: flex;
+  min-width: 0;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.4rem;
 }
 
 .donacion-field label {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--tinta);
 }
 
 .donacion-optional {
   font-weight: 400;
-  color: #55596a;
+  color: #706d78;
 }
 
-.donacion input {
+.donacion input:not([type="checkbox"]) {
   width: 100%;
-  padding: 0.55rem 0.7rem;
+  min-height: 44px;
+  padding: 0.65rem 0.8rem;
   font: inherit;
+  font-size: 0.95rem;
   color: var(--tinta);
   background: var(--superficie);
-  border: 1px solid var(--linea);
-  border-radius: 4px;
+  border: 1px solid #d8dbe2;
+  border-radius: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.donacion input::placeholder {
+  color: #96939d;
+}
+
+.donacion input:not([type="checkbox"]):focus {
+  outline: none;
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px rgb(155 28 49 / 12%);
+}
+
+.donacion input:focus-visible,
+.donacion button:focus-visible {
+  outline: 3px solid rgb(155 28 49 / 35%);
+  outline-offset: 2px;
 }
 
 .donacion input[aria-invalid="true"] {
   border-color: var(--error);
+  border-width: 2px;
 }
 
 .donacion-separador {
+  padding: 0.25rem 0;
   text-align: center;
-  color: #55596a;
+  color: #706d78;
+  font-size: 0.9rem;
 }
 
 .donacion-banderas {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem 1.5rem;
-  margin-top: 1rem;
+  gap: 0.85rem 1.5rem;
+  margin-top: 1.25rem;
 }
 
 .donacion-bandera {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   font-size: 0.95rem;
   font-weight: 600;
+  cursor: pointer;
 }
 
-.donacion-bandera input[type="checkbox"] {
-  width: auto;
+.donacion .donacion-bandera input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
   margin: 0;
+  accent-color: var(--acento);
+  cursor: pointer;
 }
 
 .donacion-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
-  margin-top: 1rem;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 }
 
 .donacion button {
-  padding: 0.65rem 1.2rem;
+  min-height: 44px;
+  padding: 0.7rem 1.5rem;
   font: inherit;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 650;
   color: #ffffff;
   background: var(--acento);
-  border: 0;
-  border-radius: 4px;
+  border: 1px solid var(--acento);
+  border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
 }
 
 .donacion button:hover:not(:disabled) {
-  background: #7d1526;
+  background: #7d1628;
+  border-color: #7d1628;
 }
 
 .donacion button:disabled {
@@ -142,16 +189,16 @@
 }
 
 .donacion button.donacion-secundario:hover:not(:disabled) {
-  background: rgba(155, 28, 49, 0.08);
+  background: #f9e9ed;
 }
 
 .donacion-banner {
   margin-bottom: 1.25rem;
-  padding: 0.75rem 1rem;
+  padding: 1rem 1.1rem;
   background: var(--superficie);
   border: 1px solid var(--linea);
   border-left: 5px solid var(--error);
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 .donacion-banner-ok {
@@ -168,18 +215,49 @@
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  padding: 1rem;
-  background: var(--papel);
+  padding: 1.1rem;
+  background: var(--superficie);
   border: 1px solid var(--linea);
-  border-radius: 6px;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgb(31 36 48 / 4%);
 }
 
 .donacion-resultado {
-  margin-top: 0.75rem;
+  margin-top: 0.85rem;
 }
 
 .donacion-donante p,
 .donacion-resultado p {
   margin-top: 0.25rem;
-  color: #55596a;
+  color: #706d78;
+}
+
+@media (min-width: 640px) {
+  .donacion-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .donacion {
+    padding: 1.25rem 0.85rem 2rem;
+  }
+
+  .donacion fieldset {
+    padding: 1rem;
+  }
+
+  .donacion-donante,
+  .donacion-resultado {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .donacion-actions {
+    flex-direction: column;
+  }
+
+  .donacion-actions button {
+    width: 100%;
+  }
 }
