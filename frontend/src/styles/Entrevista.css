@@ -1,22 +1,24 @@
+
 .entrevista {
-  --tinta: #1f2430;
-  --papel: #f7f5f3;
+  --tinta: #292631;
+  --papel: #f6f7f9;
   --superficie: #ffffff;
-  --linea: #cfcac4;
+  --linea: #e3e5e9;
   --acento: #9b1c31;
   --error: #a4262c;
   --ok: #1d6b4f;
 
   box-sizing: border-box;
   width: 100%;
-  max-width: 760px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 2rem 1.25rem 3rem;
+  padding: 2rem clamp(1rem, 3vw, 2.5rem) 3rem;
   background: var(--papel);
   color: var(--tinta);
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   text-align: left;
+  border-radius: 12px;
 }
 
 .entrevista *,
@@ -25,37 +27,45 @@
   box-sizing: border-box;
 }
 
+.entrevista-header {
+  margin-bottom: 1.75rem;
+}
+
 .entrevista-header h1 {
-  margin: 0 0 0.25rem;
-  font-size: 1.75rem;
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.65rem, 3vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  color: var(--tinta);
 }
 
 .entrevista-header p {
   margin: 0 0 1.5rem;
-  color: #55596a;
+  color: #706d78;
 }
 
 .entrevista fieldset {
+  min-width: 0;
   margin: 0 0 1.5rem;
-  padding: 1rem 1.25rem 1.25rem;
+  padding: 1.5rem;
   background: var(--superficie);
   border: 1px solid var(--linea);
-  border-radius: 6px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgb(31 36 48 / 4%);
 }
 
 .entrevista legend {
-  padding: 0 0.5rem;
+  padding: 0 0.6rem;
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--tinta);
 }
 
 .entrevista-field {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
-  margin-bottom: 1rem;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
 }
 
 .entrevista-field:last-child {
@@ -64,49 +74,67 @@
 
 .entrevista-field label,
 .entrevista-pregunta p {
-  font-size: 0.95rem;
-  font-weight: 600;
   margin: 0;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--tinta);
 }
 
-.entrevista input,
+.entrevista input:not([type="radio"]):not([type="checkbox"]),
 .entrevista select,
 .entrevista textarea {
   width: 100%;
-  padding: 0.55rem 0.7rem;
+  min-height: 44px;
+  padding: 0.65rem 0.8rem;
   font: inherit;
+  font-size: 0.95rem;
   color: var(--tinta);
   background: var(--superficie);
-  border: 1px solid var(--linea);
-  border-radius: 4px;
+  border: 1px solid #d8dbe2;
+  border-radius: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .entrevista textarea {
-  min-height: 5rem;
+  min-height: 110px;
   resize: vertical;
+}
+
+.entrevista input:not([type="radio"]):not([type="checkbox"]):focus,
+.entrevista select:focus,
+.entrevista textarea:focus {
+  outline: none;
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px rgb(155 28 49 / 12%);
 }
 
 .entrevista input:focus-visible,
 .entrevista select:focus-visible,
 .entrevista textarea:focus-visible,
 .entrevista button:focus-visible {
-  outline: 3px solid var(--acento);
+  outline: 3px solid rgb(155 28 49 / 35%);
   outline-offset: 2px;
+}
+
+.entrevista input[aria-invalid="true"],
+.entrevista select[aria-invalid="true"],
+.entrevista textarea[aria-invalid="true"] {
+  border-color: var(--error);
 }
 
 .entrevista-error {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   color: var(--error);
 }
 
 .entrevista-banner {
   margin-bottom: 1.25rem;
-  padding: 0.75rem 1rem;
+  padding: 1rem 1.1rem;
   background: var(--superficie);
   border: 1px solid var(--linea);
   border-left-width: 5px;
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 .entrevista-banner-ok {
@@ -119,79 +147,97 @@
 
 .entrevista-confidencial {
   margin-bottom: 1.25rem;
-  padding: 0.75rem 1rem;
-  background: #f3ecea;
-  border: 1px solid var(--linea);
+  padding: 1rem 1.1rem;
+  background: #f9e9ed;
+  border: 1px solid #efd1d8;
   border-left: 5px solid var(--acento);
-  border-radius: 4px;
-  color: #55596a;
+  border-radius: 8px;
+  color: #5e3540;
 }
 
 .entrevista-donante {
   display: grid;
-  gap: 0.35rem;
-  margin-bottom: 1.25rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.1rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 10px;
 }
 
 .entrevista-pregunta {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.85rem 0;
+  gap: 0.75rem;
+  padding: 1rem 0;
   border-bottom: 1px solid var(--linea);
 }
 
 .entrevista-pregunta:last-child {
-  border-bottom: 0;
   padding-bottom: 0;
+  border-bottom: 0;
 }
 
 .entrevista-opciones {
   display: flex;
-  gap: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
 }
 
 .entrevista-opciones label {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
+  font-size: 0.95rem;
   font-weight: 400;
+  cursor: pointer;
 }
 
 .entrevista-opciones input {
-  width: auto;
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: var(--acento);
+  cursor: pointer;
 }
 
 .entrevista-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.75rem;
-  margin-top: 0.5rem;
+  margin-top: 1.5rem;
 }
 
 .entrevista button {
-  padding: 0.65rem 1.5rem;
+  min-height: 44px;
+  padding: 0.7rem 1.5rem;
   font: inherit;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 650;
   color: #ffffff;
   background: var(--acento);
-  border: 0;
-  border-radius: 4px;
+  border: 1px solid var(--acento);
+  border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.entrevista button:hover:not(:disabled) {
+  background: #7d1628;
+  border-color: #7d1628;
 }
 
 .entrevista button[type="button"] {
   color: var(--tinta);
   background: #ffffff;
-  border: 1px solid var(--linea);
-}
-
-.entrevista button:hover:not(:disabled) {
-  background: #7d1526;
+  border-color: var(--linea);
 }
 
 .entrevista button[type="button"]:hover:not(:disabled) {
-  background: #ffffff;
+  color: var(--acento);
+  background: #fff8f9;
   border-color: var(--acento);
 }
 
@@ -200,13 +246,40 @@
   cursor: progress;
 }
 
-.entrevista-secundario {
+.entrevista .entrevista-secundario {
+  min-height: auto;
   margin-top: 0.75rem;
   padding: 0;
   font: inherit;
-  font-weight: 600;
+  font-weight: 650;
   color: var(--acento);
   background: transparent;
   border: 0;
+  border-radius: 0;
   cursor: pointer;
+}
+
+.entrevista .entrevista-secundario:hover:not(:disabled) {
+  color: #7d1628;
+  background: transparent;
+  border-color: transparent;
+  text-decoration: underline;
+}
+
+@media (max-width: 639px) {
+  .entrevista {
+    padding: 1.25rem 0.85rem 2rem;
+  }
+
+  .entrevista fieldset {
+    padding: 1rem;
+  }
+
+  .entrevista-actions {
+    flex-direction: column-reverse;
+  }
+
+  .entrevista-actions button {
+    width: 100%;
+  }
 }

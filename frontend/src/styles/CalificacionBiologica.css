@@ -1,68 +1,170 @@
+
 .calificacion-container {
-max-width: 680px;
-margin: 24px auto;
-padding: 20px;
-box-sizing: border-box;
+  --tinta: #292631;
+  --papel: #f6f7f9;
+  --superficie: #ffffff;
+  --linea: #e3e5e9;
+  --acento: #9b1c31;
+  --error: #a4262c;
+  --ok: #1d6b4f;
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 2rem clamp(1rem, 3vw, 2.5rem) 3rem;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  text-align: left;
+  border-radius: 12px;
+}
+
+.calificacion-container *,
+.calificacion-container *::before,
+.calificacion-container *::after {
+  box-sizing: border-box;
 }
 
 .calificacion-container h1 {
-font-size: 1.6rem;
-line-height: 1.3;
-margin: 0 0 12px;
-overflow-wrap: break-word;
+  margin: 0 0 0.75rem;
+  color: var(--tinta);
+  font-size: clamp(1.65rem, 3vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.035em;
+  overflow-wrap: break-word;
 }
 
 .calificacion-container p {
-line-height: 1.5;
-margin-bottom: 16px;
+  margin: 0 0 1rem;
+  color: #706d78;
+  line-height: 1.6;
 }
 
 .calificacion-form {
-display: flex;
-flex-direction: column;
-gap: 10px;
-margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+  padding: 1.5rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgb(31 36 48 / 4%);
 }
 
 .calificacion-form label {
-display: block;
-font-weight: 600;
-margin-top: 4px;
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--tinta);
+  font-size: 0.9rem;
+  font-weight: 650;
 }
 
 .calificacion-form input {
-display: block;
-width: 100%;
-box-sizing: border-box;
-padding: 11px;
-border: 1px solid #ccc;
-border-radius: 6px;
-font: inherit;
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.7rem 0.8rem;
+  color: var(--tinta);
+  background: var(--superficie);
+  border: 1px solid #d8dbe2;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.calificacion-form input::placeholder {
+  color: #96939d;
+}
+
+.calificacion-form input:focus {
+  outline: none;
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px rgb(155 28 49 / 12%);
+}
+
+.calificacion-form input[aria-invalid="true"] {
+  border-color: var(--error);
 }
 
 .calificacion-form button {
-align-self: flex-start;
-margin-top: 12px;
-padding: 10px 18px;
-border: none;
-border-radius: 6px;
-cursor: pointer;
-font: inherit;
+  align-self: flex-start;
+  min-height: 44px;
+  margin-top: 1rem;
+  padding: 0.7rem 1.5rem;
+  color: #ffffff;
+  background: var(--acento);
+  border: 1px solid var(--acento);
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 650;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.calificacion-form button:hover:not(:disabled) {
+  background: #7d1628;
+  border-color: #7d1628;
+}
+
+.calificacion-form button:focus-visible {
+  outline: 3px solid rgb(155 28 49 / 35%);
+  outline-offset: 2px;
+}
+
+.calificacion-form button:disabled {
+  opacity: 0.65;
+  cursor: progress;
 }
 
 .calificacion-error {
-margin-top: 20px;
-color: #b42318;
+  margin-top: 1.25rem;
+  padding: 1rem;
+  color: var(--error);
+  background: #fff4f3;
+  border: 1px solid #f0c9c6;
+  border-left: 5px solid var(--error);
+  border-radius: 8px;
 }
 
 .calificacion-resultado {
-margin-top: 24px;
-padding: 18px;
-border: 1px solid #ccc;
-border-radius: 8px;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgb(31 36 48 / 4%);
 }
 
 .calificacion-resultado h2 {
-font-size: 1.2rem;
-line-height: 1.4;
+  margin: 0 0 1rem;
+  color: var(--tinta);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.calificacion-resultado p {
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 639px) {
+  .calificacion-container {
+    padding: 1.25rem 0.85rem 2rem;
+  }
+
+  .calificacion-form,
+  .calificacion-resultado {
+    padding: 1rem;
+  }
+
+  .calificacion-form button {
+    width: 100%;
+    align-self: stretch;
+  }
 }

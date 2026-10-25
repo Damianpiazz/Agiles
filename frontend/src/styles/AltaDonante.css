@@ -1,22 +1,24 @@
+
 .alta {
-  --tinta: #1f2430;
-  --papel: #f7f5f3;
+  --tinta: #292631;
+  --papel: #f6f7f9;
   --superficie: #ffffff;
-  --linea: #cfcac4;
+  --linea: #e3e5e9;
   --acento: #9b1c31;
   --error: #a4262c;
   --ok: #1d6b4f;
 
   box-sizing: border-box;
   width: 100%;
-  max-width: 760px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 2rem 1.25rem 3rem;
+  padding: 2rem clamp(1rem, 3vw, 2.5rem) 3rem;
   background: var(--papel);
   color: var(--tinta);
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   text-align: left;
+  border-radius: 12px;
 }
 
 .alta *,
@@ -25,75 +27,99 @@
   box-sizing: border-box;
 }
 
+.alta-header {
+  margin-bottom: 1.75rem;
+}
+
 .alta-header h1 {
-  margin: 0 0 0.25rem;
-  font-size: 1.75rem;
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.65rem, 3vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  color: var(--tinta);
 }
 
 .alta-header p {
-  margin: 0 0 1.5rem;
-  color: #55596a;
+  margin: 0;
+  color: #706d78;
+  font-size: 1rem;
 }
 
 .alta fieldset {
+  min-width: 0;
   margin: 0 0 1.5rem;
-  padding: 1rem 1.25rem 1.25rem;
+  padding: 1.5rem;
   background: var(--superficie);
   border: 1px solid var(--linea);
-  border-radius: 6px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgb(31 36 48 / 4%);
 }
 
 .alta legend {
-  padding: 0 0.5rem;
+  padding: 0 0.6rem;
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--tinta);
 }
 
 .alta-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem 1.25rem;
-}
-
-@media (min-width: 640px) {
-  .alta-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem 1.5rem;
 }
 
 .alta-field {
   display: flex;
+  min-width: 0;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.4rem;
 }
 
 .alta-field label {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--tinta);
 }
 
 .alta-optional {
   font-weight: 400;
-  color: #55596a;
+  color: #706d78;
 }
 
 .alta input,
 .alta select {
   width: 100%;
-  padding: 0.55rem 0.7rem;
+  min-height: 44px;
+  padding: 0.65rem 0.8rem;
   font: inherit;
+  font-size: 0.95rem;
   color: var(--tinta);
-  background: var(--superficie);
-  border: 1px solid var(--linea);
-  border-radius: 4px;
+  background: #fff;
+  border: 1px solid #d8dbe2;
+  border-radius: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.alta input::placeholder {
+  color: #96939d;
+}
+
+.alta input:hover,
+.alta select:hover {
+  border-color: #b9bac4;
+}
+
+.alta input:focus,
+.alta select:focus {
+  outline: none;
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px rgb(155 28 49 / 12%);
 }
 
 .alta input:focus-visible,
 .alta select:focus-visible,
 .alta button:focus-visible {
-  outline: 3px solid var(--acento);
+  outline: 3px solid rgb(155 28 49 / 35%);
   outline-offset: 2px;
 }
 
@@ -105,17 +131,17 @@
 
 .alta-error {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   color: var(--error);
 }
 
 .alta-banner {
-  margin-bottom: 1.25rem;
-  padding: 0.75rem 1rem;
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.1rem;
   background: var(--superficie);
   border: 1px solid var(--linea);
   border-left-width: 5px;
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 .alta-banner-ok {
@@ -129,24 +155,58 @@
 .alta-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 }
 
 .alta button {
-  padding: 0.65rem 1.5rem;
+  min-height: 44px;
+  padding: 0.7rem 1.5rem;
   font: inherit;
-  font-weight: 600;
-  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: #fff;
   background: var(--acento);
-  border: 0;
-  border-radius: 4px;
+  border: 1px solid var(--acento);
+  border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 .alta button:hover:not(:disabled) {
-  background: #7d1526;
+  background: #7d1628;
+  border-color: #7d1628;
+}
+
+.alta button:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .alta button:disabled {
   opacity: 0.65;
   cursor: progress;
+}
+
+@media (min-width: 640px) {
+  .alta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .alta {
+    padding: 1.25rem 0.85rem 2rem;
+  }
+
+  .alta fieldset {
+    padding: 1rem;
+  }
+
+  .alta-actions {
+    justify-content: stretch;
+  }
+
+  .alta-actions button {
+    width: 100%;
+  }
 }
