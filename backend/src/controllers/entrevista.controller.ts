@@ -32,3 +32,18 @@ export async function create(req: Request, res: Response) {
     return res.status(500).json({ error: "Error interno" });
   }
 }
+
+export async function getPending(req: Request, res: Response) {
+  const idParsed = idDonanteSchema.safeParse(req.params.id);
+  if (!idParsed.success) {
+    return res.status(400).json({ error: "ID de donante inválido" });
+  }
+
+  try {
+    const pendiente = await entrevistaService.buscarPendiente(idParsed.data);
+    return res.status(200).json({ pendiente });
+  } catch (error) {
+    console.error("Error al consultar la entrevista pendiente:", error);
+    return res.status(500).json({ error: "Error interno" });
+  }
+}

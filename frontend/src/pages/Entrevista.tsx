@@ -23,6 +23,7 @@ type TipoDiferimiento = "" | "TEMPORAL" | "PERMANENTE";
 
 type Props = {
   donanteInicial?: Donante | null;
+  onEntrevistaAdmitida?: (donante: Donante) => void;
 };
 
 function agruparPorSeccion(preguntas: PreguntaCuestionario[]) {
@@ -48,7 +49,10 @@ function respuestasVacias(preguntas: PreguntaCuestionario[]) {
   >;
 }
 
-export default function Entrevista({ donanteInicial = null }: Props) {
+export default function Entrevista({
+  donanteInicial = null,
+  onEntrevistaAdmitida,
+}: Props) {
   const [dni, setDni] = useState(donanteInicial?.dni ?? "");
   const [donante, setDonante] = useState<Donante | null>(donanteInicial);
   const [respuestas, setRespuestas] = useState<Record<string, Respuesta>>(() =>
@@ -181,9 +185,12 @@ export default function Entrevista({ donanteInicial = null }: Props) {
           tipo: "ok",
           texto:
             parsed.data.resultadoAdmision === "ADMITIDO"
-              ? `Entrevista registrada como admitido. Donación N.º ${data.donacionId}. El donante puede continuar con el proceso.`
+              ? "Entrevista admitida. Podés continuar con el registro de la donación."
               : "Entrevista registrada como diferido. Se conservó el tipo y la causa del diferimiento.",
         });
+        if (parsed.data.resultadoAdmision === "ADMITIDO") {
+          onEntrevistaAdmitida?.(donante);
+        }
         return;
       }
 

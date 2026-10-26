@@ -6,5 +6,6 @@ const router = Router();
 router.post("/", donanteController.create);
 router.get("/", donanteController.search);
 router.post("/:id/entrevistas", entrevistaController.create);
+router.get("/:id/entrevista-pendiente", entrevistaController.getPending);
 router.get("/:id", donanteController.getById);
 export default router;

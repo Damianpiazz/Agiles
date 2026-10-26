@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   create,
   buscarPorId,
+  EntrevistaPendienteNoEncontradaError,
   DonanteNoEncontradoError,
   type DonacionDb,
 } from "./donacion.service";
@@ -12,16 +13,39 @@ function fakeDb(): DonacionDb & {
     create: ReturnType<typeof vi.fn>;
     findUnique: ReturnType<typeof vi.fn>;
   };
+  entrevistaPreDonacion: {
+    findFirst: ReturnType<typeof vi.fn>;
+    updateMany: ReturnType<typeof vi.fn>;
+  };
+  $transaction: ReturnType<typeof vi.fn>;
 } {
-  return {
+  const tx = {
     donante: { findUnique: vi.fn() },
     donacion: { create: vi.fn(), findUnique: vi.fn() },
+    entrevistaPreDonacion: {
+      findFirst: vi.fn().mockResolvedValue({
+        id: 20,
+        donacionId: null,
+        resultadoAdmision: "ADMITIDO",
+      }),
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
+    },
+  };
+
+  return {
+    ...tx,
+    $transaction: vi.fn((callback) => callback(tx)),
   } as unknown as DonacionDb & {
     donante: { findUnique: ReturnType<typeof vi.fn> };
     donacion: {
       create: ReturnType<typeof vi.fn>;
       findUnique: ReturnType<typeof vi.fn>;
     };
+    entrevistaPreDonacion: {
+      findFirst: ReturnType<typeof vi.fn>;
+      updateMany: ReturnType<typeof vi.fn>;
+    };
+    $transaction: ReturnType<typeof vi.fn>;
   };
 }
 
@@ -37,6 +61,11 @@ describe("donacion.service create", () => {
     );
 
     expect(db.donante.findUnique).toHaveBeenCalledWith({ where: { id: 1 } });
+    expect(db.entrevistaPreDonacion.findFirst).toHaveBeenCalledWith({
+      where: { donanteId: 1 },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, donacionId: true, resultadoAdmision: true },
+    });
     expect(db.donacion.create).toHaveBeenCalledWith({
       data: {
         donanteId: 1,
@@ -50,7 +79,16 @@ describe("donacion.service create", () => {
         observaciones: null,
       },
     });
-    expect(resultado).toEqual({ id: 10, donanteId: 1, estado: "REGISTRADA" });
+    expect(db.entrevistaPreDonacion.updateMany).toHaveBeenCalledWith({
+      where: { id: 20, donacionId: null },
+      data: { donacionId: 10 },
+    });
+    expect(resultado).toEqual({
+      id: 10,
+      donanteId: 1,
+      estado: "REGISTRADA",
+      entrevistaId: 20,
+    });
   });
 
   it("guarda null cuando las observaciones vienen vacías", async () => {
@@ -158,6 +196,18 @@ describe("donacion.service create", () => {
         db,
       ),
     ).rejects.toBeInstanceOf(DonanteNoEncontradoError);
+
+    expect(db.donacion.create).not.toHaveBeenCalled();
+  });
+
+  it("no crea la donación si no hay entrevista admitida pendiente", async () => {
+    const db = fakeDb();
+    db.donante.findUnique.mockResolvedValue({ id: 1 });
+    db.entrevistaPreDonacion.findFirst.mockResolvedValue(null);
+
+    await expect(
+      create({ donanteId: 1, operador: "Ana" } as never, db),
+    ).rejects.toBeInstanceOf(EntrevistaPendienteNoEncontradaError);
 
     expect(db.donacion.create).not.toHaveBeenCalled();
   });

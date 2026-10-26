@@ -4,24 +4,40 @@ import {
   buscarDonanteSchema,
   type BuscarDonanteForm,
 } from "../schemas/buscarDonante";
+import { PREGUNTAS_CUESTIONARIO } from "../schemas/entrevista";
 import type { Donante } from "../types/donante";
 import "../styles/BuscarDonante.css";
 
 type Props = {
   onRegistrarDonacion?: (donante: Donante) => void;
-  onNuevaEntrevista?: (donante: Donante) => void;
 };
 
-type Entrevista = {
+type EntrevistaDonacion = {
   id: number;
   resultadoAdmision: "ADMITIDO" | "DIFERIDO";
   tipoDiferimiento: "TEMPORAL" | "PERMANENTE" | null;
   causaDiferimiento: string | null;
   entrevistador: string | null;
+  respuestas: Record<string, boolean>;
   createdAt: string;
 };
 
-type DonanteDetalle = Donante & { entrevistas?: Entrevista[] };
+type DonacionHistorial = {
+  id: number;
+  fechaHora: string;
+  estado: "REGISTRADA" | "EN_CALIFICACION" | "CALIFICADA" | "RECHAZADA";
+  operador: string;
+  peso: string | null;
+  tensionArterial: string | null;
+  hemoglobina: string | null;
+  voluntario: boolean;
+  reposicion: boolean;
+  autoExcluido: boolean;
+  observaciones: string | null;
+  entrevista: EntrevistaDonacion | null;
+};
+
+type DonanteDetalle = Donante & { donaciones?: DonacionHistorial[] };
 
 const formInicial: BuscarDonanteForm = {
   dni: "",
@@ -29,10 +45,7 @@ const formInicial: BuscarDonanteForm = {
   apellido: "",
 };
 
-export default function BuscarDonante({
-  onRegistrarDonacion,
-  onNuevaEntrevista,
-}: Props) {
+export default function BuscarDonante({ onRegistrarDonacion }: Props) {
   const [form, setForm] = useState<BuscarDonanteForm>(formInicial);
   const [resultados, setResultados] = useState<DonanteDetalle[]>([]);
   const [seleccionado, setSeleccionado] = useState<DonanteDetalle | null>(null);
@@ -49,6 +62,16 @@ export default function BuscarDonante({
       dateStyle: "short",
       timeStyle: "short",
     }).format(new Date(fecha));
+  }
+
+  function estadoDonacion(estado: DonacionHistorial["estado"]) {
+    const etiquetas: Record<DonacionHistorial["estado"], string> = {
+      REGISTRADA: "Registrada",
+      EN_CALIFICACION: "En calificación",
+      CALIFICADA: "Calificada",
+      RECHAZADA: "Rechazada / bloqueada",
+    };
+    return etiquetas[estado];
   }
 
   async function buscar(e: FormEvent) {
@@ -215,14 +238,6 @@ export default function BuscarDonante({
                 >
                   Ver detalle
                 </button>
-                {onNuevaEntrevista && (
-                  <button
-                    type="button"
-                    onClick={() => onNuevaEntrevista(donante)}
-                  >
-                    Nueva entrevista
-                  </button>
-                )}
               </div>
             </div>
           ))}
@@ -290,58 +305,98 @@ export default function BuscarDonante({
           </fieldset>
 
           <fieldset>
-            <legend>Evaluaciones pre-donación</legend>
-            {seleccionado.entrevistas?.length ? (
-              <div className="consulta-evaluaciones">
-                {seleccionado.entrevistas.map((entrevista) => (
-                  <article className="consulta-evaluacion" key={entrevista.id}>
-                    <p>
-                      <strong>Resultado:</strong>{" "}
-                      {entrevista.resultadoAdmision === "ADMITIDO"
-                        ? "Admitido (puede continuar)"
-                        : "Diferido"}
-                    </p>
-                    {entrevista.resultadoAdmision === "DIFERIDO" && (
-                      <>
-                        <p>
-                          <strong>Tipo:</strong>{" "}
-                          {entrevista.tipoDiferimiento === "TEMPORAL"
-                            ? "Temporal"
-                            : entrevista.tipoDiferimiento === "PERMANENTE"
-                              ? "Permanente"
-                              : "No registrado"}
-                        </p>
-                        <p>
-                          <strong>Causa:</strong>{" "}
-                          {entrevista.causaDiferimiento || "No registrada"}
-                        </p>
-                      </>
+            <legend>Historial de donaciones</legend>
+            {seleccionado.donaciones?.length ? (
+              <div className="consulta-donaciones">
+                {seleccionado.donaciones.map((donacion) => (
+                  <article className="consulta-donacion" key={donacion.id}>
+                    <div className="consulta-donacion-header">
+                      <h3>Donación #{donacion.id}</h3>
+                      <span className={`consulta-estado consulta-estado-${donacion.estado.toLowerCase()}`}>
+                        {estadoDonacion(donacion.estado)}
+                      </span>
+                    </div>
+                    <div className="consulta-datos">
+                      <p>
+                        <strong>Fecha:</strong> {formatearFechaHora(donacion.fechaHora)}
+                      </p>
+                      <p><strong>Operador:</strong> {donacion.operador}</p>
+                      <p><strong>Peso:</strong> {donacion.peso || "No registrado"}</p>
+                      <p><strong>Tensión arterial:</strong> {donacion.tensionArterial || "No registrada"}</p>
+                      <p><strong>Hemoglobina:</strong> {donacion.hemoglobina || "No registrada"}</p>
+                      <p>
+                        <strong>Modalidad:</strong>{" "}
+                        {donacion.voluntario ? "Voluntaria" : donacion.reposicion ? "Reposición" : "No especificada"}
+                      </p>
+                      {donacion.autoExcluido && (
+                        <p><strong>Autoexclusión:</strong> Sí</p>
+                      )}
+                      {donacion.observaciones && (
+                        <p><strong>Observaciones:</strong> {donacion.observaciones}</p>
+                      )}
+                    </div>
+                    {donacion.entrevista ? (
+                      <details className="consulta-entrevista-donacion">
+                        <summary>Ver entrevista pre-donación</summary>
+                        <div className="consulta-entrevista-contenido">
+                          <div className="consulta-datos">
+                            <p>
+                              <strong>Resultado:</strong>{" "}
+                              {donacion.entrevista.resultadoAdmision === "ADMITIDO"
+                                ? "Admitido"
+                                : "Diferido"}
+                            </p>
+                            <p>
+                              <strong>Personal entrevistador:</strong>{" "}
+                              {donacion.entrevista.entrevistador || "No registrado"}
+                            </p>
+                            <p>
+                              <strong>Fecha:</strong>{" "}
+                              {formatearFechaHora(donacion.entrevista.createdAt)}
+                            </p>
+                            {donacion.entrevista.resultadoAdmision === "DIFERIDO" && (
+                              <>
+                                <p>
+                                  <strong>Tipo de diferimiento:</strong>{" "}
+                                  {donacion.entrevista.tipoDiferimiento || "No registrado"}
+                                </p>
+                                <p>
+                                  <strong>Causa:</strong>{" "}
+                                  {donacion.entrevista.causaDiferimiento || "No registrada"}
+                                </p>
+                              </>
+                            )}
+                          </div>
+                          <h4>Respuestas del cuestionario</h4>
+                          <ul className="consulta-respuestas-entrevista">
+                            {Object.entries(donacion.entrevista.respuestas).map(
+                              ([clave, respuesta]) => (
+                                <li key={clave}>
+                                  <strong>
+                                    {PREGUNTAS_CUESTIONARIO.find(
+                                      (pregunta) => pregunta.clave === clave,
+                                    )?.texto ?? clave}
+                                  </strong>
+                                  <span>{respuesta ? "Sí" : "No"}</span>
+                                </li>
+                              ),
+                            )}
+                          </ul>
+                        </div>
+                      </details>
+                    ) : (
+                      <p className="consulta-sin-entrevista">
+                        Esta donación no tiene una entrevista asociada.
+                      </p>
                     )}
-                    <p>
-                      <strong>Entrevistador:</strong>{" "}
-                      {entrevista.entrevistador || "No registrado"}
-                    </p>
-                    <p>
-                      <strong>Fecha:</strong> {formatearFechaHora(entrevista.createdAt)}
-                    </p>
                   </article>
                 ))}
               </div>
             ) : (
-              <p>No hay evaluaciones pre-donación registradas.</p>
+              <p>No hay donaciones registradas para este donante.</p>
             )}
           </fieldset>
 
-          {onNuevaEntrevista && (
-            <div className="consulta-actions">
-              <button
-                type="button"
-                onClick={() => onNuevaEntrevista(seleccionado)}
-              >
-                Nueva entrevista
-              </button>
-            </div>
-          )}
         </section>
       )}
     </main>

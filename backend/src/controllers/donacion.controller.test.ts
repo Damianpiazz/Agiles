@@ -10,8 +10,15 @@ vi.mock("../services/donacion.service", () => {
     }
   }
 
+  class EntrevistaPendienteNoEncontradaError extends Error {
+    constructor() {
+      super("El donante no tiene una entrevista pre-donación admitida pendiente.");
+    }
+  }
+
   return {
     DonanteNoEncontradoError,
+    EntrevistaPendienteNoEncontradaError,
     create: vi.fn(),
     buscarPorId: vi.fn(),
   };
@@ -86,6 +93,23 @@ describe("donacion.controller create", () => {
 
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.json).toHaveBeenCalledWith({ error: "El donante no existe" });
+  });
+
+  it("responde 409 cuando no hay una entrevista admitida pendiente", async () => {
+    mockCreate.mockRejectedValue(
+      new donacionService.EntrevistaPendienteNoEncontradaError(),
+    );
+    const res = mockRes();
+
+    await create(
+      { body: { donanteId: 1, operador: "Ana" } } as Request,
+      res,
+    );
+
+    expect(res.status).toHaveBeenCalledWith(409);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "El donante no tiene una entrevista pre-donación admitida pendiente.",
+    });
   });
 
   it("responde 500 ante un error inesperado", async () => {

@@ -7,6 +7,7 @@ import CargarEstudios from "./pages/CargarEstudios";
 import Entrevista from "./pages/Entrevista";
 import CalificacionBiologica from "./pages/CalificacionBiologica";
 import TipificacionSanguinea from "./pages/TipificacionSanguinea";
+import TamizajeInfecciones from "./pages/TamizajeInfecciones";
 import type { Donante } from "./types/donante";
 import "./App.css";
 
@@ -17,7 +18,8 @@ type Vista =
   | "estudios"
   | "entrevista"
   | "calificacion"
-  | "tipificacion";
+  | "tipificacion"
+  | "tamizaje";
 
 type DonanteEntrevista = Pick<
   Donante,
@@ -27,21 +29,22 @@ type DonanteEntrevista = Pick<
 export default function App() {
   const [vista, setVista] = useState<Vista>("buscar");
   const [donanteParaDonacion, setDonanteParaDonacion] =
-    useState<Donante | null>(null);
+    useState<DonanteEntrevista | null>(null);
   const [donacionParaEstudios, setDonacionParaEstudios] = useState<
     number | null
   >(null);
   const [donanteEntrevista, setDonanteEntrevista] =
     useState<DonanteEntrevista | null>(null);
-
   function irARegistrarDonacion(donante: Donante) {
     setDonanteParaDonacion(donante);
-    setVista("donacion");
+    setDonanteEntrevista(donante);
+    setVista("entrevista");
   }
 
   function abrirDonacion() {
     setDonanteParaDonacion(null);
-    setVista("donacion");
+    setDonanteEntrevista(null);
+    setVista("entrevista");
   }
 
   function irACargarEstudios(donacionId: number) {
@@ -49,9 +52,9 @@ export default function App() {
     setVista("estudios");
   }
 
-  function irAEntrevista(donante?: DonanteEntrevista) {
-    setDonanteEntrevista(donante ?? null);
-    setVista("entrevista");
+  function continuarDonacionAdmitida(donante: DonanteEntrevista) {
+    setDonanteParaDonacion(donante);
+    setVista("donacion");
   }
 
   return (
@@ -98,16 +101,6 @@ export default function App() {
 
         <button
           type="button"
-          className={vista === "entrevista" ? "activo" : ""}
-          aria-current={vista === "entrevista" ? "page" : undefined}
-          onClick={() => irAEntrevista()}
-        >
-          <span className="nav-icon" aria-hidden="true">▤</span>
-          Entrevista pre-donación
-        </button>
-
-        <button
-          type="button"
           className={vista === "donacion" ? "activo" : ""}
           aria-current={vista === "donacion" ? "page" : undefined}
           onClick={abrirDonacion}
@@ -135,19 +128,28 @@ export default function App() {
           <span className="nav-icon" aria-hidden="true">⊕</span>
           Tipificación sanguínea
         </button>
+
+        <button
+          type="button"
+          className={vista === "tamizaje" ? "activo" : ""}
+          aria-current={vista === "tamizaje" ? "page" : undefined}
+          onClick={() => setVista("tamizaje")}
+        >
+          <span className="nav-icon" aria-hidden="true">◉</span>
+          Tamizaje de infecciones
+        </button>
       </nav>
 
       <main className="app-main">
         {vista === "buscar" && (
           <BuscarDonante
             onRegistrarDonacion={irARegistrarDonacion}
-            onNuevaEntrevista={irAEntrevista}
           />
         )}
 
         {vista === "alta" && <AltaDonante />}
 
-        {vista === "donacion" && (
+        {vista === "donacion" && donanteParaDonacion && (
           <RegistrarDonacion
             donanteInicial={donanteParaDonacion}
             onCargarEstudios={irACargarEstudios}
@@ -162,11 +164,16 @@ export default function App() {
         )}
 
         {vista === "entrevista" && (
-          <Entrevista key={donanteEntrevista?.id ?? "sin-donante"} />
+          <Entrevista
+            key={donanteEntrevista?.id ?? "sin-donante"}
+            donanteInicial={donanteEntrevista}
+            onEntrevistaAdmitida={continuarDonacionAdmitida}
+          />
         )}
 
         {vista === "calificacion" && <CalificacionBiologica />}
         {vista === "tipificacion" && <TipificacionSanguinea />}
+        {vista === "tamizaje" && <TamizajeInfecciones />}
       </main>
 
       <footer className="app-footer">

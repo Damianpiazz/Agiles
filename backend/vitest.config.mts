@@ -2,6 +2,7 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
+    include: ["src/**/*.test.{js,ts}"],
     // El módulo de Prisma se importa al cargar los servicios; con esta URL
     // el cliente se construye sin conectarse a la base.
     env: {

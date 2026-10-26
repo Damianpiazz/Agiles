@@ -261,6 +261,116 @@
   font-weight: 650;
 }
 
+.consulta-donaciones {
+  display: grid;
+  gap: 14px;
+}
+
+.consulta-donacion {
+  min-width: 0;
+  padding: 16px;
+  background: #fafafb;
+  border: 1px solid #e7e8ed;
+  border-radius: 9px;
+}
+
+.consulta-donacion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.consulta-donacion-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.consulta-estado {
+  display: inline-flex;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: #eef0f3;
+  color: #494652;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.consulta-estado-calificada {
+  background: #e8f5ec;
+  color: #176b35;
+}
+
+.consulta-estado-rechazada {
+  background: #fff1f1;
+  color: #a4262c;
+}
+
+.consulta-estado-en_calificacion {
+  background: #fff8e6;
+  color: #805200;
+}
+
+.consulta-entrevista-donacion {
+  margin-top: 14px;
+  border-top: 1px solid #e7e8ed;
+}
+
+.consulta-entrevista-donacion summary {
+  padding: 12px 0 4px;
+  color: var(--acento);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.consulta-entrevista-contenido {
+  padding-top: 10px;
+}
+
+.consulta-entrevista-contenido h4 {
+  margin: 18px 0 8px;
+  color: #302b36;
+  font-size: 14px;
+}
+
+.consulta-respuestas-entrevista {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.consulta-respuestas-entrevista li {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 10px;
+  background: #ffffff;
+  border: 1px solid #ececf0;
+  border-radius: 7px;
+  color: #514b57;
+  font-size: 13px;
+}
+
+.consulta-respuestas-entrevista li strong {
+  font-weight: 600;
+}
+
+.consulta-respuestas-entrevista li span {
+  flex: 0 0 auto;
+  font-weight: 700;
+}
+
+.consulta-sin-entrevista {
+  margin: 14px 0 0;
+  color: var(--texto-secundario);
+  font-size: 13px;
+}
+
 .consulta-detalle fieldset > p {
   margin: 4px 0;
   color: var(--texto-secundario);
@@ -282,6 +392,11 @@
 
   .consulta-evaluaciones {
     grid-template-columns: 1fr;
+  }
+
+  .consulta-donacion-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 
