@@ -10,8 +10,31 @@ this.name = "DonacionNoEncontradaError";
 }
 }
 
-export async function iniciar(donacionId: number, operador: string) {
-const donacion = await prisma.donacion.findUnique({
+export class DonacionBloqueadaError extends Error {
+constructor() {
+super("La donación está bloqueada por resultados reactivos y requiere revisión.");
+this.name = "DonacionBloqueadaError";
+}
+}
+
+type CalificacionDb = {
+donacion: {
+findUnique(args: { where: { id: number } }): Promise<{ id: number; estado: string } | null>;
+};
+calificacionBiologica: {
+findUnique(args: { where: { donacionId: number } }): Promise<any>;
+create(args: { data: { donacionId: number; operador: string; estado: string } }): Promise<any>;
+};
+};
+
+const dbPredeterminada = prisma as unknown as CalificacionDb;
+
+export async function iniciar(
+donacionId: number,
+operador: string,
+db: CalificacionDb = dbPredeterminada,
+) {
+const donacion = await db.donacion.findUnique({
 where: { id: donacionId },
 });
 
@@ -19,7 +42,11 @@ if (!donacion) {
 throw new DonacionNoEncontradaError();
 }
 
-const existente = await prisma.calificacionBiologica.findUnique({
+if (donacion.estado === "RECHAZADA") {
+throw new DonacionBloqueadaError();
+}
+
+const existente = await db.calificacionBiologica.findUnique({
 where: { donacionId },
 });
 
@@ -28,7 +55,7 @@ return { calificacion: existente, creada: false };
 }
 
 try {
-const calificacion = await prisma.calificacionBiologica.create({
+const calificacion = await db.calificacionBiologica.create({
 data: {
 donacionId,
 operador,
@@ -45,7 +72,7 @@ if (
 error instanceof Prisma.PrismaClientKnownRequestError &&
 error.code === "P2002"
 ) {
-const calificacion = await prisma.calificacionBiologica.findUnique({
+const calificacion = await db.calificacionBiologica.findUnique({
 where: { donacionId },
 });
 

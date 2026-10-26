@@ -30,6 +30,10 @@ if (error instanceof calificacionService.DonacionNoEncontradaError) {
 return res.status(404).json({ error: error.message });
 }
 
+if (error instanceof calificacionService.DonacionBloqueadaError) {
+return res.status(409).json({ error: error.message });
+}
+
 console.error("Error al iniciar la calificación biológica:", error);
 return res.status(500).json({ error: "Error interno" });
 
