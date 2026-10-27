@@ -1,21 +1,15 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import {
-  buscarDonanteSchema,
-  type BuscarDonanteForm,
-} from "../schemas/buscarDonante";
 import { donacionSchema } from "../schemas/donacion";
 import type { Donante } from "../types/donante";
 import "../styles/RegistrarDonacion.css";
 
 type Props = {
-  donanteInicial?: Donante | null;
+  donanteInicial: Pick<Donante, "id" | "nombre" | "apellido" | "dni">;
   onCargarEstudios?: (donacionId: number) => void;
 };
 
 type Banner = { tipo: "ok" | "error"; texto: string } | null;
-
-const busquedaInicial: BuscarDonanteForm = { dni: "", nombre: "", apellido: "" };
 
 /** Devuelve la fecha y hora actual en el formato que consume <input type="datetime-local">. */
 function ahoraLocal(): string {
@@ -25,12 +19,9 @@ function ahoraLocal(): string {
 }
 
 export default function RegistrarDonacion({
-  donanteInicial = null,
+  donanteInicial,
   onCargarEstudios,
 }: Props) {
-  const [busqueda, setBusqueda] = useState<BuscarDonanteForm>(busquedaInicial);
-  const [resultados, setResultados] = useState<Donante[]>([]);
-  const [donante, setDonante] = useState<Donante | null>(donanteInicial);
   const [operador, setOperador] = useState("");
   const [fechaHora, setFechaHora] = useState(ahoraLocal());
   const [peso, setPeso] = useState("");
@@ -41,56 +32,8 @@ export default function RegistrarDonacion({
   const [autoExcluido, setAutoExcluido] = useState(false);
   const [observaciones, setObservaciones] = useState("");
   const [banner, setBanner] = useState<Banner>(null);
-  const [buscando, setBuscando] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [donacionCreada, setDonacionCreada] = useState<number | null>(null);
-
-  async function buscar(e: FormEvent) {
-    e.preventDefault();
-    setBanner(null);
-
-    const parsed = buscarDonanteSchema.safeParse(busqueda);
-    if (!parsed.success) {
-      setBanner({
-        tipo: "error",
-        texto: parsed.error.issues[0]?.message ?? "Revisá los datos ingresados.",
-      });
-      return;
-    }
-
-    const params = new URLSearchParams();
-    if (parsed.data.dni) {
-      params.set("dni", parsed.data.dni);
-    } else {
-      params.set("nombre", parsed.data.nombre);
-      params.set("apellido", parsed.data.apellido);
-    }
-
-    setBuscando(true);
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/donantes?${params.toString()}`,
-      );
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        setResultados([]);
-        setBanner({ tipo: "error", texto: data?.error ?? "No se pudo buscar." });
-        return;
-      }
-
-      setResultados(data);
-
-      if (data.length === 0) {
-        setBanner({ tipo: "error", texto: "No se encontraron donantes." });
-      }
-    } catch {
-      setResultados([]);
-      setBanner({ tipo: "error", texto: "No se pudo conectar con el servidor." });
-    } finally {
-      setBuscando(false);
-    }
-  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -98,7 +41,7 @@ export default function RegistrarDonacion({
     setDonacionCreada(null);
 
     const parsed = donacionSchema.safeParse({
-      donanteId: donante?.id,
+      donanteId: donanteInicial.id,
       operador,
       peso,
       tensionArterial,
@@ -188,94 +131,12 @@ export default function RegistrarDonacion({
 
       <fieldset>
         <legend>Donante</legend>
-
-        {donante ? (
-          <div className="donacion-donante">
-            <div>
-              <strong>
-                {donante.nombre} {donante.apellido}
-              </strong>
-              <p>DNI: {donante.dni}</p>
-            </div>
-            <button
-              type="button"
-              className="donacion-secundario"
-              onClick={() => setDonante(null)}
-            >
-              Cambiar donante
-            </button>
-          </div>
-        ) : (
-          <>
-            <form onSubmit={buscar} noValidate>
-              <div className="donacion-grid">
-                <div className="donacion-field">
-                  <label htmlFor="dniDonacion">DNI</label>
-                  <input
-                    id="dniDonacion"
-                    value={busqueda.dni}
-                    onChange={(e) =>
-                      setBusqueda((prev) => ({ ...prev, dni: e.target.value }))
-                    }
-                  />
-                </div>
-
-                <div className="donacion-separador">o</div>
-
-                <div className="donacion-field">
-                  <label htmlFor="nombreDonacion">Nombre</label>
-                  <input
-                    id="nombreDonacion"
-                    value={busqueda.nombre}
-                    onChange={(e) =>
-                      setBusqueda((prev) => ({ ...prev, nombre: e.target.value }))
-                    }
-                  />
-                </div>
-
-                <div className="donacion-field">
-                  <label htmlFor="apellidoDonacion">Apellido</label>
-                  <input
-                    id="apellidoDonacion"
-                    value={busqueda.apellido}
-                    onChange={(e) =>
-                      setBusqueda((prev) => ({
-                        ...prev,
-                        apellido: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="donacion-actions">
-                <button type="submit" disabled={buscando}>
-                  {buscando ? "Buscando…" : "Buscar donante"}
-                </button>
-              </div>
-            </form>
-
-            {resultados.map((d) => (
-              <div className="donacion-resultado" key={d.id}>
-                <div>
-                  <strong>
-                    {d.nombre} {d.apellido}
-                  </strong>
-                  <p>DNI: {d.dni}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDonante(d);
-                    setResultados([]);
-                  }}
-                >
-                  Seleccionar
-                </button>
-              </div>
-            ))}
-          </>
-        )}
+        <div className="donacion-donante">
+          <strong>
+            {donanteInicial.nombre} {donanteInicial.apellido}
+          </strong>
+          <p>DNI: {donanteInicial.dni}</p>
+        </div>
       </fieldset>
 
       <form onSubmit={onSubmit} noValidate>
@@ -386,7 +247,7 @@ export default function RegistrarDonacion({
           </div>
 
           <div className="donacion-actions">
-            <button type="submit" disabled={enviando || !donante}>
+            <button type="submit" disabled={enviando}>
               {enviando ? "Registrando…" : "Registrar donación"}
             </button>
           </div>

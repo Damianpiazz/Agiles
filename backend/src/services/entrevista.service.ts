@@ -32,26 +32,34 @@ export async function create(donanteId: number, datos: CrearEntrevistaInput) {
     throw new CuestionarioInvalidoError(errorCuestionario);
   }
 
-  return prisma.$transaction(async (tx) => {
-    const donacion =
-      datos.resultadoAdmision === "ADMITIDO"
-        ? await tx.donacion.create({
-            data: { donanteId, operador: datos.entrevistador },
-          })
-        : null;
-
-    return tx.entrevistaPreDonacion.create({
-      data: {
-        donanteId,
-        donacionId: donacion?.id ?? null,
-        respuestas: datos.respuestas as Prisma.InputJsonValue,
-        resultadoAdmision: datos.resultadoAdmision,
-        tipoDiferimiento:
-          datos.resultadoAdmision === "DIFERIDO" ? datos.tipoDiferimiento : null,
-        causaDiferimiento:
-          datos.resultadoAdmision === "DIFERIDO" ? datos.causaDiferimiento : null,
-        entrevistador: datos.entrevistador,
-      },
-    });
+  return prisma.entrevistaPreDonacion.create({
+    data: {
+      donanteId,
+      donacionId: null,
+      respuestas: datos.respuestas as Prisma.InputJsonValue,
+      resultadoAdmision: datos.resultadoAdmision,
+      tipoDiferimiento:
+        datos.resultadoAdmision === "DIFERIDO" ? datos.tipoDiferimiento : null,
+      causaDiferimiento:
+        datos.resultadoAdmision === "DIFERIDO" ? datos.causaDiferimiento : null,
+      entrevistador: datos.entrevistador,
+    },
   });
+}
+
+export async function buscarPendiente(donanteId: number) {
+  const ultimaEntrevista = await prisma.entrevistaPreDonacion.findFirst({
+    where: { donanteId },
+    orderBy: { createdAt: "desc" },
+    select: { id: true, donacionId: true, resultadoAdmision: true },
+  });
+
+  if (
+    ultimaEntrevista?.resultadoAdmision === "ADMITIDO" &&
+    ultimaEntrevista.donacionId === null
+  ) {
+    return { entrevistaId: ultimaEntrevista.id };
+  }
+
+  return null;
 }

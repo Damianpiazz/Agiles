@@ -52,17 +52,33 @@ export async function buscarPorId(id: number) {
       id,
     },
     include: {
-      entrevistas: {
+      donaciones: {
         orderBy: {
-          createdAt: "desc",
+          fechaHora: "desc",
         },
         select: {
           id: true,
-          resultadoAdmision: true,
-          tipoDiferimiento: true,
-          causaDiferimiento: true,
-          entrevistador: true,
-          createdAt: true,
+          fechaHora: true,
+          estado: true,
+          operador: true,
+          peso: true,
+          tensionArterial: true,
+          hemoglobina: true,
+          voluntario: true,
+          reposicion: true,
+          autoExcluido: true,
+          observaciones: true,
+          entrevista: {
+            select: {
+              id: true,
+              resultadoAdmision: true,
+              tipoDiferimiento: true,
+              causaDiferimiento: true,
+              entrevistador: true,
+              respuestas: true,
+              createdAt: true,
+            },
+          },
         },
       },
     },

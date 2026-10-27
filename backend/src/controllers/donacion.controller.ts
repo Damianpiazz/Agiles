@@ -20,6 +20,9 @@ export async function create(req: Request, res: Response) {
     if (e instanceof donacionService.DonanteNoEncontradoError) {
       return res.status(404).json({ error: e.message });
     }
+    if (e instanceof donacionService.EntrevistaPendienteNoEncontradaError) {
+      return res.status(409).json({ error: e.message });
+    }
     console.error(e);
     return res.status(500).json({ error: "Error interno" });
   }

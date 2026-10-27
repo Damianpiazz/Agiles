@@ -29,12 +29,12 @@ const antigenos = [
  * Catálogo de determinaciones serológicas (cribado de enfermedades transmisibles).
  */
 const determinacionesSerologicas = [
+  "Anti-T. cruzi",
   "HBsAg",
-  "Anti-HBc",
+  "Anti-core HB",
   "Anti-HCV",
-  "Anti-HIV",
-  "VDRL (sífilis)",
-  "Chagas",
+  "Anti-VIH 1/2",
+  "Anti-Treponema pallidum",
   "Anti-HTLV I/II",
 ];
 
