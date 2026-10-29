@@ -16,12 +16,31 @@ fechaInicio: string;
 };
 };
 
+type ResultadoAnticuerpoIrregular = {
+id: number;
+donacionId: number;
+donanteId: number | null;
+resultado: "POSITIVO" | "NEGATIVO";
+operador: string;
+fechaHora: string;
+observacion?: string | null;
+etiquetaComponente: string;
+indicacion: string;
+advertenciaPlasma: string | null;
+notificacionDonante: string | null;
+};
+
 export default function CalificacionBiologica() {
 const [donacionId, setDonacionId] = useState("");
 const [operador, setOperador] = useState("");
 const [resultado, setResultado] = useState<Resultado | null>(null);
+const [resultadoAnticuerpo, setResultadoAnticuerpo] = useState<ResultadoAnticuerpoIrregular | null>(null);
+const [resultadoIrregular, setResultadoIrregular] = useState<"POSITIVO" | "NEGATIVO">("NEGATIVO");
+const [observacion, setObservacion] = useState("");
 const [error, setError] = useState("");
 const [cargando, setCargando] = useState(false);
+
+const esResultadoInmune = resultadoAnticuerpo?.resultado === "POSITIVO";
 
 async function iniciarCalificacion(
 e: React.FormEvent<HTMLFormElement>
@@ -29,6 +48,7 @@ e: React.FormEvent<HTMLFormElement>
 e.preventDefault();
 setError("");
 setResultado(null);
+setResultadoAnticuerpo(null);
 
 const id = Number(donacionId);
 
@@ -78,6 +98,63 @@ try {
   setCargando(false);
 }
 
+}
+
+async function registrarAnticuerposIrregulares(
+  e: React.FormEvent<HTMLFormElement>
+) {
+  e.preventDefault();
+  setError("");
+
+  const id = Number(donacionId);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    setError("Ingresá un ID de donación válido para registrar el resultado.");
+    return;
+  }
+
+  if (!operador.trim()) {
+    setError("Ingresá el nombre del operador antes de registrar el resultado.");
+    return;
+  }
+
+  setCargando(true);
+
+  try {
+    const respuesta = await fetch(
+      `${API_URL}/api/calificaciones-biologicas/${id}/anticuerpos-irregulares`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resultado: resultadoIrregular,
+          operador: operador.trim(),
+              observacion: observacion.trim() || undefined,
+            }),
+          }
+        );
+
+    const datos = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(
+        datos.error || "No se pudo registrar el resultado de anticuerpos irregulares."
+      );
+    }
+
+    setResultadoAnticuerpo(datos as ResultadoAnticuerpoIrregular);
+    setObservacion("");
+  } catch (err) {
+    setError(
+      err instanceof Error
+        ? err.message
+        : "No se pudo conectar con el servidor."
+    );
+  } finally {
+    setCargando(false);
+  }
 }
 
 return (
@@ -162,6 +239,88 @@ return (
           resultado.calificacion.fechaInicio
         ).toLocaleString()}
       </p>
+    </section>
+  )}
+
+  <form
+    onSubmit={registrarAnticuerposIrregulares}
+    className="calificacion-form"
+  >
+    <h2>Resultado inmune / detección de anticuerpos irregulares</h2>
+    <p>Registrar la respuesta del estudio inmunohematológico para decidir manejo especial previo a la liberación.</p>
+
+    <label htmlFor="resultadoIrregular">Resultado</label>
+    <select
+      id="resultadoIrregular"
+      value={resultadoIrregular}
+      onChange={(e) =>
+        setResultadoIrregular(e.target.value as "POSITIVO" | "NEGATIVO")
+      }
+    >
+      <option value="NEGATIVO">Negativo</option>
+      <option value="POSITIVO">Positivo</option>
+    </select>
+
+    <label htmlFor="observacionAnticuerpo">Observación operatoria</label>
+    <textarea
+      id="observacionAnticuerpo"
+      value={observacion}
+      onChange={(e) => setObservacion(e.target.value)}
+      rows={4}
+      maxLength={500}
+      placeholder="Ej.: unidad con reacción inmune; requiere manejo especial antes de la liberación."
+    />
+
+    <button type="submit" disabled={cargando}>
+      {cargando ? "Procesando..." : "Guardar resultado"}
+    </button>
+  </form>
+
+  {resultadoAnticuerpo && (
+    <section
+      className={`calificacion-resultado ${esResultadoInmune ? "resultado-inmune" : "resultado-estable"}`}
+      aria-live="polite"
+    >
+      <h2>
+        {esResultadoInmune
+          ? "Resultado inmune: manejo especial"
+          : "Resultado no inmune"}
+      </h2>
+
+      <p>
+        <strong>Resultado:</strong> {resultadoAnticuerpo.resultado}
+      </p>
+      <p>
+        <strong>Unidad:</strong> {resultadoAnticuerpo.etiquetaComponente}
+      </p>
+
+      {esResultadoInmune ? (
+        <div className="resultado-inmune-acciones" aria-label="Acciones por resultado inmune">
+          <p>
+            <strong>Acción requerida:</strong> {resultadoAnticuerpo.indicacion}
+          </p>
+          <ul>
+            <li>Reservar la unidad para un receptor sin el antígeno correspondiente.</li>
+            <li>Evitar liberación de componentes hemocomponentes sin manejo especial.</li>
+            {resultadoAnticuerpo.advertenciaPlasma && (
+              <li>{resultadoAnticuerpo.advertenciaPlasma}</li>
+            )}
+            {resultadoAnticuerpo.notificacionDonante && (
+              <li>{resultadoAnticuerpo.notificacionDonante}</li>
+            )}
+          </ul>
+        </div>
+      ) : (
+        <p>
+          <strong>Indicador:</strong> {resultadoAnticuerpo.indicacion}
+        </p>
+      )}
+
+      {resultadoAnticuerpo.observacion && (
+        <p>
+          <strong>Observación:</strong> {resultadoAnticuerpo.observacion}
+        </p>
+      )}
     </section>
   )}
 </main>

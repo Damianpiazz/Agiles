@@ -63,7 +63,9 @@
   font-weight: 650;
 }
 
-.calificacion-form input {
+.calificacion-form input,
+.calificacion-form select,
+.calificacion-form textarea {
   display: block;
   width: 100%;
   min-height: 44px;
@@ -77,11 +79,19 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.calificacion-form input::placeholder {
+.calificacion-form textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.calificacion-form input::placeholder,
+.calificacion-form textarea::placeholder {
   color: #96939d;
 }
 
-.calificacion-form input:focus {
+.calificacion-form input:focus,
+.calificacion-form select:focus,
+.calificacion-form textarea:focus {
   outline: none;
   border-color: var(--acento);
   box-shadow: 0 0 0 3px rgb(155 28 49 / 12%);
@@ -151,6 +161,34 @@
 
 .calificacion-resultado p {
   margin-bottom: 0.75rem;
+}
+
+.resultado-inmune {
+  border-color: #c86939;
+  background: linear-gradient(180deg, #fffaf5 0%, #ffffff 100%);
+}
+
+.resultado-estable {
+  border-color: #a9d3bf;
+  background: linear-gradient(180deg, #f3fff9 0%, #ffffff 100%);
+}
+
+.resultado-inmune-acciones {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #fff6ee;
+  border: 1px solid #f1d6b0;
+  border-radius: 8px;
+}
+
+.resultado-inmune-acciones ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.35rem;
+  color: var(--tinta);
+}
+
+.resultado-inmune-acciones li + li {
+  margin-top: 0.45rem;
 }
 
 @media (max-width: 639px) {
