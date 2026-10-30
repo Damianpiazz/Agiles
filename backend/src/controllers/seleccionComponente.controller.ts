@@ -116,6 +116,13 @@ export async function reservarUnidad(req: Request, res: Response) {
       return res.status(409).json({ error: error.message });
     }
 
+    if (
+      error instanceof
+      seleccionComponenteService.CantidadMaximaAlcanzadaError
+    ) {
+      return res.status(409).json({ error: error.message });
+    }
+
     if (error instanceof seleccionComponenteService.UnidadNoDisponibleError) {
       return res.status(409).json({ error: error.message });
     }
