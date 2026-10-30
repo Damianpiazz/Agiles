@@ -8,6 +8,10 @@ router.get(
   "/:solicitudId/unidades-compatibles",
   seleccionComponenteController.listarUnidadesCompatibles,
 );
+router.get(
+  "/:solicitudId/unidades-reservadas",
+  seleccionComponenteController.listarUnidadesReservadas,
+);
 router.post(
   "/:solicitudId/unidades/:unidadId/reservar",
   seleccionComponenteController.reservarUnidad,
