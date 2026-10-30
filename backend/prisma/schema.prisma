@@ -34,6 +34,11 @@ enum EstadoCalificacionBiologica {
   INICIADA
 }
 
+enum ResultadoAnticuerpoIrregular {
+  POSITIVO
+  NEGATIVO
+}
+
 enum GrupoSanguineoABO {
   A
   B
@@ -89,6 +94,7 @@ model Donacion {
   serologiaDonaciones   SerologiaDonacion[]
   entrevista            EntrevistaPreDonacion?
   calificacionBiologica CalificacionBiologica?
+  anticuerpoIrregular   AnticuerpoIrregular?
   tipificacionesSanguineas TipificacionSanguinea[]
 
   @@map("donaciones")
@@ -219,6 +225,21 @@ model CalificacionBiologica {
   updatedAt   DateTime                    @updatedAt
 
   @@map("calificaciones_biologicas")
+}
+
+model AnticuerpoIrregular {
+  id          Int                         @id @default(autoincrement())
+  donacionId  Int                         @unique
+  donacion    Donacion                    @relation(fields: [donacionId], references: [id])
+  resultado   ResultadoAnticuerpoIrregular
+  operador    String
+  fechaHora   DateTime                    @default(now())
+  observacion String?
+  createdAt   DateTime                    @default(now())
+  updatedAt   DateTime                    @updatedAt
+
+  @@index([donacionId, fechaHora])
+  @@map("anticuerpos_irregulares")
 }
 
 model TipificacionSanguinea {

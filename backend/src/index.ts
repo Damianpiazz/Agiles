@@ -6,6 +6,7 @@ import pciRoutes from "./routes/pci.routes";
 import serologiaRoutes from "./routes/serologia.routes";
 import catalogoRoutes from "./routes/catalogo.routes";
 import calificacionBiologicaRoutes from "./routes/calificacionBiologica.routes";
+import anticuerpoIrregularRoutes from "./routes/anticuerpoIrregular.routes";
 import tipificacionSanguineaRoutes from "./routes/tipificacionSanguinea.routes";
 import tamizajeInfeccionesRoutes from "./routes/tamizajeInfecciones.routes";
 
@@ -25,6 +26,7 @@ app.use("/api/pci", pciRoutes);
 app.use("/api/serologias", serologiaRoutes);
 app.use("/api/catalogos", catalogoRoutes);
 app.use("/api/calificaciones-biologicas", calificacionBiologicaRoutes);
+app.use("/api/anticuerpos-irregulares", anticuerpoIrregularRoutes);
 app.use("/api/tipificaciones-sanguineas", tipificacionSanguineaRoutes);
 app.use("/api/tamizajes-infecciones", tamizajeInfeccionesRoutes);
 
