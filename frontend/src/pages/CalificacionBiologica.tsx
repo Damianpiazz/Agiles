@@ -41,6 +41,7 @@ const [error, setError] = useState("");
 const [cargando, setCargando] = useState(false);
 
 const esResultadoInmune = resultadoAnticuerpo?.resultado === "POSITIVO";
+const puedeRegistrarResultado = Boolean(resultado);
 
 async function iniciarCalificacion(
 e: React.FormEvent<HTMLFormElement>
@@ -242,39 +243,41 @@ return (
     </section>
   )}
 
-  <form
-    onSubmit={registrarAnticuerposIrregulares}
-    className="calificacion-form"
-  >
-    <h2>Resultado inmune / detección de anticuerpos irregulares</h2>
-    <p>Registrar la respuesta del estudio inmunohematológico para decidir manejo especial previo a la liberación.</p>
-
-    <label htmlFor="resultadoIrregular">Resultado</label>
-    <select
-      id="resultadoIrregular"
-      value={resultadoIrregular}
-      onChange={(e) =>
-        setResultadoIrregular(e.target.value as "POSITIVO" | "NEGATIVO")
-      }
+  {puedeRegistrarResultado && (
+    <form
+      onSubmit={registrarAnticuerposIrregulares}
+      className="calificacion-form"
     >
-      <option value="NEGATIVO">Negativo</option>
-      <option value="POSITIVO">Positivo</option>
-    </select>
+      <h2>Resultado inmune / detección de anticuerpos irregulares</h2>
+      <p>Registrar la respuesta del estudio inmunohematológico para decidir manejo especial previo a la liberación.</p>
 
-    <label htmlFor="observacionAnticuerpo">Observación operatoria</label>
-    <textarea
-      id="observacionAnticuerpo"
-      value={observacion}
-      onChange={(e) => setObservacion(e.target.value)}
-      rows={4}
-      maxLength={500}
-      placeholder="Ej.: unidad con reacción inmune; requiere manejo especial antes de la liberación."
-    />
+      <label htmlFor="resultadoIrregular">Resultado</label>
+      <select
+        id="resultadoIrregular"
+        value={resultadoIrregular}
+        onChange={(e) =>
+          setResultadoIrregular(e.target.value as "POSITIVO" | "NEGATIVO")
+        }
+      >
+        <option value="NEGATIVO">Negativo</option>
+        <option value="POSITIVO">Positivo</option>
+      </select>
 
-    <button type="submit" disabled={cargando}>
-      {cargando ? "Procesando..." : "Guardar resultado"}
-    </button>
-  </form>
+      <label htmlFor="observacionAnticuerpo">Observación operatoria</label>
+      <textarea
+        id="observacionAnticuerpo"
+        value={observacion}
+        onChange={(e) => setObservacion(e.target.value)}
+        rows={4}
+        maxLength={500}
+        placeholder="Ej.: unidad con reacción inmune; requiere manejo especial antes de la liberación."
+      />
+
+      <button type="submit" disabled={cargando}>
+        {cargando ? "Procesando..." : "Guardar resultado"}
+      </button>
+    </form>
+  )}
 
   {resultadoAnticuerpo && (
     <section
