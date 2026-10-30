@@ -51,6 +51,27 @@ enum FactorRhD {
   NEGATIVO
 }
 
+enum TipoHemocomponente {
+  GLOBULOS_ROJOS
+  PLASMA
+  PLAQUETAS
+  CRIOPRECIPITADO
+}
+
+enum EstadoSolicitudTransfusion {
+  PENDIENTE
+  APROBADA
+  CANCELADA
+}
+
+enum EstadoUnidadSangre {
+  DISPONIBLE
+  RESERVADA
+  BLOQUEADA
+  VENCIDA
+  DADA_DE_BAJA
+}
+
 model Donante {
   id              Int      @id @default(autoincrement())
   nombre          String
@@ -255,4 +276,44 @@ model TipificacionSanguinea {
 
   @@index([donacionId, fechaHora])
   @@map("tipificaciones_sanguineas")
+}
+
+model SolicitudTransfusion {
+  id                Int                         @id @default(autoincrement())
+  dniPaciente       String
+  nombrePaciente    String
+  grupoABO          GrupoSanguineoABO
+  factorRhD         FactorRhD
+  tipoHemocomponente TipoHemocomponente
+  cantidad          Int                         @default(1)
+  estado            EstadoSolicitudTransfusion  @default(PENDIENTE)
+  observaciones     String?
+  operador          String
+  fechaHora         DateTime                    @default(now())
+  createdAt         DateTime                    @default(now())
+  updatedAt         DateTime                    @updatedAt
+
+  unidades UnidadSangre[]
+
+  @@index([estado, fechaHora])
+  @@map("solicitudes_transfusion")
+}
+
+model UnidadSangre {
+  id                Int                  @id @default(autoincrement())
+  numeroUnidad      String               @unique
+  tipoHemocomponente TipoHemocomponente
+  grupoABO          GrupoSanguineoABO
+  factorRhD         FactorRhD
+  fechaVencimiento  DateTime             @db.Date
+  estado            EstadoUnidadSangre   @default(DISPONIBLE)
+  solicitudId       Int?
+  solicitud         SolicitudTransfusion? @relation(fields: [solicitudId], references: [id])
+  reservadaPor      String?
+  reservadaEn       DateTime?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  @@index([estado, fechaVencimiento])
+  @@map("unidades_sangre")
 }
