@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -51,12 +50,18 @@ enum FactorRhD {
   NEGATIVO
 }
 
+enum EstadoUnidad {
+  PENDIENTE
+  LIBERADA
+  BLOQUEADA
+}
+
 model Donante {
-  id              Int      @id @default(autoincrement())
+  id              Int           @id @default(autoincrement())
   nombre          String
   apellido        String
-  dni             String   @unique
-  fechaNacimiento DateTime @db.Date
+  dni             String        @unique
+  fechaNacimiento DateTime      @db.Date
   lugarNacimiento String
   sexoBiologico   SexoBiologico
   domicilio       String
@@ -64,38 +69,42 @@ model Donante {
   email           String
   telefonoFijo    String?
   telefonoCelular String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
-  donaciones Donacion[]
+  donaciones  Donacion[]
   entrevistas EntrevistaPreDonacion[]
 
   @@map("donantes")
 }
 
 model Donacion {
-  id              Int           @id @default(autoincrement())
+  id              Int            @id @default(autoincrement())
   donanteId       Int
-  donante         Donante       @relation(fields: [donanteId], references: [id])
-  fechaHora       DateTime      @default(now())
+  donante         Donante        @relation(fields: [donanteId], references: [id])
+  fechaHora       DateTime       @default(now())
   operador        String
   estado          EstadoDonacion @default(REGISTRADA)
   peso            String?
   tensionArterial String?
   hemoglobina     String?
-  voluntario      Boolean       @default(false)
-  reposicion      Boolean       @default(false)
-  autoExcluido    Boolean       @default(false)
+  voluntario      Boolean        @default(false)
+  reposicion      Boolean        @default(false)
+  autoExcluido    Boolean        @default(false)
   observaciones   String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
-  pciDonaciones         PciDonacion[]
-  serologiaDonaciones   SerologiaDonacion[]
-  entrevista            EntrevistaPreDonacion?
-  calificacionBiologica CalificacionBiologica?
-  anticuerpoIrregular   AnticuerpoIrregular?
+  pciDonaciones            PciDonacion[]
+  serologiaDonaciones      SerologiaDonacion[]
+  entrevista               EntrevistaPreDonacion?
+  calificacionBiologica    CalificacionBiologica?
+  anticuerpoIrregular      AnticuerpoIrregular?
+  estadoUnidad             EstadoUnidad            @default(PENDIENTE)
+  discrepanciaResuelta     Boolean                 @default(false)
+  observacionDiscrepancia  String?
   tipificacionesSanguineas TipificacionSanguinea[]
+  eventosEstadoUnidad      EventoEstadoUnidad[]
 
   @@map("donaciones")
 }
@@ -117,12 +126,12 @@ model DeterminacionSerologica {
 }
 
 model Pci {
-  id            Int            @id @default(autoincrement())
-  fecha         DateTime       @db.Date
-  hora          DateTime       @db.Time
+  id            Int      @id @default(autoincrement())
+  fecha         DateTime @db.Date
+  hora          DateTime @db.Time
   observaciones String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   resultados PciResultado[]
   donaciones PciDonacion[]
@@ -228,31 +237,47 @@ model CalificacionBiologica {
 }
 
 model AnticuerpoIrregular {
-  id          Int                         @id @default(autoincrement())
-  donacionId  Int                         @unique
-  donacion    Donacion                    @relation(fields: [donacionId], references: [id])
+  id          Int                          @id @default(autoincrement())
+  donacionId  Int                          @unique
+  donacion    Donacion                     @relation(fields: [donacionId], references: [id])
   resultado   ResultadoAnticuerpoIrregular
   operador    String
-  fechaHora   DateTime                    @default(now())
+  fechaHora   DateTime                     @default(now())
   observacion String?
-  createdAt   DateTime                    @default(now())
-  updatedAt   DateTime                    @updatedAt
+  createdAt   DateTime                     @default(now())
+  updatedAt   DateTime                     @updatedAt
 
   @@index([donacionId, fechaHora])
   @@map("anticuerpos_irregulares")
 }
 
 model TipificacionSanguinea {
-  id         Int              @id @default(autoincrement())
+  id         Int               @id @default(autoincrement())
   donacionId Int
-  donacion   Donacion         @relation(fields: [donacionId], references: [id])
+  donacion   Donacion          @relation(fields: [donacionId], references: [id])
   grupoABO   GrupoSanguineoABO
   factorRhD  FactorRhD
   operador   String
-  fechaHora  DateTime         @default(now())
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
+  fechaHora  DateTime          @default(now())
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
 
   @@index([donacionId, fechaHora])
   @@map("tipificaciones_sanguineas")
+}
+
+model EventoEstadoUnidad {
+  id                      Int          @id @default(autoincrement())
+  donacionId              Int
+  donacion                Donacion     @relation(fields: [donacionId], references: [id])
+  estado                  EstadoUnidad
+  motivo                  String?
+  usuario                 String
+  discrepanciaResuelta    Boolean      @default(false)
+  observacionDiscrepancia String?
+  fechaHora               DateTime     @default(now())
+  createdAt               DateTime     @default(now())
+
+  @@index([donacionId, fechaHora])
+  @@map("eventos_estado_unidad")
 }
