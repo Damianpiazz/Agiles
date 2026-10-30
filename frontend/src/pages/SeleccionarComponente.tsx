@@ -32,6 +32,8 @@ type Unidad = {
   fechaVencimiento: string;
   estado: string;
   vencida: boolean;
+  reservadaPor?: string | null;
+  reservadaEn?: string | null;
 };
 
 type Banner = {
@@ -63,6 +65,8 @@ export default function SeleccionarComponente() {
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [solicitudId, setSolicitudId] = useState("");
   const [unidades, setUnidades] = useState<Unidad[]>([]);
+  const [preparadas, setPreparadas] = useState<Unidad[]>([]);
+  const [mensajePreparadas, setMensajePreparadas] = useState("");
   const [mensajeServidor, setMensajeServidor] = useState("");
   const [sinUnidades, setSinUnidades] = useState(false);
   const [operador, setOperador] = useState("");
@@ -126,14 +130,24 @@ export default function SeleccionarComponente() {
     setMensajeServidor("");
     setSinUnidades(false);
 
-    if (!idSolicitud) return;
+    if (!idSolicitud) {
+      setPreparadas([]);
+      setMensajePreparadas("");
+      return;
+    }
 
     setConsultando(true);
 
     try {
-      const respuesta = await fetch(
-        `${API_URL}/api/solicitudes-transfusiones/${idSolicitud}/unidades-compatibles`,
-      );
+      const [respuesta, respuestaPreparadas] = await Promise.all([
+        fetch(
+          `${API_URL}/api/solicitudes-transfusiones/${idSolicitud}/unidades-compatibles`,
+        ),
+        fetch(
+          `${API_URL}/api/solicitudes-transfusiones/${idSolicitud}/unidades-reservadas`,
+        ),
+      ]);
+
       const datos = await respuesta.json().catch(() => null);
 
       if (!respuesta.ok) {
@@ -148,6 +162,13 @@ export default function SeleccionarComponente() {
         setBanner({ tipo: "aviso", texto: datos.mensaje as string });
       } else {
         setBanner({ tipo: "ok", texto: datos.mensaje as string });
+      }
+
+      const datosPreparadas = await respuestaPreparadas.json().catch(() => null);
+
+      if (respuestaPreparadas.ok && datosPreparadas) {
+        setPreparadas(datosPreparadas.unidades as Unidad[]);
+        setMensajePreparadas(datosPreparadas.mensaje as string);
       }
     } catch (error) {
       setBanner({
@@ -370,6 +391,73 @@ export default function SeleccionarComponente() {
                                 : "Preparar"}
                             </button>
                           </form>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </section>
+      )}
+
+      {solicitudId && (
+        <section className="seleccion-card">
+          <h2>Unidades preparadas para la solicitud</h2>
+
+          {preparadas.length === 0 ? (
+            <p className="seleccion-nota">
+              {mensajePreparadas ||
+                "Todavía no hay unidades preparadas para esta solicitud."}
+            </p>
+          ) : (
+            <>
+              <p className="seleccion-nota">
+                {mensajePreparadas} Se mantienen en esta pantalla hasta que la
+                solicitud cambie de estado.
+              </p>
+
+              <div className="seleccion-tabla-contenedor">
+                <table className="seleccion-tabla">
+                  <thead>
+                    <tr>
+                      <th>Unidad</th>
+                      <th>Grupo</th>
+                      <th>Factor</th>
+                      <th>Vencimiento</th>
+                      <th>Estado</th>
+                      <th>Reservada por</th>
+                      <th>Fecha de reserva</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {preparadas.map((unidad) => (
+                      <tr key={unidad.id}>
+                        <td>{unidad.numeroUnidad}</td>
+                        <td>{unidad.grupoABO}</td>
+                        <td>
+                          {unidad.factorRhD === "POSITIVO"
+                            ? "Positivo (+)"
+                            : "Negativo (-)"}
+                        </td>
+                        <td>
+                          {new Date(unidad.fechaVencimiento).toLocaleDateString(
+                            "es-AR",
+                          )}
+                        </td>
+                        <td>
+                          <span className="seleccion-estado-preparada">
+                            {etiquetasEstado[unidad.estado] ?? unidad.estado}
+                          </span>
+                        </td>
+                        <td>{unidad.reservadaPor ?? "—"}</td>
+                        <td>
+                          {unidad.reservadaEn
+                            ? new Date(unidad.reservadaEn).toLocaleString(
+                                "es-AR",
+                              )
+                            : "—"}
                         </td>
                       </tr>
                     ))}
