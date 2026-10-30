@@ -8,6 +8,7 @@ import Entrevista from "./pages/Entrevista";
 import CalificacionBiologica from "./pages/CalificacionBiologica";
 import TipificacionSanguinea from "./pages/TipificacionSanguinea";
 import TamizajeInfecciones from "./pages/TamizajeInfecciones";
+import LiberacionUnidad from "./pages/LiberacionUnidad";
 import type { Donante } from "./types/donante";
 import "./App.css";
 
@@ -19,7 +20,8 @@ type Vista =
   | "entrevista"
   | "calificacion"
   | "tipificacion"
-  | "tamizaje";
+  | "tamizaje"
+  | "liberacion";
 
 type DonanteEntrevista = Pick<
   Donante,
@@ -138,6 +140,18 @@ export default function App() {
           <span className="nav-icon" aria-hidden="true">◉</span>
           Tamizaje de infecciones
         </button>
+
+        <button
+          type="button"
+          className={vista === "liberacion" ? "activo" : ""}
+          aria-current={vista === "liberacion" ? "page" : undefined}
+          onClick={() => setVista("liberacion")}
+        >
+          <span className="nav-icon" aria-hidden="true">
+            ✓
+          </span>
+          Liberar unidad
+        </button>
       </nav>
 
       <main className="app-main">
@@ -174,6 +188,7 @@ export default function App() {
         {vista === "calificacion" && <CalificacionBiologica />}
         {vista === "tipificacion" && <TipificacionSanguinea />}
         {vista === "tamizaje" && <TamizajeInfecciones />}
+        {vista === "liberacion" && <LiberacionUnidad />}
       </main>
 
       <footer className="app-footer">
