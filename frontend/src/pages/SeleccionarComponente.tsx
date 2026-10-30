@@ -68,7 +68,9 @@ export default function SeleccionarComponente() {
   const [preparadas, setPreparadas] = useState<Unidad[]>([]);
   const [mensajePreparadas, setMensajePreparadas] = useState("");
   const [mensajeServidor, setMensajeServidor] = useState("");
-  const [sinUnidades, setSinUnidades] = useState(false);
+  const [cantidadRequerida, setCantidadRequerida] = useState(0);
+  const [unidadesPreparadas, setUnidadesPreparadas] = useState(0);
+  const [unidadesRestantes, setUnidadesRestantes] = useState(0);
   const [operador, setOperador] = useState("");
 
   const [banner, setBanner] = useState<Banner>(null);
@@ -128,7 +130,9 @@ export default function SeleccionarComponente() {
     setBanner(null);
     setUnidades([]);
     setMensajeServidor("");
-    setSinUnidades(false);
+    setCantidadRequerida(0);
+    setUnidadesPreparadas(0);
+    setUnidadesRestantes(0);
 
     if (!idSolicitud) {
       setPreparadas([]);
@@ -156,7 +160,9 @@ export default function SeleccionarComponente() {
 
       setUnidades(datos.unidades as Unidad[]);
       setMensajeServidor(datos.mensaje as string);
-      setSinUnidades(Boolean(datos.sinUnidadesDisponibles));
+      setCantidadRequerida(Number(datos.cantidadRequerida ?? 0));
+      setUnidadesPreparadas(Number(datos.unidadesPreparadas ?? 0));
+      setUnidadesRestantes(Number(datos.unidadesRestantes ?? 0));
 
       if (datos.sinUnidadesDisponibles) {
         setBanner({ tipo: "aviso", texto: datos.mensaje as string });
@@ -166,10 +172,21 @@ export default function SeleccionarComponente() {
 
       const datosPreparadas = await respuestaPreparadas.json().catch(() => null);
 
-      if (respuestaPreparadas.ok && datosPreparadas) {
-        setPreparadas(datosPreparadas.unidades as Unidad[]);
-        setMensajePreparadas(datosPreparadas.mensaje as string);
+      if (!respuestaPreparadas.ok) {
+        throw new Error(
+          datosPreparadas?.error ||
+            "No se pudieron consultar las unidades preparadas.",
+        );
       }
+
+      setPreparadas((datosPreparadas.unidades ?? []) as Unidad[]);
+      setMensajePreparadas((datosPreparadas.mensaje ?? "") as string);
+      setUnidadesPreparadas(
+        Number(datosPreparadas.unidadesPreparadas ?? datos.unidadesPreparadas ?? 0),
+      );
+      setUnidadesRestantes(
+        Number(datosPreparadas.unidadesRestantes ?? datos.unidadesRestantes ?? 0),
+      );
     } catch (error) {
       setBanner({
         tipo: "error",
@@ -320,7 +337,19 @@ export default function SeleccionarComponente() {
 
           {consultando && <p>Consultando unidades...</p>}
 
-          {!consultando && sinUnidades && (
+          {!consultando && (
+            <p
+              className={`seleccion-contador${unidadesRestantes <= 0 ? " seleccion-contador-completo" : ""}`}
+              role="status"
+            >
+              Preparadas: {unidadesPreparadas} de {cantidadRequerida} requeridas
+              {unidadesRestantes > 0
+                ? ` · quedan ${unidadesRestantes} por preparar`
+                : " · cantidad máxima alcanzada"}
+            </p>
+          )}
+
+          {!consultando && unidades.length === 0 && (
             <p className="seleccion-vacio">{mensajeServidor}</p>
           )}
 
@@ -384,7 +413,11 @@ export default function SeleccionarComponente() {
                           >
                             <button
                               type="submit"
-                              disabled={preparandoId !== null || !operador.trim()}
+                              disabled={
+                                preparandoId !== null ||
+                                !operador.trim() ||
+                                unidadesRestantes <= 0
+                              }
                             >
                               {preparandoId === unidad.id
                                 ? "Preparando..."
