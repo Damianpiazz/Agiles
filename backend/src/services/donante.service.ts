@@ -79,6 +79,17 @@ export async function buscarPorId(id: number) {
               createdAt: true,
             },
           },
+          anticuerpoIrregular: {
+            select: {
+              id: true,
+              resultado: true,
+              operador: true,
+              fechaHora: true,
+              observacion: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          },
         },
       },
     },

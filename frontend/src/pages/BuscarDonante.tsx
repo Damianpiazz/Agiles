@@ -22,6 +22,16 @@ type EntrevistaDonacion = {
   createdAt: string;
 };
 
+type AnticuerpoIrregularHistorial = {
+  id: number;
+  resultado: "POSITIVO" | "NEGATIVO";
+  operador: string;
+  fechaHora: string;
+  observacion: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 type DonacionHistorial = {
   id: number;
   fechaHora: string;
@@ -35,6 +45,7 @@ type DonacionHistorial = {
   autoExcluido: boolean;
   observaciones: string | null;
   entrevista: EntrevistaDonacion | null;
+  anticuerpoIrregular: AnticuerpoIrregularHistorial | null;
 };
 
 type DonanteDetalle = Donante & { donaciones?: DonacionHistorial[] };
@@ -335,6 +346,43 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
                         <p><strong>Observaciones:</strong> {donacion.observaciones}</p>
                       )}
                     </div>
+                    {donacion.anticuerpoIrregular ? (
+                      <div className="consulta-anticuerpo-donacion">
+                        <h4>Resultado inmune / anticuerpos irregulares</h4>
+                        <div className="consulta-datos">
+                          <p>
+                            <strong>Resultado:</strong>{" "}
+                            {donacion.anticuerpoIrregular.resultado === "POSITIVO"
+                              ? "Positivo"
+                              : "Negativo"}
+                          </p>
+                          <p>
+                            <strong>Operador:</strong>{" "}
+                            {donacion.anticuerpoIrregular.operador}
+                          </p>
+                          <p>
+                            <strong>Fecha:</strong>{" "}
+                            {formatearFechaHora(donacion.anticuerpoIrregular.fechaHora)}
+                          </p>
+                          {donacion.anticuerpoIrregular.observacion && (
+                            <p>
+                              <strong>Observación:</strong>{" "}
+                              {donacion.anticuerpoIrregular.observacion}
+                            </p>
+                          )}
+                          {donacion.anticuerpoIrregular.resultado === "POSITIVO" && (
+                            <p>
+                              <strong>Acción:</strong> Reservar para receptor sin el antígeno correspondiente o desplasmatizar completamente. No se recomienda utilizar componentes plasmáticos derivados.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="consulta-sin-anticuerpo">
+                        Sin registro de anticuerpos irregulares.
+                      </p>
+                    )}
+
                     {donacion.entrevista ? (
                       <details className="consulta-entrevista-donacion">
                         <summary>Ver entrevista pre-donación</summary>
