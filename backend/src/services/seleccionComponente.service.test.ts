@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  CantidadMaximaAlcanzadaError,
   SolicitudNoAprobadaError,
   SolicitudNoEncontradaError,
   UnidadNoCompatibleError,
@@ -50,11 +51,13 @@ function unidad(overrides: Record<string, any> = {}) {
 function fakeDb({
   solicitud = solicitudAprobada() as any,
   unidades = [] as any[],
+  unidadesPreparadas = 0,
   resultadoReserva = { count: 1 },
   unidadReservada = null as any,
 }: {
   solicitud?: any;
   unidades?: any[];
+  unidadesPreparadas?: number;
   resultadoReserva?: { count: number };
   unidadReservada?: any;
 } = {}) {
@@ -65,6 +68,7 @@ function fakeDb({
     },
     unidadSangre: {
       findMany: vi.fn().mockResolvedValue(unidades),
+      count: vi.fn().mockResolvedValue(unidadesPreparadas),
       // Primera llamada: unidad en inventario. Segunda: unidad tras la reserva.
       findUnique: vi
         .fn()
@@ -163,6 +167,42 @@ describe("seleccionComponente.service listarUnidadesCompatibles", () => {
     expect(resultado.sinUnidadesDisponibles).toBe(true);
     expect(resultado.mensaje).toContain("No hay unidades compatibles");
   });
+
+  it("lista solo las unidades que faltan para cubrir la cantidad requerida", async () => {
+    const db = fakeDb({
+      unidades: [
+        unidad({ id: 1, numeroUnidad: "U-1001" }),
+        unidad({ id: 2, numeroUnidad: "U-1002" }),
+        unidad({ id: 3, numeroUnidad: "U-1003" }),
+      ],
+      unidadesPreparadas: 1,
+    });
+
+    const resultado = await listarUnidadesCompatibles(7, db as never);
+
+    expect(resultado.cantidadRequerida).toBe(2);
+    expect(resultado.unidadesPreparadas).toBe(1);
+    expect(resultado.unidadesRestantes).toBe(1);
+    expect(resultado.unidades.map((u: any) => u.numeroUnidad)).toEqual([
+      "U-1001",
+    ]);
+  });
+
+  it("no lista unidades cuando la cantidad requerida ya está completa", async () => {
+    const db = fakeDb({
+      unidades: [unidad({ id: 1, numeroUnidad: "U-1001" })],
+      unidadesPreparadas: 2,
+    });
+
+    const resultado = await listarUnidadesCompatibles(7, db as never);
+
+    expect(resultado.unidades).toEqual([]);
+    expect(resultado.cantidadMaximaAlcanzada).toBe(true);
+    expect(resultado.unidadesRestantes).toBe(0);
+    expect(resultado.mensaje).toContain(
+      "La solicitud ya tiene todas las unidades preparadas (2 de 2)",
+    );
+  });
 });
 
 describe("seleccionComponente.service listarUnidadesReservadas", () => {
@@ -205,7 +245,10 @@ describe("seleccionComponente.service listarUnidadesReservadas", () => {
       "U-1001",
       "U-1002",
     ]);
-    expect(resultado.mensaje).toContain("2 unidad(es) preparada(s)");
+    expect(resultado.cantidadRequerida).toBe(2);
+    expect(resultado.unidadesPreparadas).toBe(2);
+    expect(resultado.unidadesRestantes).toBe(0);
+    expect(resultado.mensaje).toContain("2 de 2 unidad(es) preparada(s)");
   });
 
   it("informa cuando todavía no hay unidades preparadas", async () => {
@@ -249,6 +292,19 @@ describe("seleccionComponente.service reservarUnidad", () => {
     expect(resultado.unidad.estado).toBe("RESERVADA");
     expect(resultado.mensaje).toContain("Lucía Fernández");
     expect(resultado.mensaje).toContain("U-1001");
+  });
+
+  it("impide preparar más componentes de los necesarios", async () => {
+    const db = fakeDb({
+      unidades: [unidad()],
+      unidadesPreparadas: 2,
+    });
+
+    await expect(
+      reservarUnidad(7, 1, "Operador", db as never),
+    ).rejects.toBeInstanceOf(CantidadMaximaAlcanzadaError);
+
+    expect(db.unidadSangre.updateMany).not.toHaveBeenCalled();
   });
 
   it("impide preparar una unidad que ya no está disponible", async () => {
