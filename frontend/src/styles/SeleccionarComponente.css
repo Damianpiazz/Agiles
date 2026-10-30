@@ -156,6 +156,24 @@
   border-radius: 8px;
 }
 
+.seleccion-nota {
+  margin: 0 0 1rem;
+  color: #706d78;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.seleccion-estado-preparada {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  color: #176b35;
+  background: #effaf2;
+  border: 1px solid #a6d8b5;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
 .seleccion-container button:focus-visible,
 .seleccion-container input:focus-visible,
 .seleccion-container select:focus-visible {
