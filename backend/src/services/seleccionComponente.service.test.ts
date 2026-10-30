@@ -6,6 +6,7 @@ import {
   UnidadNoDisponibleError,
   esUnidadCompatible,
   listarUnidadesCompatibles,
+  listarUnidadesReservadas,
   reservarUnidad,
 } from "./seleccionComponente.service";
 
@@ -161,6 +162,61 @@ describe("seleccionComponente.service listarUnidadesCompatibles", () => {
     expect(resultado.unidades).toEqual([]);
     expect(resultado.sinUnidadesDisponibles).toBe(true);
     expect(resultado.mensaje).toContain("No hay unidades compatibles");
+  });
+});
+
+describe("seleccionComponente.service listarUnidadesReservadas", () => {
+  it("requiere una solicitud existente", async () => {
+    const db = fakeDb({ solicitud: null });
+
+    await expect(
+      listarUnidadesReservadas(999, db as never),
+    ).rejects.toBeInstanceOf(SolicitudNoEncontradaError);
+  });
+
+  it("lista las unidades ya preparadas para la solicitud", async () => {
+    const db = fakeDb({
+      unidades: [
+        unidad({
+          id: 1,
+          numeroUnidad: "U-1001",
+          estado: "RESERVADA",
+          solicitudId: 7,
+          reservadaPor: "Operador",
+          reservadaEn: new Date(),
+        }),
+        unidad({
+          id: 2,
+          numeroUnidad: "U-1002",
+          estado: "RESERVADA",
+          solicitudId: 7,
+          reservadaPor: "Operador",
+          reservadaEn: new Date(),
+        }),
+      ],
+    });
+
+    const resultado = await listarUnidadesReservadas(7, db as never);
+
+    expect(db.unidadSangre.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { solicitudId: 7 } }),
+    );
+    expect(resultado.unidades.map((u: any) => u.numeroUnidad)).toEqual([
+      "U-1001",
+      "U-1002",
+    ]);
+    expect(resultado.mensaje).toContain("2 unidad(es) preparada(s)");
+  });
+
+  it("informa cuando todavía no hay unidades preparadas", async () => {
+    const db = fakeDb({ unidades: [] });
+
+    const resultado = await listarUnidadesReservadas(7, db as never);
+
+    expect(resultado.unidades).toEqual([]);
+    expect(resultado.mensaje).toContain(
+      "Todavía no hay unidades preparadas",
+    );
   });
 });
 
