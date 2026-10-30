@@ -19,20 +19,24 @@ export const cambiarEstadoUnidadSchema = z
       .string()
       .trim()
       .max(500)
-      .optional()
-      .transform((valor) => valor || undefined),
+      .optional(),
 
-    discrepanciaResuelta: z.boolean().optional().default(false),
+    discrepanciaResuelta: z
+      .boolean()
+      .optional()
+      .default(false),
 
     observacionDiscrepancia: z
       .string()
       .trim()
       .max(500)
-      .optional()
-      .transform((valor) => valor || undefined),
+      .optional(),
   })
   .superRefine((datos, ctx) => {
-    if (datos.accion === "BLOQUEAR" && !datos.motivo) {
+    if (
+      datos.accion === "BLOQUEAR" &&
+      !datos.motivo
+    ) {
       ctx.addIssue({
         code: "custom",
         path: ["motivo"],
