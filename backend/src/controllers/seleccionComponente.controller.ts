@@ -56,6 +56,28 @@ export async function listarUnidadesCompatibles(req: Request, res: Response) {
   }
 }
 
+export async function listarUnidadesReservadas(req: Request, res: Response) {
+  const parsed = idSolicitudSchema.safeParse(req.params.solicitudId);
+
+  if (!parsed.success) {
+    return res.status(400).json({ error: "ID de solicitud inválido" });
+  }
+
+  try {
+    const resultado =
+      await seleccionComponenteService.listarUnidadesReservadas(parsed.data);
+
+    return res.status(200).json(resultado);
+  } catch (error) {
+    if (error instanceof seleccionComponenteService.SolicitudNoEncontradaError) {
+      return res.status(404).json({ error: error.message });
+    }
+
+    console.error("Error al consultar unidades preparadas:", error);
+    return res.status(500).json({ error: "Error interno" });
+  }
+}
+
 export async function reservarUnidad(req: Request, res: Response) {
   const solicitudId = idSolicitudSchema.safeParse(req.params.solicitudId);
   const unidadId = idUnidadSchema.safeParse(req.params.unidadId);
