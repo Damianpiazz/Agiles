@@ -167,6 +167,33 @@ export async function listarUnidadesCompatibles(
   };
 }
 
+export async function listarUnidadesReservadas(
+  solicitudId: number,
+  db: SeleccionComponenteDb = dbPredeterminada,
+) {
+  const solicitud = await db.solicitudTransfusion.findUnique({
+    where: { id: solicitudId },
+  });
+
+  if (!solicitud) {
+    throw new SolicitudNoEncontradaError();
+  }
+
+  const unidades = await db.unidadSangre.findMany({
+    where: { solicitudId },
+    orderBy: { reservadaEn: "desc" },
+  });
+
+  return {
+    solicitud,
+    unidades: unidades.map(construirRespuestaUnidad),
+    mensaje:
+      unidades.length === 0
+        ? "Todavía no hay unidades preparadas para esta solicitud."
+        : `Hay ${unidades.length} unidad(es) preparada(s) para esta solicitud.`,
+  };
+}
+
 export async function reservarUnidad(
   solicitudId: number,
   unidadId: number,
