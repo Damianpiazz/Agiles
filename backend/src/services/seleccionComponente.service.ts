@@ -37,6 +37,15 @@ export class UnidadNoCompatibleError extends Error {
   }
 }
 
+export class CantidadMaximaAlcanzadaError extends Error {
+  constructor(requeridas: number, preparadas: number) {
+    super(
+      `La solicitud ya tiene ${preparadas} unidad(es) preparada(s) y solo requiere ${requeridas}: no se pueden preparar más componentes.`,
+    );
+    this.name = "CantidadMaximaAlcanzadaError";
+  }
+}
+
 type SolicitudTransfusionDb = {
   findUnique: (args: any) => Promise<any>;
   findMany: (args: any) => Promise<any>;
@@ -45,6 +54,7 @@ type SolicitudTransfusionDb = {
 type UnidadSangreDb = {
   findUnique: (args: any) => Promise<any>;
   findMany: (args: any) => Promise<any>;
+  count: (args: any) => Promise<number>;
   updateMany: (args: any) => Promise<{ count: number }>;
 };
 
@@ -155,15 +165,33 @@ export async function listarUnidadesCompatibles(
     .filter((unidad: Unidad) => esUnidadCompatible(unidad, solicitud))
     .map(construirRespuestaUnidad);
 
-  const sinUnidadesDisponibles = compatibles.length === 0;
+  const cantidadRequerida = solicitud.cantidad;
+  const unidadesPreparadas = await db.unidadSangre.count({
+    where: { solicitudId: solicitud.id },
+  });
+  const unidadesRestantes = Math.max(cantidadRequerida - unidadesPreparadas, 0);
+  const cantidadMaximaAlcanzada = unidadesRestantes === 0;
+
+  // Solo se listan las unidades que faltan para cubrir la cantidad requerida.
+  const unidadesListadas = cantidadMaximaAlcanzada
+    ? []
+    : compatibles.slice(0, unidadesRestantes);
+
+  const sinUnidadesDisponibles = unidadesListadas.length === 0;
 
   return {
     solicitud,
-    unidades: compatibles,
+    unidades: unidadesListadas,
     sinUnidadesDisponibles,
-    mensaje: sinUnidadesDisponibles
-      ? "No hay unidades compatibles disponibles para esta solicitud. Verificá el inventario o registrá la recepción de nuevas unidades."
-      : `Se encontraron ${compatibles.length} unidad(es) compatible(s) disponible(s) para preparar.`,
+    cantidadRequerida,
+    unidadesPreparadas,
+    unidadesRestantes,
+    cantidadMaximaAlcanzada,
+    mensaje: cantidadMaximaAlcanzada
+      ? `La solicitud ya tiene todas las unidades preparadas (${unidadesPreparadas} de ${cantidadRequerida}).`
+      : sinUnidadesDisponibles
+        ? "No hay unidades compatibles disponibles para esta solicitud. Verificá el inventario o registrá la recepción de nuevas unidades."
+        : `Se encontraron ${unidadesListadas.length} unidad(es) compatible(s) disponible(s) para preparar.`,
   };
 }
 
@@ -184,13 +212,20 @@ export async function listarUnidadesReservadas(
     orderBy: { reservadaEn: "desc" },
   });
 
+  const cantidadRequerida = solicitud.cantidad;
+  const unidadesPreparadas = unidades.length;
+  const unidadesRestantes = Math.max(cantidadRequerida - unidadesPreparadas, 0);
+
   return {
     solicitud,
     unidades: unidades.map(construirRespuestaUnidad),
+    cantidadRequerida,
+    unidadesPreparadas,
+    unidadesRestantes,
     mensaje:
-      unidades.length === 0
+      unidadesPreparadas === 0
         ? "Todavía no hay unidades preparadas para esta solicitud."
-        : `Hay ${unidades.length} unidad(es) preparada(s) para esta solicitud.`,
+        : `Hay ${unidadesPreparadas} de ${cantidadRequerida} unidad(es) preparada(s) para esta solicitud.`,
   };
 }
 
@@ -233,6 +268,18 @@ export async function reservarUnidad(
       unidad.estado === "DISPONIBLE"
         ? "La unidad está vencida y no puede prepararse."
         : "La unidad no está disponible para preparar.",
+    );
+  }
+
+  // No permitir preparar más componentes de los necesarios.
+  const unidadesPreparadas = await db.unidadSangre.count({
+    where: { solicitudId: solicitud.id },
+  });
+
+  if (unidadesPreparadas >= solicitud.cantidad) {
+    throw new CantidadMaximaAlcanzadaError(
+      solicitud.cantidad,
+      unidadesPreparadas,
     );
   }
 
