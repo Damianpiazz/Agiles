@@ -9,6 +9,7 @@ import CalificacionBiologica from "./pages/CalificacionBiologica";
 import TipificacionSanguinea from "./pages/TipificacionSanguinea";
 import TamizajeInfecciones from "./pages/TamizajeInfecciones";
 import SeleccionarComponente from "./pages/SeleccionarComponente";
+import LiberacionUnidad from "./pages/LiberacionUnidad";
 import type { Donante } from "./types/donante";
 import "./App.css";
 
@@ -21,7 +22,8 @@ type Vista =
   | "calificacion"
   | "tipificacion"
   | "tamizaje"
-  | "seleccionar";
+  | "seleccionar"
+  | "liberacion";
 
 type DonanteEntrevista = Pick<
   Donante,
@@ -150,6 +152,18 @@ export default function App() {
           <span className="nav-icon" aria-hidden="true">⚕</span>
           Seleccionar componente
         </button>
+
+        <button
+          type="button"
+          className={vista === "liberacion" ? "activo" : ""}
+          aria-current={vista === "liberacion" ? "page" : undefined}
+          onClick={() => setVista("liberacion")}
+        >
+          <span className="nav-icon" aria-hidden="true">
+            ✓
+          </span>
+          Liberar unidad
+        </button>
       </nav>
 
       <main className="app-main">
@@ -187,6 +201,7 @@ export default function App() {
         {vista === "tipificacion" && <TipificacionSanguinea />}
         {vista === "tamizaje" && <TamizajeInfecciones />}
         {vista === "seleccionar" && <SeleccionarComponente />}
+        {vista === "liberacion" && <LiberacionUnidad />}
       </main>
 
       <footer className="app-footer">
