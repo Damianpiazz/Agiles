@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "unidades_sangre" ADD COLUMN     "fechaRecepcion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "operador" TEXT NOT NULL DEFAULT '';
