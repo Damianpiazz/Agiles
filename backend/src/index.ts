@@ -9,6 +9,7 @@ import calificacionBiologicaRoutes from "./routes/calificacionBiologica.routes";
 import anticuerpoIrregularRoutes from "./routes/anticuerpoIrregular.routes";
 import tipificacionSanguineaRoutes from "./routes/tipificacionSanguinea.routes";
 import tamizajeInfeccionesRoutes from "./routes/tamizajeInfecciones.routes";
+import seleccionComponenteRoutes from "./routes/seleccionComponente.routes";
 import liberacionUnidadRoutes from "./routes/liberacionUnidad.routes";
 
 const app = express();
@@ -30,6 +31,7 @@ app.use("/api/calificaciones-biologicas", calificacionBiologicaRoutes);
 app.use("/api/anticuerpos-irregulares", anticuerpoIrregularRoutes);
 app.use("/api/tipificaciones-sanguineas", tipificacionSanguineaRoutes);
 app.use("/api/tamizajes-infecciones", tamizajeInfeccionesRoutes);
+app.use("/api/solicitudes-transfusiones", seleccionComponenteRoutes);
 app.use("/api/unidades", liberacionUnidadRoutes);
 
 app.listen(PORT, () => console.log(`API en http://localhost:${PORT}`));
