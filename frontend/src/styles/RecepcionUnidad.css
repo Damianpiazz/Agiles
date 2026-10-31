@@ -1,0 +1,242 @@
+.recepcion {
+  --tinta: #292631;
+  --papel: #f6f7f9;
+  --superficie: #ffffff;
+  --linea: #e3e5e9;
+  --acento: #9b1c31;
+  --error: #a4262c;
+  --ok: #1d6b4f;
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 2rem clamp(1rem, 3vw, 2.5rem) 3rem;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  text-align: left;
+  border-radius: 12px;
+}
+
+.recepcion *,
+.recepcion *::before,
+.recepcion *::after {
+  box-sizing: border-box;
+}
+
+.recepcion-header {
+  margin-bottom: 1.75rem;
+}
+
+.recepcion-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.65rem, 3vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  color: var(--tinta);
+}
+
+.recepcion-header p {
+  margin: 0;
+  color: #706d78;
+  font-size: 1rem;
+}
+
+.recepcion fieldset,
+.recepcion-inventario {
+  min-width: 0;
+  margin: 0 0 1.5rem;
+  padding: 1.5rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgb(31 36 48 / 4%);
+}
+
+.recepcion legend,
+.recepcion-inventario h2 {
+  padding: 0 0.6rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--tinta);
+}
+
+.recepcion-inventario h2 {
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.recepcion-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem 1.5rem;
+}
+
+.recepcion-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.recepcion-field label {
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--tinta);
+}
+
+.recepcion input,
+.recepcion select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.65rem 0.8rem;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--tinta);
+  background: #fff;
+  border: 1px solid #d8dbe2;
+  border-radius: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.recepcion input::placeholder {
+  color: #96939d;
+}
+
+.recepcion input:hover,
+.recepcion select:hover {
+  border-color: #b9bac4;
+}
+
+.recepcion input:focus,
+.recepcion select:focus {
+  outline: none;
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px rgb(155 28 49 / 12%);
+}
+
+.recepcion input:focus-visible,
+.recepcion select:focus-visible,
+.recepcion button:focus-visible {
+  outline: 3px solid rgb(155 28 49 / 35%);
+  outline-offset: 2px;
+}
+
+.recepcion input[aria-invalid="true"],
+.recepcion select[aria-invalid="true"] {
+  border-color: var(--error);
+  border-width: 2px;
+}
+
+.recepcion-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--error);
+}
+
+.recepcion-banner {
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.1rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-left-width: 5px;
+  border-radius: 8px;
+}
+
+.recepcion-banner-ok {
+  border-left-color: var(--ok);
+}
+
+.recepcion-banner-error {
+  border-left-color: var(--error);
+}
+
+.recepcion-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin: 0 0 2rem;
+}
+
+.recepcion button {
+  min-height: 44px;
+  padding: 0.7rem 1.5rem;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: #fff;
+  background: var(--acento);
+  border: 1px solid var(--acento);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.recepcion button:hover:not(:disabled) {
+  background: #7d1628;
+  border-color: #7d1628;
+}
+
+.recepcion button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.recepcion button:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+.recepcion-vacio {
+  margin: 0;
+  color: #706d78;
+}
+
+.recepcion-tabla-contenedor {
+  overflow-x: auto;
+}
+
+.recepcion-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.recepcion-tabla th,
+.recepcion-tabla td {
+  padding: 0.75rem 0.85rem;
+  border-bottom: 1px solid var(--linea);
+  text-align: left;
+}
+
+.recepcion-tabla th {
+  font-weight: 650;
+  color: #5b5863;
+  background: #fafbfc;
+}
+
+@media (min-width: 640px) {
+  .recepcion-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .recepcion {
+    padding: 1.25rem 0.85rem 2rem;
+  }
+
+  .recepcion fieldset,
+  .recepcion-inventario {
+    padding: 1rem;
+  }
+
+  .recepcion-actions {
+    justify-content: stretch;
+  }
+
+  .recepcion-actions button {
+    width: 100%;
+  }
+}

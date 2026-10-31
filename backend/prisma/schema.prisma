@@ -316,6 +316,8 @@ model UnidadSangre {
   factorRhD         FactorRhD
   fechaVencimiento  DateTime             @db.Date
   estado            EstadoUnidadSangre   @default(DISPONIBLE)
+  operador          String               @default("")
+  fechaRecepcion    DateTime             @default(now())
   solicitudId       Int?
   solicitud         SolicitudTransfusion? @relation(fields: [solicitudId], references: [id])
   reservadaPor      String?

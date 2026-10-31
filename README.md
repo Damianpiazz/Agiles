@@ -134,6 +134,8 @@ npm run dev
 | POST | `/api/donaciones` | Registrar donación de un donante (HU-008) | 201 | 400, 404, 500 |
 | GET | `/api/donaciones/:id` | Consultar una donación (HU-008) | 200 | 400, 404, 500 |
 | POST | `/api/donantes/:id/entrevistas` | Registrar entrevista, resultado de admisión y datos de diferimiento (HU-003, HU-004) | 201 | 400, 404, 500 |
+| POST | `/api/inventario-unidades` | Registrar recepción de unidad de hemocomponente en inventario (HU-022) | 201 | 400, 409, 500 |
+| GET | `/api/inventario-unidades` | Listar unidades registradas en el inventario (HU-022) | 200 | 500 |
 
 ## Comandos del día a día
 
@@ -243,3 +245,8 @@ Convenciones de rutas REST: sustantivos en plural (`/api/donantes`), el verbo lo
 - **Operador sin autenticación:** hoy `operador` se ingresa como texto en el formulario. Se reemplaza por la identidad autenticada cuando estén las HU-020 (login) y HU-021 (roles).
 - **Calificación biológica:** la donación se crea en estado `REGISTRADA`. Los estados `EN_CALIFICACION`, `CALIFICADA` y `RECHAZADA` quedan modelados para la historia de calificación.
 - **Datos clínicos:** el modelo guarda donante, fecha/hora, operador y observaciones. Tipo de donación y datos de la entrevista pre-donación quedan para sus historias.
+
+### HU-022 · Registrar recepción de unidades
+
+- **API abierta y operador sin autenticación:** hoy `POST /api/inventario-unidades` y `GET /api/inventario-unidades` no validan sesión ni rol (el login y los permisos corresponden a las HU-020 y HU-021), y el campo `operador` se registra como texto libre ingresado en el formulario hasta que esté implementada la autenticación.
+- **Estado en la recepción:** las unidades recepcionadas se incorporan al inventario en estado `DISPONIBLE`. La liberación/bloqueo por calificación biológica corresponde a la HU-013 y la baja de unidades a la HU-023.

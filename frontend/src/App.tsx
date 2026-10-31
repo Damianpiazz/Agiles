@@ -10,6 +10,7 @@ import TipificacionSanguinea from "./pages/TipificacionSanguinea";
 import TamizajeInfecciones from "./pages/TamizajeInfecciones";
 import SeleccionarComponente from "./pages/SeleccionarComponente";
 import LiberacionUnidad from "./pages/LiberacionUnidad";
+import RecepcionUnidad from "./pages/RecepcionUnidad";
 import type { Donante } from "./types/donante";
 import "./App.css";
 
@@ -23,7 +24,8 @@ type Vista =
   | "tipificacion"
   | "tamizaje"
   | "seleccionar"
-  | "liberacion";
+  | "liberacion"
+  | "recepcion";
 
 type DonanteEntrevista = Pick<
   Donante,
@@ -164,6 +166,18 @@ export default function App() {
           </span>
           Liberar unidad
         </button>
+
+        <button
+          type="button"
+          className={vista === "recepcion" ? "activo" : ""}
+          aria-current={vista === "recepcion" ? "page" : undefined}
+          onClick={() => setVista("recepcion")}
+        >
+          <span className="nav-icon" aria-hidden="true">
+            ＋
+          </span>
+          Recepción de unidades
+        </button>
       </nav>
 
       <main className="app-main">
@@ -202,6 +216,7 @@ export default function App() {
         {vista === "tamizaje" && <TamizajeInfecciones />}
         {vista === "seleccionar" && <SeleccionarComponente />}
         {vista === "liberacion" && <LiberacionUnidad />}
+        {vista === "recepcion" && <RecepcionUnidad />}
       </main>
 
       <footer className="app-footer">
