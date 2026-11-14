@@ -99,6 +99,21 @@ model Donante {
   @@map("donantes")
 }
 
+model Paciente {
+  id              Int      @id @default(autoincrement())
+  nombre          String
+  apellido        String
+  dni             String   @unique
+  fechaNacimiento DateTime @db.Date
+  operador        String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  solicitudesTransfusion SolicitudTransfusion[]
+
+  @@map("pacientes")
+}
+
 model Donacion {
   id              Int            @id @default(autoincrement())
   donanteId       Int
@@ -288,42 +303,45 @@ model TipificacionSanguinea {
 }
 
 model SolicitudTransfusion {
-  id                Int                         @id @default(autoincrement())
-  dniPaciente       String
-  nombrePaciente    String
-  grupoABO          GrupoSanguineoABO
-  factorRhD         FactorRhD
+  id                 Int                        @id @default(autoincrement())
+  pacienteId         Int?
+  paciente           Paciente?                  @relation(fields: [pacienteId], references: [id], onDelete: SetNull)
+  dniPaciente        String
+  nombrePaciente     String
+  grupoABO           GrupoSanguineoABO
+  factorRhD          FactorRhD
   tipoHemocomponente TipoHemocomponente
-  cantidad          Int                         @default(1)
-  estado            EstadoSolicitudTransfusion  @default(PENDIENTE)
-  observaciones     String?
-  operador          String
-  fechaHora         DateTime                    @default(now())
-  createdAt         DateTime                    @default(now())
-  updatedAt         DateTime                    @updatedAt
+  cantidad           Int                        @default(1)
+  estado             EstadoSolicitudTransfusion @default(PENDIENTE)
+  observaciones      String?
+  operador           String
+  fechaHora          DateTime                   @default(now())
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
 
   unidades UnidadSangre[]
 
   @@index([estado, fechaHora])
+  @@index([pacienteId])
   @@map("solicitudes_transfusion")
 }
 
 model UnidadSangre {
-  id                Int                  @id @default(autoincrement())
-  numeroUnidad      String               @unique
+  id                 Int                   @id @default(autoincrement())
+  numeroUnidad       String                @unique
   tipoHemocomponente TipoHemocomponente
-  grupoABO          GrupoSanguineoABO
-  factorRhD         FactorRhD
-  fechaVencimiento  DateTime             @db.Date
-  estado            EstadoUnidadSangre   @default(DISPONIBLE)
-  operador          String               @default("")
-  fechaRecepcion    DateTime             @default(now())
-  solicitudId       Int?
-  solicitud         SolicitudTransfusion? @relation(fields: [solicitudId], references: [id])
-  reservadaPor      String?
-  reservadaEn       DateTime?
-  createdAt         DateTime             @default(now())
-  updatedAt         DateTime             @updatedAt
+  grupoABO           GrupoSanguineoABO
+  factorRhD          FactorRhD
+  fechaVencimiento   DateTime              @db.Date
+  estado             EstadoUnidadSangre    @default(DISPONIBLE)
+  operador           String                @default("")
+  fechaRecepcion     DateTime              @default(now())
+  solicitudId        Int?
+  solicitud          SolicitudTransfusion? @relation(fields: [solicitudId], references: [id])
+  reservadaPor       String?
+  reservadaEn        DateTime?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
 
   @@index([estado, fechaVencimiento])
   @@map("unidades_sangre")
