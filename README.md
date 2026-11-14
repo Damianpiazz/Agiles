@@ -141,6 +141,8 @@ npm run dev
 | POST | `/api/inventario-unidades` | Registrar recepción de unidad de hemocomponente en inventario (HU-022) | 201 | 400, 409, 500 |
 | GET | `/api/inventario-unidades` | Listar unidades registradas en el inventario (HU-022) | 200 | 500 |
 
+La interfaz incluye los apartados **Alta de paciente** y **Buscar paciente**. La búsqueda permite consultar por DNI o por nombre y apellido, y muestra los datos identificatorios y la trazabilidad del alta.
+
 ## Comandos del día a día
 
 ```bash

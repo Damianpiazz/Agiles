@@ -2,6 +2,7 @@
 import { useState } from "react";
 import AltaDonante from "./pages/AltaDonante";
 import AltaPaciente from "./pages/AltaPaciente";
+import BuscarPaciente from "./pages/BuscarPaciente";
 import BuscarDonante from "./pages/BuscarDonante";
 import RegistrarDonacion from "./pages/RegistrarDonacion";
 import CargarEstudios from "./pages/CargarEstudios";
@@ -18,6 +19,7 @@ import "./App.css";
 type Vista =
   | "alta"
   | "paciente"
+  | "buscarPaciente"
   | "buscar"
   | "donacion"
   | "estudios"
@@ -119,6 +121,16 @@ export default function App() {
 
         <button
           type="button"
+          className={vista === "buscarPaciente" ? "activo" : ""}
+          aria-current={vista === "buscarPaciente" ? "page" : undefined}
+          onClick={() => setVista("buscarPaciente")}
+        >
+          <span className="nav-icon" aria-hidden="true">⌕</span>
+          Buscar paciente
+        </button>
+
+        <button
+          type="button"
           className={vista === "donacion" ? "activo" : ""}
           aria-current={vista === "donacion" ? "page" : undefined}
           onClick={abrirDonacion}
@@ -201,6 +213,7 @@ export default function App() {
 
         {vista === "alta" && <AltaDonante />}
         {vista === "paciente" && <AltaPaciente />}
+        {vista === "buscarPaciente" && <BuscarPaciente />}
 
         {vista === "donacion" && donanteParaDonacion && (
           <RegistrarDonacion
