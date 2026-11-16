@@ -12,6 +12,7 @@ import tamizajeInfeccionesRoutes from "./routes/tamizajeInfecciones.routes";
 import seleccionComponenteRoutes from "./routes/seleccionComponente.routes";
 import liberacionUnidadRoutes from "./routes/liberacionUnidad.routes";
 import recepcionUnidadRoutes from "./routes/recepcionUnidad.routes";
+import pacienteRoutes from "./routes/paciente.routes";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -35,5 +36,6 @@ app.use("/api/tamizajes-infecciones", tamizajeInfeccionesRoutes);
 app.use("/api/solicitudes-transfusiones", seleccionComponenteRoutes);
 app.use("/api/unidades", liberacionUnidadRoutes);
 app.use("/api/inventario-unidades", recepcionUnidadRoutes);
+app.use("/api/pacientes", pacienteRoutes);
 
 app.listen(PORT, () => console.log(`API en http://localhost:${PORT}`));

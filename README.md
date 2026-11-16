@@ -131,11 +131,17 @@ npm run dev
 | GET | `/api/donantes?dni={dni}` | Buscar donante por DNI (HU-002) | 200 | 400, 500 |
 | GET | `/api/donantes?nombre={nombre}&apellido={apellido}` | Buscar donante por nombre y apellido (HU-002) | 200 | 400, 500 |
 | GET | `/api/donantes/:id` | Consultar datos de un donante (HU-002) | 200 | 400, 404, 500 |
+| POST | `/api/pacientes` | Registrar paciente/receptor (HU-024) | 201 | 400, 409, 500 |
+| GET | `/api/pacientes` | Listar pacientes para su reutilización en solicitudes de transfusión (HU-024) | 200 | 400, 500 |
+| GET | `/api/pacientes?dni={dni}` | Buscar paciente/receptor por DNI (HU-024) | 200 | 400, 500 |
+| GET | `/api/pacientes?nombre={nombre}&apellido={apellido}` | Buscar paciente/receptor por nombre y apellido (HU-024) | 200 | 400, 500 |
 | POST | `/api/donaciones` | Registrar donación de un donante (HU-008) | 201 | 400, 404, 500 |
 | GET | `/api/donaciones/:id` | Consultar una donación (HU-008) | 200 | 400, 404, 500 |
 | POST | `/api/donantes/:id/entrevistas` | Registrar entrevista, resultado de admisión y datos de diferimiento (HU-003, HU-004) | 201 | 400, 404, 500 |
 | POST | `/api/inventario-unidades` | Registrar recepción de unidad de hemocomponente en inventario (HU-022) | 201 | 400, 409, 500 |
 | GET | `/api/inventario-unidades` | Listar unidades registradas en el inventario (HU-022) | 200 | 500 |
+
+La interfaz incluye los apartados **Alta de paciente** y **Buscar paciente**. La búsqueda permite consultar por DNI o por nombre y apellido, y muestra los datos identificatorios y la trazabilidad del alta.
 
 ## Comandos del día a día
 
