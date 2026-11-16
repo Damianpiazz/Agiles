@@ -1,9 +1,14 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
+import type { ChangeEvent, FormEvent } from "react";
+import { z } from "zod";
 import {
   buscarDonanteSchema,
   type BuscarDonanteForm,
 } from "../schemas/buscarDonante";
+import {
+  actualizarDonanteSchema,
+  type ActualizarDonanteForm,
+} from "../schemas/donante";
 import { PREGUNTAS_CUESTIONARIO } from "../schemas/entrevista";
 import type { Donante } from "../types/donante";
 import "../styles/BuscarDonante.css";
@@ -50,10 +55,24 @@ type DonacionHistorial = {
 
 type DonanteDetalle = Donante & { donaciones?: DonacionHistorial[] };
 
+type CampoEdicion = keyof ActualizarDonanteForm;
+type FormEdicionState = Record<CampoEdicion, string>;
+type ErroresEdicion = Partial<Record<CampoEdicion, string[]>>;
+type BannerEdicion = { tipo: "ok" | "error"; texto: string } | null;
+
 const formInicial: BuscarDonanteForm = {
   dni: "",
   nombre: "",
   apellido: "",
+};
+
+const formEdicionVacio: FormEdicionState = {
+  domicilio: "",
+  codigoPostal: "",
+  email: "",
+  telefonoFijo: "",
+  telefonoCelular: "",
+  operador: "",
 };
 
 export default function BuscarDonante({ onRegistrarDonacion }: Props) {
@@ -62,6 +81,12 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
   const [seleccionado, setSeleccionado] = useState<DonanteDetalle | null>(null);
   const [mensaje, setMensaje] = useState("");
   const [buscando, setBuscando] = useState(false);
+
+  const [editando, setEditando] = useState(false);
+  const [formEdicion, setFormEdicion] = useState<FormEdicionState>(formEdicionVacio);
+  const [erroresEdicion, setErroresEdicion] = useState<ErroresEdicion>({});
+  const [bannerEdicion, setBannerEdicion] = useState<BannerEdicion>(null);
+  const [guardando, setGuardando] = useState(false);
 
   function formatearFecha(fecha: string) {
     const [anio, mes, dia] = fecha.slice(0, 10).split("-");
@@ -85,11 +110,103 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
     return etiquetas[estado];
   }
 
+  function iniciarEdicion(donante: DonanteDetalle) {
+    setFormEdicion({
+      domicilio: donante.domicilio,
+      codigoPostal: donante.codigoPostal,
+      email: donante.email,
+      telefonoFijo: donante.telefonoFijo ?? "",
+      telefonoCelular: donante.telefonoCelular,
+      operador: "",
+    });
+    setErroresEdicion({});
+    setBannerEdicion(null);
+    setEditando(true);
+  }
+
+  function cancelarEdicion() {
+    setEditando(false);
+    setErroresEdicion({});
+    setBannerEdicion(null);
+  }
+
+  function onChangeEdicion(e: ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    setFormEdicion((prev) => ({ ...prev, [name]: value }));
+  }
+
+  function errorDeEdicion(campo: CampoEdicion) {
+    return erroresEdicion[campo]?.[0];
+  }
+
+  async function guardarEdicion(e: FormEvent) {
+    e.preventDefault();
+    if (!seleccionado) return;
+
+    setBannerEdicion(null);
+
+    const parsed = actualizarDonanteSchema.safeParse(formEdicion);
+    if (!parsed.success) {
+      setErroresEdicion(z.flattenError(parsed.error).fieldErrors as ErroresEdicion);
+      setBannerEdicion({ tipo: "error", texto: "Revisá los campos marcados." });
+      return;
+    }
+
+    setErroresEdicion({});
+    setGuardando(true);
+
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/donantes/${seleccionado.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(parsed.data),
+        },
+      );
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        if (res.status === 400 && data?.campos) {
+          setErroresEdicion(data.campos as ErroresEdicion);
+          setBannerEdicion({ tipo: "error", texto: "Revisá los campos marcados." });
+          return;
+        }
+        setBannerEdicion({
+          tipo: "error",
+          texto: data?.error ?? "No se pudieron actualizar los datos del donante.",
+        });
+        return;
+      }
+
+      const actualizado: DonanteDetalle = data;
+      setSeleccionado(actualizado);
+      setResultados((prev) =>
+        prev.map((d) => (d.id === actualizado.id ? { ...d, ...actualizado } : d)),
+      );
+      setEditando(false);
+      setBannerEdicion({
+        tipo: "ok",
+        texto: `Datos actualizados correctamente. Operador: ${actualizado.operadorModificacion ?? parsed.data.operador} · Fecha y hora: ${actualizado.updatedAt ? formatearFechaHora(actualizado.updatedAt) : formatearFechaHora(new Date().toISOString())}`,
+      });
+    } catch {
+      setBannerEdicion({
+        tipo: "error",
+        texto: "No se pudo conectar con el servidor.",
+      });
+    } finally {
+      setGuardando(false);
+    }
+  }
+
   async function buscar(e: FormEvent) {
     e.preventDefault();
 
     setMensaje("");
     setSeleccionado(null);
+    setEditando(false);
+    setBannerEdicion(null);
 
     const parsed = buscarDonanteSchema.safeParse(form);
 
@@ -137,6 +254,9 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
 
   async function verDetalle(id: number) {
     setMensaje("");
+    setEditando(false);
+    setBannerEdicion(null);
+    setErroresEdicion({});
 
     try {
       const res = await fetch(
@@ -259,61 +379,276 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
         <section className="consulta-detalle">
           <h2>Datos del donante</h2>
 
-          {onRegistrarDonacion && (
-            <div className="consulta-actions">
-              <button
-                type="button"
-                onClick={() => onRegistrarDonacion(seleccionado)}
-              >
-                Registrar donación
-              </button>
+          {bannerEdicion && (
+            <div
+              className={`consulta-banner ${
+                bannerEdicion.tipo === "ok"
+                  ? "consulta-banner-ok"
+                  : "consulta-banner-error"
+              }`}
+              role="status"
+            >
+              {bannerEdicion.texto}
             </div>
           )}
 
-          <fieldset>
-            <legend>Datos filiatorios</legend>
+          {seleccionado.operadorModificacion && seleccionado.updatedAt && (
+            <p className="consulta-trazabilidad">
+              Última modificación por <strong>{seleccionado.operadorModificacion}</strong> el{" "}
+              <strong>{formatearFechaHora(seleccionado.updatedAt)}</strong>
+            </p>
+          )}
 
-            <div className="consulta-datos">
-              <p><strong>Nombre:</strong> {seleccionado.nombre}</p>
-              <p><strong>Apellido:</strong> {seleccionado.apellido}</p>
-              <p><strong>DNI:</strong> {seleccionado.dni}</p>
-              <p>
-                <strong>Fecha de nacimiento:</strong>{" "}
-                {formatearFecha(seleccionado.fechaNacimiento)}
-              </p>
-              <p>
-                <strong>Lugar de nacimiento:</strong>{" "}
-                {seleccionado.lugarNacimiento}
-              </p>
-              <p>
-                <strong>Sexo biológico:</strong>{" "}
-                {seleccionado.sexoBiologico === "MASCULINO"
-                  ? "Masculino"
-                  : "Femenino"}
-              </p>
+          {!editando && (
+            <div className="consulta-actions consulta-actions-ficha">
+              <button
+                type="button"
+                onClick={() => iniciarEdicion(seleccionado)}
+              >
+                Modificar datos
+              </button>
+              {onRegistrarDonacion && (
+                <button
+                  type="button"
+                  onClick={() => onRegistrarDonacion(seleccionado)}
+                >
+                  Registrar donación
+                </button>
+              )}
             </div>
-          </fieldset>
+          )}
 
-          <fieldset>
-            <legend>Domicilio y contacto</legend>
+          {editando ? (
+            <form onSubmit={guardarEdicion} noValidate className="consulta-form-edicion">
+              <fieldset>
+                <legend>Datos filiatorios (no modificables)</legend>
+                <div className="consulta-edicion-grid">
+                  <div className="consulta-field">
+                    <label htmlFor="edicionNombre">Nombre</label>
+                    <input
+                      id="edicionNombre"
+                      value={seleccionado.nombre}
+                      disabled
+                      readOnly
+                    />
+                  </div>
 
-            <div className="consulta-datos">
-              <p><strong>Domicilio:</strong> {seleccionado.domicilio}</p>
-              <p>
-                <strong>Código postal:</strong>{" "}
-                {seleccionado.codigoPostal}
-              </p>
-              <p><strong>Email:</strong> {seleccionado.email}</p>
-              <p>
-                <strong>Teléfono fijo:</strong>{" "}
-                {seleccionado.telefonoFijo || "No registrado"}
-              </p>
-              <p>
-                <strong>Teléfono celular:</strong>{" "}
-                {seleccionado.telefonoCelular}
-              </p>
-            </div>
-          </fieldset>
+                  <div className="consulta-field">
+                    <label htmlFor="edicionApellido">Apellido</label>
+                    <input
+                      id="edicionApellido"
+                      value={seleccionado.apellido}
+                      disabled
+                      readOnly
+                    />
+                  </div>
+
+                  <div className="consulta-field">
+                    <label htmlFor="edicionDni">DNI</label>
+                    <input
+                      id="edicionDni"
+                      value={seleccionado.dni}
+                      disabled
+                      readOnly
+                    />
+                  </div>
+
+                  <div className="consulta-field">
+                    <label htmlFor="edicionFechaNacimiento">Fecha de nacimiento</label>
+                    <input
+                      id="edicionFechaNacimiento"
+                      value={formatearFecha(seleccionado.fechaNacimiento)}
+                      disabled
+                      readOnly
+                    />
+                  </div>
+
+                  <div className="consulta-field">
+                    <label htmlFor="edicionLugarNacimiento">Lugar de nacimiento</label>
+                    <input
+                      id="edicionLugarNacimiento"
+                      value={seleccionado.lugarNacimiento}
+                      disabled
+                      readOnly
+                    />
+                  </div>
+
+                  <div className="consulta-field">
+                    <label htmlFor="edicionSexoBiologico">Sexo biológico</label>
+                    <input
+                      id="edicionSexoBiologico"
+                      value={
+                        seleccionado.sexoBiologico === "MASCULINO"
+                          ? "Masculino"
+                          : "Femenino"
+                      }
+                      disabled
+                      readOnly
+                    />
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset>
+                <legend>Domicilio y contacto</legend>
+                <div className="consulta-edicion-grid">
+                  <div className="consulta-field">
+                    <label htmlFor="edicionDomicilio">Domicilio</label>
+                    <input
+                      id="edicionDomicilio"
+                      name="domicilio"
+                      value={formEdicion.domicilio}
+                      onChange={onChangeEdicion}
+                      aria-invalid={Boolean(errorDeEdicion("domicilio"))}
+                    />
+                    {errorDeEdicion("domicilio") && (
+                      <p className="consulta-error">{errorDeEdicion("domicilio")}</p>
+                    )}
+                  </div>
+
+                  <div className="consulta-field">
+                    <label htmlFor="edicionCodigoPostal">Código postal</label>
+                    <input
+                      id="edicionCodigoPostal"
+                      name="codigoPostal"
+                      value={formEdicion.codigoPostal}
+                      onChange={onChangeEdicion}
+                      aria-invalid={Boolean(errorDeEdicion("codigoPostal"))}
+                    />
+                    {errorDeEdicion("codigoPostal") && (
+                      <p className="consulta-error">{errorDeEdicion("codigoPostal")}</p>
+                    )}
+                  </div>
+
+                  <div className="consulta-field">
+                    <label htmlFor="edicionEmail">Email</label>
+                    <input
+                      id="edicionEmail"
+                      name="email"
+                      type="email"
+                      value={formEdicion.email}
+                      onChange={onChangeEdicion}
+                      aria-invalid={Boolean(errorDeEdicion("email"))}
+                    />
+                    {errorDeEdicion("email") && (
+                      <p className="consulta-error">{errorDeEdicion("email")}</p>
+                    )}
+                  </div>
+
+                  <div className="consulta-field">
+                    <label htmlFor="edicionTelefonoFijo">
+                      Teléfono fijo <span className="consulta-optional">(opcional)</span>
+                    </label>
+                    <input
+                      id="edicionTelefonoFijo"
+                      name="telefonoFijo"
+                      value={formEdicion.telefonoFijo}
+                      onChange={onChangeEdicion}
+                      aria-invalid={Boolean(errorDeEdicion("telefonoFijo"))}
+                    />
+                    {errorDeEdicion("telefonoFijo") && (
+                      <p className="consulta-error">{errorDeEdicion("telefonoFijo")}</p>
+                    )}
+                  </div>
+
+                  <div className="consulta-field">
+                    <label htmlFor="edicionTelefonoCelular">Teléfono celular</label>
+                    <input
+                      id="edicionTelefonoCelular"
+                      name="telefonoCelular"
+                      value={formEdicion.telefonoCelular}
+                      onChange={onChangeEdicion}
+                      aria-invalid={Boolean(errorDeEdicion("telefonoCelular"))}
+                    />
+                    {errorDeEdicion("telefonoCelular") && (
+                      <p className="consulta-error">{errorDeEdicion("telefonoCelular")}</p>
+                    )}
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset>
+                <legend>Registro de la modificación</legend>
+                <div className="consulta-edicion-grid">
+                  <div className="consulta-field">
+                    <label htmlFor="edicionOperador">Operador responsable</label>
+                    <input
+                      id="edicionOperador"
+                      name="operador"
+                      value={formEdicion.operador}
+                      onChange={onChangeEdicion}
+                      placeholder="Nombre y apellido del operador"
+                      aria-invalid={Boolean(errorDeEdicion("operador"))}
+                    />
+                    {errorDeEdicion("operador") && (
+                      <p className="consulta-error">{errorDeEdicion("operador")}</p>
+                    )}
+                  </div>
+                </div>
+              </fieldset>
+
+              <div className="consulta-actions consulta-actions-edicion">
+                <button type="submit" disabled={guardando}>
+                  {guardando ? "Guardando…" : "Guardar cambios"}
+                </button>
+                <button
+                  type="button"
+                  className="consulta-btn-secundario"
+                  onClick={cancelarEdicion}
+                  disabled={guardando}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          ) : (
+            <>
+              <fieldset>
+                <legend>Datos filiatorios</legend>
+
+                <div className="consulta-datos">
+                  <p><strong>Nombre:</strong> {seleccionado.nombre}</p>
+                  <p><strong>Apellido:</strong> {seleccionado.apellido}</p>
+                  <p><strong>DNI:</strong> {seleccionado.dni}</p>
+                  <p>
+                    <strong>Fecha de nacimiento:</strong>{" "}
+                    {formatearFecha(seleccionado.fechaNacimiento)}
+                  </p>
+                  <p>
+                    <strong>Lugar de nacimiento:</strong>{" "}
+                    {seleccionado.lugarNacimiento}
+                  </p>
+                  <p>
+                    <strong>Sexo biológico:</strong>{" "}
+                    {seleccionado.sexoBiologico === "MASCULINO"
+                      ? "Masculino"
+                      : "Femenino"}
+                  </p>
+                </div>
+              </fieldset>
+
+              <fieldset>
+                <legend>Domicilio y contacto</legend>
+
+                <div className="consulta-datos">
+                  <p><strong>Domicilio:</strong> {seleccionado.domicilio}</p>
+                  <p>
+                    <strong>Código postal:</strong>{" "}
+                    {seleccionado.codigoPostal}
+                  </p>
+                  <p><strong>Email:</strong> {seleccionado.email}</p>
+                  <p>
+                    <strong>Teléfono fijo:</strong>{" "}
+                    {seleccionado.telefonoFijo || "No registrado"}
+                  </p>
+                  <p>
+                    <strong>Teléfono celular:</strong>{" "}
+                    {seleccionado.telefonoCelular}
+                  </p>
+                </div>
+              </fieldset>
+            </>
+          )}
 
           <fieldset>
             <legend>Historial de donaciones</legend>

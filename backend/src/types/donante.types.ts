@@ -20,6 +20,17 @@ export const crearDonanteSchema = z.object({
 
 export type CrearDonanteInput = z.infer<typeof crearDonanteSchema>;
 
+export const actualizarDonanteSchema = z.object({
+  domicilio: obligatorio,
+  codigoPostal: obligatorio,
+  email: z.email({ error: "Email inválido" }),
+  telefonoFijo: z.string().trim().optional(),
+  telefonoCelular: obligatorio,
+  operador: z.string({ error: "El operador es obligatorio" }).trim().min(1, "El operador es obligatorio"),
+});
+
+export type ActualizarDonanteInput = z.infer<typeof actualizarDonanteSchema>;
+
 export const buscarDonanteSchema = z
   .object({
     dni: z
