@@ -1,0 +1,16 @@
+export const rutas = {
+  login: "/login",
+  inicio: "/",
+  personas: "/personas",
+  postaFija: "/posta-fija",
+  donacionesEstudios: "/donaciones-estudios",
+  unidadTransfusional: "/unidad-transfusional",
+  gestantes: "/gestantes",
+  maternidad: "/maternidad",
+  sangrias: "/sangrias",
+  reportes: "/reportes",
+  usuarios: "/usuarios",
+  catalogos: "/catalogos",
+  auditoria: "/auditoria",
+  sinAcceso: "/sin-acceso",
+} as const;

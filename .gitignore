@@ -27,3 +27,7 @@ Thumbs.db
 
 # OpenCode
 opencode.json
+
+# Verificación local (capturas y logs de Playwright)
+.artifacts/
+.playwright-mcp/
