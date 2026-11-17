@@ -19,14 +19,17 @@ Cubre donantes, calificación biológica, inventario de hemocomponentes, pacient
 ```
 .
 ├── backend/
-│   ├── prisma/              # schema.prisma y migraciones
+│   ├── prisma/              # schema.prisma, migraciones y seeders
 │   ├── src/
-│   │   ├── config/          # conexión a Prisma
-│   │   ├── types/           # forma de los datos y validaciones (Zod)
-│   │   ├── services/        # lógica y acceso a datos (no conocen HTTP)
-│   │   ├── controllers/     # traducen HTTP y eligen el status code
-│   │   ├── routes/          # verbo + ruta → controller
-│   │   └── index.ts         # levanta el server y monta las rutas
+│   │   ├── config/          # entorno y conexión a Prisma
+│   │   ├── features/        # un módulo por recurso: *.schema, *.service, *.routes
+│   │   ├── lib/             # CRUD genérico, errores, HTTP, seguridad, CSV, auditoría
+│   │   ├── middlewares/     # auth, validación, auditoría, errores, logging
+│   │   ├── routes/          # router central de /api/v1
+│   │   ├── utils/           # formato de fechas, documentos y nombres
+│   │   ├── validators/      # esquemas Zod reutilizables
+│   │   ├── app.ts           # arma Express (testeable sin abrir puerto)
+│   │   └── index.ts         # levanta el servidor
 │   ├── Dockerfile
 │   ├── .env.example
 │   └── prisma.config.ts
@@ -86,6 +89,14 @@ docker compose exec api npx prisma migrate dev
 
 Aplica todas las migraciones que hay en `backend/prisma/migrations`.
 
+### 3.1. Datos de demostración (opcional)
+
+```bash
+docker compose exec api npx prisma db seed
+```
+
+Carga catálogos, personas, donaciones, estudios y usuarios de prueba. Los usuarios demo son `admin` / `Admin.123`, `fperez` / `Tecnico.123` y `maternidad` / `Consulta.123` (solo para desarrollo).
+
 ### 4. Preparar el editor (solo para VS Code)
 
 El cliente de Prisma se genera dentro del contenedor, pero el editor lee tu carpeta local. Sin este paso VS Code marca errores en los imports de Prisma aunque todo funcione:
@@ -123,25 +134,45 @@ npm run dev
 
 ## Endpoints
 
-| Método | Ruta | Descripción | Éxito | Errores |
+La API vigente está versionada en `/api/v1`. Todas las respuestas exitosas usan el sobre `{ data }` o `{ data, meta }`; los errores usan `{ error: { code, message, details? } }`.
 
-|--------|------|-------------|-------|---------|
-| GET | `/` | Estado de la API | 200 | |
-| POST | `/api/donantes` | Alta de donante (HU-001) | 201 | 400, 409, 500 |
-| GET | `/api/donantes?dni={dni}` | Buscar donante por DNI (HU-002) | 200 | 400, 500 |
-| GET | `/api/donantes?nombre={nombre}&apellido={apellido}` | Buscar donante por nombre y apellido (HU-002) | 200 | 400, 500 |
-| GET | `/api/donantes/:id` | Consultar datos de un donante (HU-002) | 200 | 400, 404, 500 |
-| POST | `/api/pacientes` | Registrar paciente/receptor (HU-024) | 201 | 400, 409, 500 |
-| GET | `/api/pacientes` | Listar pacientes para su reutilización en solicitudes de transfusión (HU-024) | 200 | 400, 500 |
-| GET | `/api/pacientes?dni={dni}` | Buscar paciente/receptor por DNI (HU-024) | 200 | 400, 500 |
-| GET | `/api/pacientes?nombre={nombre}&apellido={apellido}` | Buscar paciente/receptor por nombre y apellido (HU-024) | 200 | 400, 500 |
-| POST | `/api/donaciones` | Registrar donación de un donante (HU-008) | 201 | 400, 404, 500 |
-| GET | `/api/donaciones/:id` | Consultar una donación (HU-008) | 200 | 400, 404, 500 |
-| POST | `/api/donantes/:id/entrevistas` | Registrar entrevista, resultado de admisión y datos de diferimiento (HU-003, HU-004) | 201 | 400, 404, 500 |
-| POST | `/api/inventario-unidades` | Registrar recepción de unidad de hemocomponente en inventario (HU-022) | 201 | 400, 409, 500 |
-| GET | `/api/inventario-unidades` | Listar unidades registradas en el inventario (HU-022) | 200 | 500 |
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/` | Estado de la API |
+| GET | `/health` | Chequeo de salud |
+| POST | `/api/v1/auth/login` | Inicio de sesión (devuelve token HMAC) |
+| GET | `/api/v1/auth/me` | Perfil del usuario autenticado |
+| POST | `/api/v1/auth/logout` | Cierre de sesión del lado del cliente |
+| GET | `/api/v1/personas` | Listado con búsqueda, filtros, paginación y semáforo |
+| GET | `/api/v1/personas/buscar?q=` | Búsqueda unificada por DNI, HC, nombre o apellido |
+| GET | `/api/v1/personas/dni/:dni` | Búsqueda exacta por DNI |
+| GET | `/api/v1/personas/revision` | Donantes con serología dudosa pendiente |
+| GET | `/api/v1/personas/:id/historial` | Historial completo de la persona |
+| GET | `/api/v1/personas/:id/semaforo` | Aptitud calculada (verde/amarillo/rojo/gris) |
+| — | `/api/v1/personas` | CRUD completo de personas |
+| GET/POST/PUT/PATCH/DELETE | `/api/v1/donaciones` | CRUD de donaciones |
+| POST | `/api/v1/donaciones/completa` | Alta de donación con persona y estudios |
+| GET/PUT | `/api/v1/donaciones/:id/estudios` | Serologías y PCI consolidados de la donación |
+| — | `/api/v1/serologias`, `/api/v1/pci`, `/api/v1/pcd` | CRUD de estudios y resultados |
+| — | `/api/v1/serologia-resultados`, `/api/v1/pci-resultados`, `/api/v1/pcd-resultados` | CRUD de resultados |
+| — | `/api/v1/gestantes`, `/api/v1/gestantes-pci`, `/api/v1/recien-nacidos` | Estudios de gestantes, PCI asociados y RN |
+| POST | `/api/v1/gestantes/completa` | Alta de gestante con PCI y compatibilidad conyugal |
+| GET | `/api/v1/gestantes/paciente/:idPersona` | Estudios de una gestante |
+| POST | `/api/v1/recien-nacidos/completa` | Alta de RN con PCD/PCI |
+| — | `/api/v1/transfusiones` | CRUD de unidad transfusional |
+| GET | `/api/v1/transfusiones/persona/:idPersona` | Transfusiones del paciente |
+| — | `/api/v1/sangrias-terapeuticas` | CRUD de sangrías terapéuticas |
+| GET | `/api/v1/sangrias-terapeuticas/persona/:idPersona` | Sangrías del paciente |
+| — | `/api/v1/provincias`, `/api/v1/ciudades`, `/api/v1/domicilios` | CRUD de ubicaciones |
+| GET | `/api/v1/catalogos` | Catálogos maestros consolidados |
+| — | `/api/v1/catalogos/{grupos-factor,obras-sociales,medicos,...}` | CRUD de catálogos |
+| — | `/api/v1/usuarios` | CRUD de usuarios (solo administrador) |
+| GET | `/api/v1/auditoria` | Consulta de auditoría con filtros (solo lectura) |
+| GET | `/api/v1/auditoria/opciones` | Acciones, entidades y usuarios para filtros |
+| GET | `/api/v1/reportes/hemo/resumen` | Tarjetas de la pantalla de reportes |
+| GET | `/api/v1/reportes/hemo/1..5` | Planillas HEMO 1 a 5 (acepta `formato=csv`) |
 
-La interfaz incluye los apartados **Alta de paciente** y **Buscar paciente**. La búsqueda permite consultar por DNI o por nombre y apellido, y muestra los datos identificatorios y la trazabilidad del alta.
+Los listados aceptan `page`, `limit`, `all`, `sort`, `order` y `q` cuando el recurso lo permite. Los reportes y consultas por fecha aceptan `desde` y `hasta` en formato ISO (`YYYY-MM-DD`).
 
 ## Comandos del día a día
 
@@ -161,7 +192,7 @@ Los cambios en `backend/src` se recargan solos (`tsx watch`). No hace falta rein
 ### Tests
 
 ```bash
-cd backend && npm test     # Vitest: validaciones, servicio y controller
+cd backend && npm test     # Vitest: reglas de negocio, CRUD y utilidades
 cd frontend && npm test    # Vitest: schemas de formularios
 ```
 
@@ -199,18 +230,19 @@ Y en el host, `npm install` dentro de `backend/` y/o `frontend/`.
 
 ## Arquitectura del backend
 
-Cada archivo tiene una única responsabilidad:
+La API sigue una organización por funcionalidades (feature-based) con capas internas:
 
 | Capa | Hace | No hace |
 |------|------|---------|
-| `routes` | Declara verbo + ruta y a qué controller va | No tiene lógica |
-| `controllers` | Lee params/body, valida, elige el status code | No busca ni guarda datos |
-| `services` | Lógica y acceso a la base | No usa `req`, `res` ni status codes |
-| `types` | Define la forma de los datos y sus validaciones | No tiene lógica |
+| `features/<recurso>/*.routes.ts` | Declara verbo + ruta, valida y arma la respuesta HTTP | No accede directamente a la base |
+| `features/<recurso>/*.service.ts` | Lógica de negocio y acceso a datos | No usa `req`, `res` ni status codes |
+| `features/<recurso>/*.schema.ts` | Valida el body con Zod y expone los DTO | No tiene lógica de negocio |
+| `lib/crud*.ts` | CRUD reutilizable para catálogos y recursos simples | No conoce reglas específicas de cada módulo |
+| `middlewares/` | Auth, auditoría, validación y manejo central de errores | No contiene reglas de negocio |
 
 **Regla de oro:** si un `service` menciona `req`, `res` o un status code, está mal.
 
-Convenciones de rutas REST: sustantivos en plural (`/api/donantes`), el verbo lo pone HTTP, y los filtros van en el query string.
+Convenciones de rutas REST: sustantivos en plural (`/api/v1/personas`), el verbo lo pone HTTP, y los filtros van en el query string. Los recursos complejos suman subrutas explícitas (`/donaciones/:id/estudios`, `/gestantes/completa`).
 
 ## Flujo de trabajo en equipo
 

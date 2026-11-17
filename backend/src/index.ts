@@ -1,41 +1,24 @@
-import express from "express";
-import cors from "cors";
-import donanteRoutes from "./routes/donante.routes";
-import donacionRoutes from "./routes/donacion.routes";
-import pciRoutes from "./routes/pci.routes";
-import serologiaRoutes from "./routes/serologia.routes";
-import catalogoRoutes from "./routes/catalogo.routes";
-import calificacionBiologicaRoutes from "./routes/calificacionBiologica.routes";
-import anticuerpoIrregularRoutes from "./routes/anticuerpoIrregular.routes";
-import tipificacionSanguineaRoutes from "./routes/tipificacionSanguinea.routes";
-import tamizajeInfeccionesRoutes from "./routes/tamizajeInfecciones.routes";
-import seleccionComponenteRoutes from "./routes/seleccionComponente.routes";
-import liberacionUnidadRoutes from "./routes/liberacionUnidad.routes";
-import recepcionUnidadRoutes from "./routes/recepcionUnidad.routes";
-import pacienteRoutes from "./routes/paciente.routes";
+import { createApp } from "./app";
+import { env } from "./config/env";
+import { prisma } from "./config/prisma";
 
-const app = express();
-const PORT = Number(process.env.PORT) || 3000;
+const app = createApp();
 
-app.use(cors({ origin: process.env.FRONTEND_URL }));
-app.use(express.json());
-
-app.get("/", (_req, res) => {
-  res.json({ ok: true, app: "Florhema API" });
+const server = app.listen(env.port, () => {
+  console.log(`Florhema API escuchando en http://localhost:${env.port} (${env.nodeEnv})`);
+  console.log(`API v1 disponible en http://localhost:${env.port}/api/v1`);
 });
 
-app.use("/api/donantes", donanteRoutes);
-app.use("/api/donaciones", donacionRoutes);
-app.use("/api/pci", pciRoutes);
-app.use("/api/serologias", serologiaRoutes);
-app.use("/api/catalogos", catalogoRoutes);
-app.use("/api/calificaciones-biologicas", calificacionBiologicaRoutes);
-app.use("/api/anticuerpos-irregulares", anticuerpoIrregularRoutes);
-app.use("/api/tipificaciones-sanguineas", tipificacionSanguineaRoutes);
-app.use("/api/tamizajes-infecciones", tamizajeInfeccionesRoutes);
-app.use("/api/solicitudes-transfusiones", seleccionComponenteRoutes);
-app.use("/api/unidades", liberacionUnidadRoutes);
-app.use("/api/inventario-unidades", recepcionUnidadRoutes);
-app.use("/api/pacientes", pacienteRoutes);
+/** Cierra ordenadamente el servidor y la conexión a la base de datos. */
+async function apagar(senal: string) {
+  console.log(`\n${senal} recibido, cerrando el servidor...`);
+  server.close(async () => {
+    await prisma.$disconnect().catch(() => undefined);
+    process.exit(0);
+  });
+}
 
-app.listen(PORT, () => console.log(`API en http://localhost:${PORT}`));
+process.on("SIGINT", () => void apagar("SIGINT"));
+process.on("SIGTERM", () => void apagar("SIGTERM"));
+
+export { app };

@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
@@ -81,6 +82,22 @@ enum EstadoUnidad {
   BLOQUEADA
 }
 
+enum TipoMuestraSerologia {
+  PRIMERA
+  SEGUNDA
+}
+
+enum RolUsuario {
+  ADMINISTRADOR
+  TECNICO_HEMOTERAPIA
+  CONSULTA_MATERNIDAD
+}
+
+enum EstadoUsuario {
+  ACTIVO
+  INACTIVO
+}
+
 // ==========================================
 // MÓDULO DE PERSONAS Y UBICACIÓN (DER)
 // ==========================================
@@ -135,21 +152,25 @@ model Gyf {
 }
 
 model Persona {
-  id              Int        @id @default(autoincrement())
-  dni             String?    @unique
+  id              Int             @id @default(autoincrement())
+  dni             String?         @unique
+  historiaClinica String?         @unique @map("historia_clinica")
   nombre          String?
   apellido        String?
-  fechaNacimiento DateTime?  @map("fecha_nacimiento") @db.Date
-  lugarNacimiento String?    @map("lugar_nacimiento")
-  idDireccion     Int?       @map("id_direccion")
-  direccion       Domicilio? @relation(fields: [idDireccion], references: [id])
-  idGrupoFactor   Int?       @map("id_grupo_factor")
-  grupoFactor     Gyf?       @relation(fields: [idGrupoFactor], references: [id])
+  telefono        String?
+  fechaNacimiento DateTime?       @map("fecha_nacimiento") @db.Date
+  lugarNacimiento String?         @map("lugar_nacimiento")
+  sexoBiologico   SexoBiologico?  @map("sexo_biologico")
+  idDireccion     Int?            @map("id_direccion")
+  direccion       Domicilio?      @relation(fields: [idDireccion], references: [id])
+  idGrupoFactor   Int?            @map("id_grupo_factor")
+  grupoFactor     Gyf?            @relation(fields: [idGrupoFactor], references: [id])
 
   donaciones           DonacionDer[]
   estudiosGestante     EstudioInmunohematologicoGestante[] @relation("PersonaGestante")
   estudiosRnComoMadre  EstudioInmunohematologicoRn[]       @relation("PersonaMadreRn")
   sangriasTerapeuticas SangriaTerapeutica[]
+  transfusiones        Transfusion[]
 
   @@index([idDireccion])
   @@index([idGrupoFactor])
@@ -170,6 +191,7 @@ model DonacionDer {
   reposicion      Boolean?
   autoexcluido    Boolean?
   observaciones   String?
+  operador        String?
   idPersona       Int?      @map("id_persona")
   persona         Persona?  @relation(fields: [idPersona], references: [id])
 
@@ -181,12 +203,14 @@ model DonacionDer {
 }
 
 model Serologia {
-  id            Int      @id @default(autoincrement())
-  fecha         DateTime @db.Date
-  hora          DateTime @db.Time
+  id            Int                   @id @default(autoincrement())
+  fecha         DateTime              @db.Date
+  hora          DateTime              @db.Time
+  tipoMuestra   TipoMuestraSerologia? @map("tipo_muestra")
+  operador      String?
   observaciones String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
 
   resultados    SerologiaResultado[]
   donaciones    SerologiaDonacion[]
@@ -240,6 +264,7 @@ model Pci {
   id            Int      @id @default(autoincrement())
   fecha         DateTime @db.Date
   hora          DateTime @db.Time
+  operador      String?
   observaciones String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -293,6 +318,7 @@ model Pcd {
   id            Int      @id @default(autoincrement())
   fecha         DateTime @db.Date
   hora          DateTime @db.Time
+  operador      String?
   observaciones String?
 
   resultados PcdResultado[]
@@ -333,6 +359,7 @@ model EstudioInmunohematologicoGestante {
   id        Int       @id @default(autoincrement())
   numero    String?
   fecha     DateTime? @db.Date
+  operador  String?
   idPersona Int       @map("id_persona")
   gestante  Persona   @relation("PersonaGestante", fields: [idPersona], references: [id])
 
@@ -369,6 +396,7 @@ model EstudioInmunohematologicoRn {
   pcd           Pcd?      @relation(fields: [idPcd], references: [id])
   idPci         Int?      @map("id_pci")
   pci           Pci?      @relation(fields: [idPci], references: [id])
+  operador      String?
   observaciones String?
 
   @@index([idMadre])
@@ -405,6 +433,8 @@ model SangriaTerapeutica {
   diagnostico  String?
   extraccion   String?
   reposicion   String?
+  fecha        DateTime?   @db.Date
+  tecnico      String?
   idPersona    Int?        @map("id_persona")
   persona      Persona?    @relation(fields: [idPersona], references: [id])
   idObraSocial Int?        @map("id_obra_social")
@@ -445,6 +475,10 @@ model Transfusion {
   pci               String?
   pcd               String?
   anticuerpo        String?
+  fecha             DateTime?        @db.Date
+  tecnico           String?
+  idPersona         Int?             @map("id_persona")
+  persona           Persona?         @relation(fields: [idPersona], references: [id])
   idFenotipo1       Int?             @map("id_fenotipo_1")
   fenotipo1         Fenotipo?        @relation("Fenotipo1", fields: [idFenotipo1], references: [id])
   idGrupoFactor     Int?             @map("id_grupo_factor")
@@ -657,6 +691,44 @@ model UnidadSangre {
 
   @@index([estado, fechaVencimiento])
   @@map("unidades_sangre")
+}
+
+// ==========================================
+// MÓDULO DE SEGURIDAD Y TRAZABILIDAD
+// ==========================================
+
+model Usuario {
+  id           Int           @id @default(autoincrement())
+  nombre       String
+  apellido     String
+  usuario      String        @unique
+  passwordHash String        @map("password_hash")
+  rol          RolUsuario    @default(TECNICO_HEMOTERAPIA)
+  estado       EstadoUsuario @default(ACTIVO)
+  ultimoAcceso DateTime?     @map("ultimo_acceso")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  @@map("usuarios")
+}
+
+model Auditoria {
+  id        Int      @id @default(autoincrement())
+  fechaHora DateTime @default(now()) @map("fecha_hora")
+  idUsuario Int?     @map("id_usuario")
+  usuario   String?
+  accion    String
+  entidad   String
+  entidadId String?  @map("entidad_id")
+  detalle   String?
+  metodo    String?
+  ruta      String?
+  ip        String?
+
+  @@index([fechaHora])
+  @@index([usuario])
+  @@index([entidad])
+  @@map("auditoria")
 }
 
 model EventoEstadoUnidad {

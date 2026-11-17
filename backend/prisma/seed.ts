@@ -22,6 +22,7 @@ import { seed19EstudiosInmunohematologicos } from "./seeders/19-estudios-inmunoh
 import { seed20SangriasTerapeuticas } from "./seeders/20-sangrias-terapeuticas";
 import { seed21Transfusiones } from "./seeders/21-transfusiones";
 import { seed22SolicitudesYUnidades } from "./seeders/22-solicitudes-y-unidades";
+import { seed23Usuarios } from "./seeders/23-usuarios";
 
 async function main() {
   await seed01Provincias(prisma);
@@ -46,8 +47,9 @@ async function main() {
   await seed20SangriasTerapeuticas(prisma);
   await seed21Transfusiones(prisma);
   await seed22SolicitudesYUnidades(prisma);
+  await seed23Usuarios(prisma);
 
-  console.log("Seed OK: seeders 01-22 ejecutados.");
+  console.log("Seed OK: seeders 01-23 ejecutados.");
 }
 
 main()
