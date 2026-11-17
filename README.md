@@ -52,10 +52,8 @@ La primera vez, en este orden. Resumen en dos terminales:
 git clone <URL-del-repo>
 cd <carpeta-del-repo>
 
-# Terminal 1 — API + PostgreSQL
+# Terminal 1 — API + PostgreSQL (el entrypoint genera el cliente, migra y siembra)
 docker compose up -d --build
-docker compose exec api npx prisma migrate dev
-# opcional: docker compose exec api npx prisma db seed
 
 # Terminal 2 — frontend (desde la raíz del repo)
 cd frontend
@@ -134,21 +132,30 @@ docker compose ps
 
 Y que la API responda: abrí <http://localhost:3000>. Tiene que devolver un JSON con `"ok": true`.
 
-### 3. Crear las tablas
+### 3. Modelos, tablas y datos demo (automático)
+
+El contenedor `api` tiene un entrypoint que, en cada arranque:
+
+1. `npx prisma generate` → regenera el cliente desde `prisma/schema.prisma` (los modelos siempre están al día).
+2. `npx prisma migrate deploy` → aplica las migraciones pendientes.
+3. `npx prisma db seed` → corre los seeders 01-23 (son idempotentes: usan `upsert` y no duplican datos).
+
+El servicio `db` tiene un healthcheck y la API espera a que Postgres esté listo, así que no hay que repetir estos comandos a mano. `docker-compose.yml` monta `backend/prisma` y `prisma.config.ts` dentro del contenedor: cambiar el schema o un seeder se refleja con `docker compose restart api`, sin reconstruir la imagen.
+
+Para saltear los seeders (por ejemplo, si querés una base vacía):
 
 ```bash
-docker compose exec api npx prisma migrate dev
+# Git Bash / Linux / macOS
+RUN_SEED=false docker compose up -d --force-recreate api
 ```
 
-Aplica todas las migraciones que hay en `backend/prisma/migrations`.
-
-### 3.1. Datos de demostración (opcional)
-
-```bash
-docker compose exec api npx prisma db seed
+```powershell
+# PowerShell
+$env:RUN_SEED="false"
+docker compose up -d --force-recreate api
 ```
 
-Carga catálogos, personas, donaciones, estudios y usuarios de prueba. Los usuarios demo son `admin` / `Admin.123`, `fperez` / `Tecnico.123` y `maternidad` / `Consulta.123` (solo para desarrollo).
+Carga catálogos, personas, donaciones, estudios y usuarios de prueba. Los usuarios demo son `admin` / `Admin.123`, `fperez` / `Tecnico.123` y `maternidad` / `Consulta.123` (solo para desarrollo). Tienen la particularidad de que el seed los **refresca** en cada arranque: si cambiás una contraseña demo, volvé a ponerla después de reiniciar la API.
 
 ### 4. Preparar el editor (solo para VS Code)
 
@@ -287,17 +294,20 @@ cd frontend && npm test    # Vitest: schemas de formularios
    ```bash
    docker compose exec api npx prisma migrate dev --name descripcion-del-cambio
    ```
-3. Regenerá el cliente local: `cd backend && npx prisma generate`.
+3. Regenerá el cliente local para el editor: `cd backend && npx prisma generate`.
 4. Commiteá la carpeta `backend/prisma/migrations`.
+5. Reiniciá la API para que el entrypoint aplique la migración: `docker compose restart api`.
 
 ### Cuando un compañero cambió el schema
 
 Después de hacer `git pull`:
 
 ```bash
-docker compose exec api npx prisma migrate dev
+docker compose restart api
 cd backend && npx prisma generate
 ```
+
+El restart alcanza porque `prisma/` está montado y el entrypoint corre `generate` + `migrate deploy`.
 
 ### Cuando cambian las dependencias (`package.json`)
 

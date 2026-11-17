@@ -5,10 +5,16 @@ services:
       - "3000:3000"
     env_file:
       - backend/.env
+    environment:
+      # Los seeders son idempotentes; ponelo en false para no ejecutarlos al arrancar.
+      RUN_SEED: ${RUN_SEED:-true}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+      - ./backend/prisma.config.ts:/app/prisma.config.ts
 
   db:
     image: postgres:16-alpine
@@ -18,6 +24,11 @@ services:
       - backend/.env
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   pgdata:

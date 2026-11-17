@@ -8,4 +8,5 @@ README.md
 .idea
 dist
 build
+generated
 .DS_Store
