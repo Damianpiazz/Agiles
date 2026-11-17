@@ -183,6 +183,26 @@ Vite sirve en <http://localhost:5173> y hace de proxy de `/api` → `http://loca
 | API | <http://localhost:3000> |
 | PostgreSQL | `localhost:5432` |
 
+### Backend en el host (alternativa a Docker)
+
+Si querés correr la API con `npm run dev` en lugar del contenedor, necesitás Postgres levantado (`docker compose up -d db`) y un `DATABASE_URL` con host `localhost`: `db` solo resuelve dentro de la red de Docker. Dejá `backend/.env` como está (para Compose) y sobrescribí la variable en la terminal:
+
+```powershell
+# PowerShell, desde backend/
+$env:DATABASE_URL="postgresql://postgres:tu_password_segura@localhost:5432/florhema_db"
+npx prisma migrate dev
+npm run dev
+```
+
+```bash
+# Git Bash / Linux / macOS, desde backend/
+export DATABASE_URL="postgresql://postgres:tu_password_segura@localhost:5432/florhema_db"
+npx prisma migrate dev
+npm run dev
+```
+
+`dotenv` no pisa las variables ya definidas en el shell, así que el override funciona sin tocar el `.env`. Si el cliente Prisma local está viejo, generalo antes: `npx prisma generate`.
+
 ## Endpoints
 
 La API vigente está versionada en `/api/v1`. Todas las respuestas exitosas usan el sobre `{ data }` o `{ data, meta }`; los errores usan `{ error: { code, message, details? } }`.
@@ -319,6 +339,8 @@ Convenciones de rutas REST: sustantivos en plural (`/api/v1/personas`), el verbo
 | Síntoma | Causa y solución |
 |---------|------------------|
 | `port is already allocated` al levantar la DB | Tenés un Postgres local usando el 5432. Apagalo o cambiá el puerto publicado en `docker-compose.yml` |
+| `TypeError: Cannot convert undefined or null to object` al iniciar el backend (`Object.values(...)` en un `*.schema.ts`) | Cliente Prisma local desactualizado (el enum ya no existe en `generated/prisma`). Corré `cd backend && npx prisma generate`. |
+| `502 Bad Gateway` al login desde el frontend | El proxy de Vite no encuentra la API en `:3000`. Levantá el stack con `docker compose up -d` (o la API en el host) y verificá con `curl http://localhost:3000/`. |
 | VS Code marca errores en imports de Prisma | Falta `npx prisma generate` en `backend/` y reiniciar el TS Server |
 | Error de conexión a la base | Revisá que `DATABASE_URL` use el host `db` y que `docker compose ps` muestre `db` en `Up` |
 | `req.body` llega `undefined` | `express.json()` tiene que ir antes de las rutas en `index.ts`, y el request debe llevar `Content-Type: application/json` |
