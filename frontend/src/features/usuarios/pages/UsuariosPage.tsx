@@ -132,10 +132,10 @@ export function UsuariosPage() {
               <input id="usuario-nombre" className="input" value={formulario.nombreCompleto} onChange={(evento) => cambiar("nombreCompleto", evento.target.value)} required />
             </Field>
             <Field label="Usuario" htmlFor="usuario-usuario" required ancho={3}>
-              <input id="usuario-usuario" className="input" value={formulario.usuario} onChange={(evento) => cambiar("usuario", evento.target.value)} required />
+              <input id="usuario-usuario" className="input" value={formulario.usuario} onChange={(evento) => cambiar("usuario", evento.target.value)} autoComplete="username" required />
             </Field>
             <Field label="Contraseña" htmlFor="usuario-password" required={!formulario.id} ancho={3} hint={formulario.id ? "Dejá vacío para mantener la actual" : undefined}>
-              <input id="usuario-password" className="input" type="password" value={formulario.password} onChange={(evento) => cambiar("password", evento.target.value)} required={!formulario.id} />
+              <input id="usuario-password" className="input" type="password" value={formulario.password} onChange={(evento) => cambiar("password", evento.target.value)} autoComplete="new-password" required={!formulario.id} />
             </Field>
             <Field label="Rol" htmlFor="usuario-rol" ancho={4}>
               <select id="usuario-rol" className="select" value={formulario.rol} onChange={(evento) => cambiar("rol", evento.target.value)}>

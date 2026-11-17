@@ -35,6 +35,9 @@ export function AppLayout() {
 
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#contenido-principal">
+        Saltar al contenido principal
+      </a>
       <header className="topbar">
         <div className="topbar__brand">
           <span>Constantes</span>
@@ -93,7 +96,7 @@ export function AppLayout() {
         <div className="rail__footer">Registro de cargas con trazabilidad</div>
       </nav>
 
-      <main className="app-main">
+      <main className="app-main" id="contenido-principal" tabIndex={-1}>
         <Outlet />
       </main>
     </div>
