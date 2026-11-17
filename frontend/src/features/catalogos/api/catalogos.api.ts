@@ -1,6 +1,6 @@
 import { api } from "@/infrastructure/api/client";
 import { endpoints } from "@/infrastructure/api/endpoints";
-import type { QueryParams } from "@/shared/types/api";
+import type { PaginationMeta, QueryParams } from "@/shared/types/api";
 import type { CatalogoConsolidado, ItemCatalogo } from "../types";
 
 export const catalogosApi = {
@@ -8,7 +8,10 @@ export const catalogosApi = {
     return api.get<CatalogoConsolidado>(endpoints.catalogos.base);
   },
   listar(recurso: keyof typeof endpoints.catalogos, params?: QueryParams) {
-    return api.getEnvelope<ItemCatalogo[]>(endpoints.catalogos[recurso], params);
+    return api.getEnvelope<ItemCatalogo[]>(endpoints.catalogos[recurso], params).then((respuesta) => ({
+      data: respuesta.data,
+      meta: respuesta.meta as PaginationMeta,
+    }));
   },
   crear(recurso: keyof typeof endpoints.catalogos, body: Record<string, unknown>) {
     return api.post<ItemCatalogo>(endpoints.catalogos[recurso], body);

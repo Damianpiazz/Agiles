@@ -11,6 +11,7 @@ import { Notice } from "@/shared/components/ui/Notice";
 import { PageHeader } from "@/shared/components/ui/PageHeader";
 import { Section } from "@/shared/components/ui/Section";
 import { mensajeDeError } from "@/infrastructure/api/errors";
+import { usePaginacion } from "@/shared/hooks/usePaginacion";
 
 type Recurso = (typeof recursosCatalogo)[number]["endpoint"];
 
@@ -72,10 +73,11 @@ export function CatalogosPage() {
   const [formulario, setFormulario] = useState<Formulario>(VACIO);
   const [provincia, setProvincia] = useState("");
   const queryClient = useQueryClient();
+  const { pagina, porPagina, setPagina, params } = usePaginacion(recurso);
 
   const items = useQuery({
-    queryKey: ["catalogos", recurso],
-    queryFn: () => catalogosApi.listar(recurso, { limit: 200 }),
+    queryKey: ["catalogos", recurso, pagina],
+    queryFn: () => catalogosApi.listar(recurso, params),
   });
   const consolidado = useQuery({
     queryKey: ["catalogos", "consolidado"],
@@ -263,6 +265,10 @@ export function CatalogosPage() {
           cargando={items.isLoading}
           error={items.isError ? "No se pudo consultar el catálogo." : undefined}
           onReintentar={() => void items.refetch()}
+          meta={items.data?.meta}
+          pagina={pagina}
+          porPagina={porPagina}
+          onCambiarPagina={setPagina}
         />
       </Section>
 

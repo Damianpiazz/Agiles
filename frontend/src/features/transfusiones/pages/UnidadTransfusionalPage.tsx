@@ -224,6 +224,7 @@ export function UnidadTransfusionalPage() {
             cargando={registros.isLoading}
             error={registros.isError ? "No se pudo consultar el historial." : undefined}
             onReintentar={() => void registros.refetch()}
+            claveReset={persona?.id}
           />
         </Section>
       ) : null}

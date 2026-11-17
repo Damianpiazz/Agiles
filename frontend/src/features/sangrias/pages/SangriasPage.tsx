@@ -14,6 +14,7 @@ import { PageHeader } from "@/shared/components/ui/PageHeader";
 import { SearchField } from "@/shared/components/ui/SearchField";
 import { Section } from "@/shared/components/ui/Section";
 import { mensajeDeError } from "@/infrastructure/api/errors";
+import { usePaginacion } from "@/shared/hooks/usePaginacion";
 import { fechaParaInput, formatoFecha, nombreCompleto } from "@/shared/utils/formato";
 
 interface Formulario {
@@ -46,11 +47,12 @@ export function SangriasPage() {
   const [formulario, setFormulario] = useState<Formulario>(FORMULARIO_VACIO);
   const [textoPersona, setTextoPersona] = useState("");
   const queryClient = useQueryClient();
+  const { pagina, porPagina, setPagina, params } = usePaginacion(consulta);
 
   const catalogos = useQuery({ queryKey: ["catalogos", "consolidado"], queryFn: () => catalogosApi.consolidado() });
   const lista = useQuery({
-    queryKey: ["sangrias", "listar", consulta],
-    queryFn: () => sangriasApi.listar(consulta ? { q: consulta, limit: 50 } : { limit: 50 }),
+    queryKey: ["sangrias", "listar", consulta, pagina],
+    queryFn: () => sangriasApi.listar({ ...(consulta ? { q: consulta } : {}), ...params }),
   });
 
   function cambiar(clave: keyof Formulario, valor: string) {
@@ -206,6 +208,10 @@ export function SangriasPage() {
           cargando={lista.isLoading}
           error={lista.isError ? "No se pudo consultar el listado de sangrías." : undefined}
           onReintentar={() => void lista.refetch()}
+          meta={lista.data?.meta}
+          pagina={pagina}
+          porPagina={porPagina}
+          onCambiarPagina={setPagina}
         />
       </Section>
     </>

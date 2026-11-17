@@ -14,6 +14,7 @@ import { SearchField } from "@/shared/components/ui/SearchField";
 import { Section } from "@/shared/components/ui/Section";
 import { StatusChip } from "@/shared/components/ui/StatusChip";
 import { mensajeDeError } from "@/infrastructure/api/errors";
+import { usePaginacion } from "@/shared/hooks/usePaginacion";
 import { documentoLegible, fechaParaInput, formatoFecha, grupoFactorLegible, nombreCompleto } from "@/shared/utils/formato";
 
 type Resultados = Record<number, { resultado: string; observacion: string }>;
@@ -40,10 +41,11 @@ export function EstudiosPage() {
   const [serologia2, setSerologia2] = useState<Resultados>({});
   const [pci, setPci] = useState<Resultados>({});
   const queryClient = useQueryClient();
+  const { pagina, porPagina, setPagina, params } = usePaginacion(consulta);
 
   const donaciones = useQuery({
-    queryKey: ["donaciones", "listar", consulta],
-    queryFn: () => donacionesApi.listar(consulta ? { q: consulta, limit: 50 } : { limit: 50 }),
+    queryKey: ["donaciones", "listar", consulta, pagina],
+    queryFn: () => donacionesApi.listar({ ...(consulta ? { q: consulta } : {}), ...params }),
   });
 
   const estudios = useQuery({
@@ -197,6 +199,10 @@ export function EstudiosPage() {
           error={donaciones.isError ? "No se pudo consultar el listado de donaciones." : undefined}
           seleccionada={idDonacion}
           onReintentar={() => void donaciones.refetch()}
+          meta={donaciones.data?.meta}
+          pagina={pagina}
+          porPagina={porPagina}
+          onCambiarPagina={setPagina}
         />
       </Section>
 

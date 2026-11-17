@@ -7,16 +7,23 @@ import { DataTable, type Columna } from "@/shared/components/ui/DataTable";
 import { Field } from "@/shared/components/ui/Field";
 import { PageHeader } from "@/shared/components/ui/PageHeader";
 import { Section } from "@/shared/components/ui/Section";
+import { usePaginacion } from "@/shared/hooks/usePaginacion";
 import { formatoFechaHora } from "@/shared/utils/formato";
 
 export function AuditoriaPage() {
   const [desde, setDesde] = useState("");
   const [hasta, setHasta] = useState("");
   const [filtros, setFiltros] = useState({ desde: "", hasta: "" });
+  const { pagina, porPagina, setPagina, params } = usePaginacion(`${filtros.desde}|${filtros.hasta}`);
 
   const eventos = useQuery({
-    queryKey: ["auditoria", filtros.desde, filtros.hasta],
-    queryFn: () => auditoriaApi.listar({ desde: filtros.desde || undefined, hasta: filtros.hasta || undefined, limit: 100 }),
+    queryKey: ["auditoria", filtros.desde, filtros.hasta, pagina],
+    queryFn: () =>
+      auditoriaApi.listar({
+        desde: filtros.desde || undefined,
+        hasta: filtros.hasta || undefined,
+        ...params,
+      }),
   });
 
   const columnas: Columna<EventoAuditoria>[] = [
@@ -62,6 +69,10 @@ export function AuditoriaPage() {
           cargando={eventos.isLoading}
           error={eventos.isError ? "No se pudo consultar la auditoría." : undefined}
           onReintentar={() => void eventos.refetch()}
+          meta={eventos.data?.meta}
+          pagina={pagina}
+          porPagina={porPagina}
+          onCambiarPagina={setPagina}
         />
       </Section>
     </>

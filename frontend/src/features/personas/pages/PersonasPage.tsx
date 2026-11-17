@@ -233,6 +233,7 @@ export function PersonasPage() {
             error={resultados.isError ? "No se pudo consultar el padrón de personas." : undefined}
             seleccionada={idSeleccionado}
             onReintentar={() => void resultados.refetch()}
+            claveReset={consulta}
           />
         </Section>
       ) : null}

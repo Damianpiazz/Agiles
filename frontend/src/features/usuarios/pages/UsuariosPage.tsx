@@ -12,6 +12,7 @@ import { PageHeader } from "@/shared/components/ui/PageHeader";
 import { Section } from "@/shared/components/ui/Section";
 import { StatusChip } from "@/shared/components/ui/StatusChip";
 import { mensajeDeError } from "@/infrastructure/api/errors";
+import { usePaginacion } from "@/shared/hooks/usePaginacion";
 
 interface Formulario {
   id: number | null;
@@ -42,8 +43,9 @@ function separarNombre(valor: string): { nombre: string; apellido: string } {
 export function UsuariosPage() {
   const [formulario, setFormulario] = useState<Formulario>(VACIO);
   const queryClient = useQueryClient();
+  const { pagina, porPagina, setPagina, params } = usePaginacion("usuarios");
 
-  const usuarios = useQuery({ queryKey: ["usuarios"], queryFn: () => usuariosApi.listar({ limit: 100 }) });
+  const usuarios = useQuery({ queryKey: ["usuarios", pagina], queryFn: () => usuariosApi.listar(params) });
 
   function cambiar(clave: keyof Formulario, valor: string) {
     setFormulario((actual) => ({ ...actual, [clave]: valor }));
@@ -165,6 +167,10 @@ export function UsuariosPage() {
           cargando={usuarios.isLoading}
           error={usuarios.isError ? "No se pudo consultar el listado de usuarios." : undefined}
           onReintentar={() => void usuarios.refetch()}
+          meta={usuarios.data?.meta}
+          pagina={pagina}
+          porPagina={porPagina}
+          onCambiarPagina={setPagina}
         />
       </Section>
     </>

@@ -16,6 +16,7 @@ import { Section } from "@/shared/components/ui/Section";
 import { mensajeDeError } from "@/infrastructure/api/errors";
 import { presentacionSemaforo } from "@/features/personas/model/semaforo";
 import type { EstudioGestante, RecienNacido } from "@/features/gestantes/types";
+import { usePaginacion } from "@/shared/hooks/usePaginacion";
 import { documentoLegible, fechaParaInput, formatoFecha, nombreCompleto } from "@/shared/utils/formato";
 
 const RESULTADOS = ["Negativo", "Positivo", "No reactivo", "Reactivo"];
@@ -40,6 +41,7 @@ export function GestantesPage() {
   const [pciRn, setPciRn] = useState("");
   const [observaciones, setObservaciones] = useState("");
   const queryClient = useQueryClient();
+  const { pagina, porPagina, setPagina, params } = usePaginacion(persona?.id ?? null);
 
   const catalogos = useQuery({ queryKey: ["catalogos", "consolidado"], queryFn: () => catalogosApi.consolidado() });
   const gestantes = useQuery({
@@ -48,8 +50,8 @@ export function GestantesPage() {
     enabled: Boolean(persona?.id),
   });
   const recienNacidos = useQuery({
-    queryKey: ["recien-nacidos", "madre", persona?.id],
-    queryFn: () => recienNacidosApi.listar({ madreId: persona?.id ?? 0 }),
+    queryKey: ["recien-nacidos", "madre", persona?.id, pagina],
+    queryFn: () => recienNacidosApi.listar({ madreId: persona?.id ?? 0, ...params }),
     enabled: Boolean(persona?.id),
   });
 
@@ -221,6 +223,7 @@ export function GestantesPage() {
             claveFila={(item) => item.id}
             cargando={gestantes.isLoading}
             onReintentar={() => void gestantes.refetch()}
+            claveReset={persona?.id}
           />
         </Section>
       ) : null}
@@ -287,6 +290,10 @@ export function GestantesPage() {
             claveFila={(item) => item.id}
             cargando={recienNacidos.isLoading}
             onReintentar={() => void recienNacidos.refetch()}
+            meta={recienNacidos.data?.meta}
+            pagina={pagina}
+            porPagina={porPagina}
+            onCambiarPagina={setPagina}
           />
         </Section>
       ) : null}

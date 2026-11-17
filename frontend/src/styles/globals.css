@@ -597,6 +597,76 @@ a {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- Paginación ---------- */
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  border-top: 1px solid var(--c-line);
+  color: var(--c-ink-soft);
+}
+
+.paginacion__info {
+  font-size: var(--text-meta);
+  font-variant-numeric: tabular-nums;
+}
+
+.paginacion__controles {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+}
+
+.paginacion__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: var(--control-h);
+  padding: 0 var(--s-2);
+  border: 1px solid transparent;
+  border-radius: var(--r-xs);
+  background: transparent;
+  color: var(--c-brand);
+  font-size: var(--text-meta);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.paginacion__btn:hover:not(:disabled) {
+  background: var(--c-brand-soft);
+}
+
+.paginacion__btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.paginacion__btn--nav {
+  padding-inline: var(--s-3);
+}
+
+.paginacion__num--actual {
+  background: var(--c-brand);
+  border-color: var(--c-brand);
+  color: var(--c-on-brand);
+}
+
+.paginacion__num--actual:hover:not(:disabled) {
+  background: var(--c-brand-strong);
+}
+
+.paginacion__hueco {
+  padding-inline: var(--s-1);
+  color: var(--c-ink-muted);
+}
+
 /* ---------- Chips y estados ---------- */
 
 .chip {

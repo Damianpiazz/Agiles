@@ -123,7 +123,12 @@ export function BusquedaPage() {
                 DNI {documentoLegible(personas[0].dni)} · HC {personas[0].historiaClinica ?? "—"} · Grupo{" "}
                 {grupoFactorLegible(personas[0].grupoFactor)} · {personas[0].edad ?? "—"} años
               </p>
-              <DataTable columnas={columnas} filas={personas} claveFila={(persona) => persona.id} />
+              <DataTable
+                columnas={columnas}
+                filas={personas}
+                claveFila={(persona) => persona.id}
+                claveReset={consulta}
+              />
               <p className="muted" style={{ marginTop: "var(--s-3)", fontSize: "var(--text-body-sm)" }}>
                 Historial: Donante ({personas[0].resumen?.donaciones ?? 0}) · Paciente (
                 {personas[0].resumen?.transfusiones ?? 0}) · Gestante/RN (

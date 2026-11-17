@@ -231,6 +231,7 @@ export function ReportesPage() {
             claveFila={(fila) => String(fila.id ?? JSON.stringify(fila))}
             cargando={informe.isLoading}
             vacio="No hay registros para el período seleccionado."
+            claveReset={`${seleccionado}-${desde}-${hasta}`}
           />
         </Section>
       ) : null}
