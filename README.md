@@ -46,7 +46,22 @@ Cubre donantes, calificación biológica, inventario de hemocomponentes, pacient
 
 ## Cómo levantar el proyecto
 
-La primera vez, en este orden.
+La primera vez, en este orden. Resumen en dos terminales:
+
+```bash
+git clone <URL-del-repo>
+cd <carpeta-del-repo>
+
+# Terminal 1 — API + PostgreSQL
+docker compose up -d --build
+docker compose exec api npx prisma migrate dev
+# opcional: docker compose exec api npx prisma db seed
+
+# Terminal 2 — frontend (desde la raíz del repo)
+cd frontend
+npm install
+npm run dev
+```
 
 ### 1. Clonar y configurar variables
 
@@ -55,7 +70,7 @@ git clone <URL-del-repo>
 cd <carpeta-del-repo>
 ```
 
-Copiá el archivo de variables del backend (el `.env` **no se sube a Git**):
+Los `.env` **no se suben a Git**. Docker Compose lee `backend/.env` (el `.env.example` de la raíz quedó viejo: no lo uses). Copiá el ejemplo o pegá directamente los valores de abajo.
 
 ```bash
 # Git Bash / Linux / macOS
@@ -65,7 +80,45 @@ cp backend/.env.example backend/.env
 copy backend\.env.example backend\.env
 ```
 
-Los valores por defecto sirven tal cual para desarrollo. Si cambiás `POSTGRES_USER`, `POSTGRES_PASSWORD` o `POSTGRES_DB`, mantené el mismo valor en `DATABASE_URL`. El host de la base dentro de `DATABASE_URL` es `db` (el nombre del servicio en Docker), no `localhost`.
+**`backend/.env`** — valores listos para desarrollo local:
+
+```env
+NODE_ENV=development
+PORT=3000
+FRONTEND_URL=http://localhost:5173
+
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=tu_password_segura
+POSTGRES_DB=florhema_db
+POSTGRES_PORT=5432
+DATABASE_URL=postgresql://postgres:tu_password_segura@db:5432/florhema_db
+
+AUTH_REQUIRED=false
+AUTH_SECRET=cambiame-por-un-secreto-largo-y-aleatorio
+AUTH_TOKEN_TTL_HOURS=12
+AUDIT_ENABLED=true
+REQUEST_LOGGING=true
+```
+
+| Variable | Para qué sirve |
+|----------|----------------|
+| `FRONTEND_URL` | Origen permitido por CORS. Con el proxy de Vite alcanza con `http://localhost:5173`; si el frontend pega directo a `:3000`, tiene que coincidir con ese origen. |
+| `POSTGRES_*` | Usuario, password y base que crea el contenedor `db` la primera vez. |
+| `DATABASE_URL` | Conexión que usa la API. El host es **`db`** (nombre del servicio en Docker), no `localhost`. Si corrés el backend en el host, usá `localhost`. |
+| `AUTH_REQUIRED` | `false` permite escribir sin token con el usuario de desarrollo; `true` exige login. |
+| `AUTH_SECRET` | Firma de los tokens HMAC. Cambiarlo invalida las sesiones existentes. |
+| `AUTH_TOKEN_TTL_HOURS` | Horas de vigencia del token. |
+| `AUDIT_ENABLED` / `REQUEST_LOGGING` | Auditoría automática de mutaciones y logs de requests. |
+
+Si cambiás `POSTGRES_USER`, `POSTGRES_PASSWORD` o `POSTGRES_DB`, replicá el cambio en `DATABASE_URL`. El password se guarda en el volumen `pgdata` la primera vez: si lo cambiás después, recreá el volumen (`docker compose down -v`, **borra la base**, solo para desarrollo).
+
+**`frontend/.env`** — con el proxy de Vite, el browser llama a `/api/v1/...` y Vite lo reenvía a `:3000`:
+
+```env
+VITE_API_URL=/api/v1
+```
+
+Si querés que el browser hable directo con la API, usá `VITE_API_URL=http://localhost:3000/api/v1` y mantené `FRONTEND_URL=http://localhost:5173`. El destino del proxy se define en `frontend/vite.config.ts` y se puede sobrescribir con la variable de **shell** `VITE_API_PROXY_TARGET` (no va en `.env`).
 
 ### 2. Levantar la API y la base de datos
 
@@ -112,17 +165,15 @@ Después, en VS Code: `Ctrl+Shift+P` → "TypeScript: Restart TS Server".
 
 ### 5. Levantar el frontend
 
-Creá `frontend/.env` con:
-
-```env
-VITE_API_URL=http://localhost:3000
-```
+Ya tenés `frontend/.env` del paso 1 (`VITE_API_URL=/api/v1`). Desde la raíz del repo:
 
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
+Vite sirve en <http://localhost:5173> y hace de proxy de `/api` → `http://localhost:3000`. Ingresá con `admin` / `Admin.123`, `fperez` / `Tecnico.123` o `maternidad` / `Consulta.123` (después de correr el seed del paso 3.1).
 
 ### URLs
 
@@ -188,6 +239,17 @@ docker compose exec db psql -U postgres -d florhema_db   # consola de Postgres
 ```
 
 Los cambios en `backend/src` se recargan solos (`tsx watch`). No hace falta reiniciar.
+
+### Frontend
+
+```bash
+cd frontend
+npm run dev        # servidor de desarrollo en :5173
+npm run build      # type-check (tsc -b) + bundle de producción
+npm run lint       # oxlint
+npm run test       # Vitest
+npm run preview    # servir el build localmente
+```
 
 ### Tests
 
