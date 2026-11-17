@@ -32,3 +32,18 @@ export const donanteSchema = z.object({
 });
 
 export type DonanteForm = z.infer<typeof donanteSchema>;
+
+export const actualizarDonanteSchema = z.object({
+  domicilio: obligatorio,
+  codigoPostal: obligatorio,
+  email: z
+    .string()
+    .trim()
+    .min(1, "Campo obligatorio")
+    .pipe(z.email("Ingresá un email válido")),
+  telefonoFijo: z.string().trim().optional(),
+  telefonoCelular: obligatorio,
+  operador: z.string().trim().min(1, "Campo obligatorio"),
+});
+
+export type ActualizarDonanteForm = z.infer<typeof actualizarDonanteSchema>;

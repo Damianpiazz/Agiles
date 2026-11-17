@@ -3,10 +3,10 @@ import { z } from "zod";
 import * as donanteService from "../services/donante.service";
 import {
   crearDonanteSchema,
+  actualizarDonanteSchema,
   buscarDonanteSchema,
   idDonanteSchema,
 } from "../types/donante.types";
-import { setTraceSigInt } from "node:util";
 
 export async function create(req: Request, res: Response) {
   const parsed = crearDonanteSchema.safeParse(req.body);
@@ -22,6 +22,34 @@ export async function create(req: Request, res: Response) {
   } catch (e) {
     if (e instanceof donanteService.DonanteDuplicadoError) {
       return res.status(409).json({ error: e.message });
+    }
+    console.error(e);
+    return res.status(500).json({ error: "Error interno" });
+  }
+}
+
+export async function update(req: Request, res: Response) {
+  const idParsed = idDonanteSchema.safeParse(req.params.id);
+  if (!idParsed.success) {
+    return res.status(400).json({
+      error: "ID de donante inválido",
+    });
+  }
+
+  const parsed = actualizarDonanteSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      error: "Datos inválidos",
+      campos: z.flattenError(parsed.error).fieldErrors,
+    });
+  }
+
+  try {
+    const donante = await donanteService.actualizar(idParsed.data, parsed.data);
+    return res.status(200).json(donante);
+  } catch (e) {
+    if (e instanceof donanteService.DonanteNoEncontradoError) {
+      return res.status(404).json({ error: e.message });
     }
     console.error(e);
     return res.status(500).json({ error: "Error interno" });

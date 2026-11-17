@@ -8,4 +8,5 @@ router.get("/", donanteController.search);
 router.post("/:id/entrevistas", entrevistaController.create);
 router.get("/:id/entrevista-pendiente", entrevistaController.getPending);
 router.get("/:id", donanteController.getById);
+router.put("/:id", donanteController.update);
 export default router;
