@@ -1,7 +1,20 @@
 import type { PrismaClient } from "../../generated/prisma/client";
+import { CANTIDAD, apellido, dni, fechaNacimiento, nombre, operador, resetFake } from "./_fake";
+
+type PacienteSeed = {
+  id: number;
+  nombre: string;
+  apellido: string;
+  dni: string;
+  fechaNacimiento: Date;
+  operador: string;
+};
 
 export async function seed14Pacientes(prisma: PrismaClient) {
-  const data = [
+  resetFake(114);
+
+  // Los IDs 1-2 se conservan: 22-solicitudes usa sus DNIs en los datos base.
+  const data: PacienteSeed[] = [
     {
       id: 1,
       nombre: "Lucía",
@@ -19,6 +32,17 @@ export async function seed14Pacientes(prisma: PrismaClient) {
       operador: "Seeder",
     },
   ];
+
+  for (let id = data.length + 1; id <= CANTIDAD; id++) {
+    data.push({
+      id,
+      nombre: nombre(),
+      apellido: apellido(),
+      dni: dni(),
+      fechaNacimiento: fechaNacimiento(),
+      operador: operador(),
+    });
+  }
 
   for (const paciente of data) {
     await prisma.paciente.upsert({

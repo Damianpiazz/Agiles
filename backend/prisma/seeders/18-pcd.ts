@@ -1,29 +1,48 @@
 import type { PrismaClient } from "../../generated/prisma/client";
+import { CANTIDAD, booleano, fechaReciente, hora, muestra, observacion, operador, resetFake } from "./_fake";
 
 export async function seed18Pcd(prisma: PrismaClient) {
-  const fecha = new Date("2026-10-03");
-  const hora = new Date("1970-01-01T09:15:00Z");
+  resetFake(118);
 
-  await prisma.pcd.upsert({
-    where: { id: 1 },
-    update: { fecha, hora, observaciones: "PCD demo" },
-    create: { id: 1, fecha, hora, observaciones: "PCD demo" },
-  });
+  const determinaciones = await prisma.determinacionPcd.findMany({ select: { id: true, nombre: true } });
+  const coombs = determinaciones.find((determinacion) => determinacion.nombre === "Coombs Directo");
 
-  const det = await prisma.determinacionPcd.findUnique({ where: { nombre: "Coombs Directo" } });
-  if (det) {
-    const existente = await prisma.pcdResultado.findFirst({ where: { idPcd: 1, idDeterminacionPcd: det.id } });
-    if (existente) {
-      await prisma.pcdResultado.update({
-        where: { id: existente.id },
-        data: { resultado: "NEGATIVO", observacion: "Seed demo" },
+  for (let id = 1; id <= CANTIDAD; id++) {
+    const pcd = {
+      id,
+      fecha: id === 1 ? new Date("2026-10-03") : fechaReciente(),
+      hora: id === 1 ? new Date("1970-01-01T09:15:00Z") : hora(),
+      operador: id === 1 ? null : operador(),
+      observaciones: id === 1 ? "PCD demo" : observacion(),
+    };
+
+    await prisma.pcd.upsert({
+      where: { id },
+      update: { ...pcd },
+      create: pcd,
+    });
+
+    const elegidas = id === 1 && coombs ? [coombs] : muestra(determinaciones, 1, 3);
+    for (const determinacion of elegidas) {
+      const detalle = {
+        resultado: id === 1 ? "NEGATIVO" : booleano(0.15) ? "POSITIVO" : "NEGATIVO",
+        valor: null as string | null,
+        unidad: null as string | null,
+        observacion: id === 1 ? "Seed demo" : observacion(),
+        idPcd: id,
+        idDeterminacionPcd: determinacion.id,
+      };
+
+      const existente = await prisma.pcdResultado.findFirst({
+        where: { idPcd: id, idDeterminacionPcd: determinacion.id },
       });
-    } else {
-      await prisma.pcdResultado.create({
-        data: { idPcd: 1, idDeterminacionPcd: det.id, resultado: "NEGATIVO", observacion: "Seed demo" },
-      });
+      if (existente) {
+        await prisma.pcdResultado.update({ where: { id: existente.id }, data: detalle });
+      } else {
+        await prisma.pcdResultado.create({ data: detalle });
+      }
     }
   }
 
-  console.log("18-pcd: 1 PCD y resultados demo");
+  console.log(`18-pcd: ${CANTIDAD} PCDs y resultados`);
 }

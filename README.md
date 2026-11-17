@@ -157,6 +157,8 @@ docker compose up -d --force-recreate api
 
 Carga catálogos, personas, donaciones, estudios y usuarios de prueba. Los usuarios demo son `admin` / `Admin.123`, `fperez` / `Tecnico.123` y `maternidad` / `Consulta.123` (solo para desarrollo). Tienen la particularidad de que el seed los **refresca** en cada arranque: si cambiás una contraseña demo, volvé a ponerla después de reiniciar la API.
 
+Los seeders no enumerativos generan **60 registros cada uno** con [`@faker-js/faker`](https://fakerjs.dev/) (locale español, una semilla fija por seeder en `backend/prisma/seeders/_fake.ts`). Están en `domicilios`, `personas`, `donantes`, `pacientes`, `donaciones`, `PCI`, `serologías`, `PCD`, `estudios inmunohematológicos`, `sangrías`, `transfusiones`, `solicitudes/unidades` y `usuarios`; así las tablas tienen volumen suficiente para probar filtros y paginación. Los catálogos enumerativos (provincias, ciudades, grupo/factor, antígenos, determinaciones, obras sociales, médicos, fenotipos y tipos de transfusión) se mantienen chicos a propósito. Los 57 usuarios generados comparten la contraseña de desarrollo `Demo.123`; las credenciales demo de arriba no cambian.
+
 ### 4. Preparar el editor (solo para VS Code)
 
 El cliente de Prisma se genera dentro del contenedor, pero el editor lee tu carpeta local. Sin este paso VS Code marca errores en los imports de Prisma aunque todo funcione:

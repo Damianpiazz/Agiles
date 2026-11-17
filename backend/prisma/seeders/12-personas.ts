@@ -1,7 +1,38 @@
 import type { PrismaClient } from "../../generated/prisma/client";
+import {
+  CANTIDAD,
+  apellido,
+  dni,
+  entero,
+  fechaNacimiento,
+  historiaClinica,
+  localidad,
+  nombre,
+  resetFake,
+  sexo,
+  SEXOS,
+  telefono,
+} from "./_fake";
+
+type PersonaSeed = {
+  id: number;
+  dni: string;
+  historiaClinica?: string;
+  nombre: string;
+  apellido: string;
+  telefono?: string | null;
+  fechaNacimiento: Date;
+  lugarNacimiento: string;
+  sexoBiologico?: (typeof SEXOS)[number];
+  idDireccion: number;
+  idGrupoFactor: number;
+};
 
 export async function seed12Personas(prisma: PrismaClient) {
-  const data = [
+  resetFake(112);
+
+  // Los IDs 1-3 se conservan: otros seeders los referencian por idPersona/idMadre.
+  const data: PersonaSeed[] = [
     {
       id: 1,
       dni: "30111222",
@@ -34,18 +65,26 @@ export async function seed12Personas(prisma: PrismaClient) {
     },
   ];
 
+  for (let id = data.length + 1; id <= CANTIDAD; id++) {
+    data.push({
+      id,
+      dni: dni(),
+      historiaClinica: historiaClinica(),
+      nombre: nombre(),
+      apellido: apellido(),
+      telefono: telefono(),
+      fechaNacimiento: fechaNacimiento(),
+      lugarNacimiento: localidad(),
+      sexoBiologico: sexo(),
+      idDireccion: entero(1, CANTIDAD),
+      idGrupoFactor: entero(1, 8),
+    });
+  }
+
   for (const persona of data) {
     await prisma.persona.upsert({
       where: { id: persona.id },
-      update: {
-        dni: persona.dni,
-        nombre: persona.nombre,
-        apellido: persona.apellido,
-        fechaNacimiento: persona.fechaNacimiento,
-        lugarNacimiento: persona.lugarNacimiento,
-        idDireccion: persona.idDireccion,
-        idGrupoFactor: persona.idGrupoFactor,
-      },
+      update: { ...persona },
       create: persona,
     });
   }
