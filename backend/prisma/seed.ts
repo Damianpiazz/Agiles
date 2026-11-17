@@ -1,145 +1,53 @@
 import { prisma } from "../src/config/prisma";
 
-/**
- * Catálogo de antígenos para la Prueba de Coombs Indirecta (PCI).
- * Panel extendido de antígenos eritrocitarios de uso frecuente.
- */
-const antigenos = [
-  "D",
-  "C",
-  "c",
-  "E",
-  "e",
-  "K",
-  "k",
-  "Fy(a)",
-  "Fy(b)",
-  "Jk(a)",
-  "Jk(b)",
-  "M",
-  "N",
-  "S",
-  "s",
-  "Le(a)",
-  "Le(b)",
-  "P1",
-];
-
-/**
- * Catálogo de determinaciones serológicas (cribado de enfermedades transmisibles).
- */
-const determinacionesSerologicas = [
-  "Anti-T. cruzi",
-  "HBsAg",
-  "Anti-core HB",
-  "Anti-HCV",
-  "Anti-VIH 1/2",
-  "Anti-Treponema pallidum",
-  "Anti-HTLV I/II",
-];
+import { seed01Provincias } from "./seeders/01-provincias";
+import { seed02Ciudades } from "./seeders/02-ciudades";
+import { seed03Domicilios } from "./seeders/03-domicilios";
+import { seed04Gyf } from "./seeders/04-gyf";
+import { seed05Antigenos } from "./seeders/05-antigenos";
+import { seed06DeterminacionesSerologicas } from "./seeders/06-determinaciones-serologicas";
+import { seed07DeterminacionesPcd } from "./seeders/07-determinaciones-pcd";
+import { seed08ObrasSociales } from "./seeders/08-obras-sociales";
+import { seed09Medicos } from "./seeders/09-medicos";
+import { seed10Fenotipos } from "./seeders/10-fenotipos";
+import { seed11TiposTransfusion } from "./seeders/11-tipos-transfusion";
+import { seed12Personas } from "./seeders/12-personas";
+import { seed13Donantes } from "./seeders/13-donantes";
+import { seed14Pacientes } from "./seeders/14-pacientes";
+import { seed15Donaciones } from "./seeders/15-donaciones";
+import { seed16Pci } from "./seeders/16-pci";
+import { seed17Serologias } from "./seeders/17-serologias";
+import { seed18Pcd } from "./seeders/18-pcd";
+import { seed19EstudiosInmunohematologicos } from "./seeders/19-estudios-inmunohematologicos";
+import { seed20SangriasTerapeuticas } from "./seeders/20-sangrias-terapeuticas";
+import { seed21Transfusiones } from "./seeders/21-transfusiones";
+import { seed22SolicitudesYUnidades } from "./seeders/22-solicitudes-y-unidades";
 
 async function main() {
-  for (const nombre of antigenos) {
-    await prisma.antigeno.upsert({
-      where: { nombre },
-      update: {},
-      create: { nombre },
-    });
-  }
+  await seed01Provincias(prisma);
+  await seed02Ciudades(prisma);
+  await seed03Domicilios(prisma);
+  await seed04Gyf(prisma);
+  await seed05Antigenos(prisma);
+  await seed06DeterminacionesSerologicas(prisma);
+  await seed07DeterminacionesPcd(prisma);
+  await seed08ObrasSociales(prisma);
+  await seed09Medicos(prisma);
+  await seed10Fenotipos(prisma);
+  await seed11TiposTransfusion(prisma);
+  await seed12Personas(prisma);
+  await seed13Donantes(prisma);
+  await seed14Pacientes(prisma);
+  await seed15Donaciones(prisma);
+  await seed16Pci(prisma);
+  await seed17Serologias(prisma);
+  await seed18Pcd(prisma);
+  await seed19EstudiosInmunohematologicos(prisma);
+  await seed20SangriasTerapeuticas(prisma);
+  await seed21Transfusiones(prisma);
+  await seed22SolicitudesYUnidades(prisma);
 
-  for (const nombre of determinacionesSerologicas) {
-    await prisma.determinacionSerologica.upsert({
-      where: { nombre },
-      update: {},
-      create: { nombre },
-    });
-  }
-
-  await seedSolicitudesYUnidades();
-
-  console.log(
-    `Seed OK: ${antigenos.length} antígenos y ${determinacionesSerologicas.length} determinaciones serológicas.`,
-  );
-}
-
-function enDias(cantidad: number): Date {
-  const fecha = new Date();
-  fecha.setDate(fecha.getDate() + cantidad);
-  return new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
-}
-
-/**
- * Datos de demostración para HU-017 (selección/preparación de componentes):
- * solicitudes de transfusión aprobadas y unidades de sangre en inventario.
- */
-async function seedSolicitudesYUnidades() {
-  const solicitudesExistentes = await prisma.solicitudTransfusion.count();
-
-  if (solicitudesExistentes === 0) {
-    await prisma.solicitudTransfusion.createMany({
-      data: [
-        {
-          dniPaciente: "30111222",
-          nombrePaciente: "Lucía Fernández",
-          grupoABO: "A",
-          factorRhD: "POSITIVO",
-          tipoHemocomponente: "GLOBULOS_ROJOS",
-          cantidad: 2,
-          estado: "APROBADA",
-          operador: "Damián Piazza",
-          observaciones: "Cirugía programada",
-        },
-        {
-          dniPaciente: "28444555",
-          nombrePaciente: "Marcos Gómez",
-          grupoABO: "O",
-          factorRhD: "NEGATIVO",
-          tipoHemocomponente: "GLOBULOS_ROJOS",
-          cantidad: 1,
-          estado: "APROBADA",
-          operador: "Damián Piazza",
-          observaciones: "Anemia crónica",
-        },
-        {
-          dniPaciente: "35999888",
-          nombrePaciente: "Ana Sosa",
-          grupoABO: "B",
-          factorRhD: "POSITIVO",
-          tipoHemocomponente: "GLOBULOS_ROJOS",
-          cantidad: 1,
-          estado: "PENDIENTE",
-          operador: "Damián Piazza",
-          observaciones: "Pendiente de aprobación",
-        },
-      ],
-    });
-  }
-
-  const unidades = [
-    { numeroUnidad: "U-1001", grupoABO: "A", factorRhD: "POSITIVO", dias: 30, estado: "DISPONIBLE" as const },
-    { numeroUnidad: "U-1002", grupoABO: "O", factorRhD: "POSITIVO", dias: 25, estado: "DISPONIBLE" as const },
-    { numeroUnidad: "U-1003", grupoABO: "O", factorRhD: "NEGATIVO", dias: 20, estado: "DISPONIBLE" as const },
-    { numeroUnidad: "U-1004", grupoABO: "B", factorRhD: "POSITIVO", dias: 15, estado: "DISPONIBLE" as const },
-    { numeroUnidad: "U-1005", grupoABO: "AB", factorRhD: "NEGATIVO", dias: 10, estado: "DISPONIBLE" as const },
-    { numeroUnidad: "U-1006", grupoABO: "O", factorRhD: "NEGATIVO", dias: -5, estado: "DISPONIBLE" as const },
-    { numeroUnidad: "U-1007", grupoABO: "A", factorRhD: "POSITIVO", dias: 40, estado: "BLOQUEADA" as const },
-    { numeroUnidad: "U-1008", grupoABO: "O", factorRhD: "POSITIVO", dias: 30, estado: "DISPONIBLE" as const, tipoHemocomponente: "PLASMA" as const },
-  ];
-
-  for (const unidad of unidades) {
-    await prisma.unidadSangre.upsert({
-      where: { numeroUnidad: unidad.numeroUnidad },
-      update: {},
-      create: {
-        numeroUnidad: unidad.numeroUnidad,
-        tipoHemocomponente: unidad.tipoHemocomponente ?? "GLOBULOS_ROJOS",
-        grupoABO: unidad.grupoABO,
-        factorRhD: unidad.factorRhD,
-        fechaVencimiento: enDias(unidad.dias),
-        estado: unidad.estado,
-      },
-    });
-  }
+  console.log("Seed OK: seeders 01-22 ejecutados.");
 }
 
 main()

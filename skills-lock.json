@@ -29,12 +29,33 @@
       "skillPath": "skills/open-pencil/SKILL.md",
       "computedHash": "e224376a2309adee8a0b6c9a44308dab4866bc0c599a736adb716a4b84dcdbf3"
     },
+    "prisma-client-api": {
+      "source": "prisma/skills",
+      "commit": "a6f192959cf43b08aa330fe1ffca090267215812",
+      "sourceType": "github",
+      "skillPath": "prisma-client-api/SKILL.md",
+      "computedHash": "a4810158b4b436a69e782e6fab95a0ed5e5e0b2786c2ed00322051d29c4c2b64"
+    },
+    "prisma-database-setup": {
+      "source": "prisma/skills",
+      "commit": "a6f192959cf43b08aa330fe1ffca090267215812",
+      "sourceType": "github",
+      "skillPath": "prisma-database-setup/SKILL.md",
+      "computedHash": "79848d903a92d69c3ee173fe26e565381b7b8a2ca66f82da156093e981087ce5"
+    },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
       "commit": "1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62",
       "sourceType": "github",
       "skillPath": "skills/react-best-practices/SKILL.md",
       "computedHash": "7991ed4fbecdac23f47c1a40c243e00a212a9e7f3604db93959b3ae11dffe299"
+    },
+    "vite": {
+      "source": "antfu/skills",
+      "commit": "4a6bb39e7b45e26402eb215393c51ccf5df1ca4c",
+      "sourceType": "github",
+      "skillPath": "skills/vite/SKILL.md",
+      "computedHash": "db9eea82d8bf6ce0f60a4a1d94a626c718df7d97160b5f1d5b150647e0c401b3"
     }
   }
 }

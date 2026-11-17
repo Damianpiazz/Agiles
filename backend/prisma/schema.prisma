@@ -7,6 +7,10 @@ datasource db {
   provider = "postgresql"
 }
 
+// ===============================
+// Enums existentes (app)
+// ===============================
+
 enum SexoBiologico {
   MASCULINO
   FEMENINO
@@ -77,6 +81,391 @@ enum EstadoUnidad {
   BLOQUEADA
 }
 
+// ==========================================
+// MÓDULO DE PERSONAS Y UBICACIÓN (DER)
+// ==========================================
+
+model Provincia {
+  id     Int    @id @default(autoincrement())
+  nombre String
+
+  ciudades Ciudad[]
+
+  @@map("provincias")
+}
+
+model Ciudad {
+  id           Int       @id @default(autoincrement())
+  nombre       String
+  codigoPostal String?   @map("codigo_postal")
+  idProvincia  Int       @map("id_provincia")
+  provincia    Provincia @relation(fields: [idProvincia], references: [id])
+
+  domicilios Domicilio[]
+
+  @@index([idProvincia])
+  @@map("ciudades")
+}
+
+model Domicilio {
+  id           Int     @id @default(autoincrement())
+  calle        String?
+  numero       String?
+  piso         String?
+  departamento String?
+  idCiudad     Int     @map("id_ciudad")
+  ciudad       Ciudad  @relation(fields: [idCiudad], references: [id])
+
+  personas Persona[]
+
+  @@index([idCiudad])
+  @@map("domicilios")
+}
+
+model Gyf {
+  id     Int     @id @default(autoincrement())
+  grupo  String?
+  factor String?
+
+  personas                      Persona[]
+  estudiosInmunohematologicosRn EstudioInmunohematologicoRn[]
+  transfusiones                 Transfusion[]
+
+  @@map("gyf")
+}
+
+model Persona {
+  id              Int        @id @default(autoincrement())
+  dni             String?    @unique
+  nombre          String?
+  apellido        String?
+  fechaNacimiento DateTime?  @map("fecha_nacimiento") @db.Date
+  lugarNacimiento String?    @map("lugar_nacimiento")
+  idDireccion     Int?       @map("id_direccion")
+  direccion       Domicilio? @relation(fields: [idDireccion], references: [id])
+  idGrupoFactor   Int?       @map("id_grupo_factor")
+  grupoFactor     Gyf?       @relation(fields: [idGrupoFactor], references: [id])
+
+  donaciones           DonacionDer[]
+  estudiosGestante     EstudioInmunohematologicoGestante[] @relation("PersonaGestante")
+  estudiosRnComoMadre  EstudioInmunohematologicoRn[]       @relation("PersonaMadreRn")
+  sangriasTerapeuticas SangriaTerapeutica[]
+
+  @@index([idDireccion])
+  @@index([idGrupoFactor])
+  @@map("personas")
+}
+
+// ==========================================
+// MÓDULO DE DONACIONES Y SEROLOGÍA (DER)
+// ==========================================
+
+model DonacionDer {
+  id              Int       @id @default(autoincrement())
+  peso            Float?
+  tensionArterial String?   @map("tension_arterial")
+  hemoglobina     Float?
+  fecha           DateTime? @db.Date
+  voluntario      Boolean?
+  reposicion      Boolean?
+  autoexcluido    Boolean?
+  observaciones   String?
+  idPersona       Int?      @map("id_persona")
+  persona         Persona?  @relation(fields: [idPersona], references: [id])
+
+  serologiaDonaciones SerologiaDonacionDer[]
+  pciDonaciones       PciDonacionDer[]
+
+  @@index([idPersona])
+  @@map("donaciones_der")
+}
+
+model Serologia {
+  id            Int      @id @default(autoincrement())
+  fecha         DateTime @db.Date
+  hora          DateTime @db.Time
+  observaciones String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  resultados    SerologiaResultado[]
+  donaciones    SerologiaDonacion[]
+  donacionesDer SerologiaDonacionDer[]
+
+  @@map("serologias")
+}
+
+model SerologiaDonacionDer {
+  id          Int         @id @default(autoincrement())
+  idSerologia Int         @map("id_serologia")
+  serologia   Serologia   @relation(fields: [idSerologia], references: [id])
+  idDonacion  Int         @map("id_donacion")
+  donacion    DonacionDer @relation(fields: [idDonacion], references: [id])
+
+  @@index([idSerologia])
+  @@index([idDonacion])
+  @@map("serologia_donaciones_der")
+}
+
+model DeterminacionSerologica {
+  id         Int                  @id @default(autoincrement())
+  nombre     String               @unique
+  resultados SerologiaResultado[]
+
+  @@map("determinaciones_serologicas")
+}
+
+model SerologiaResultado {
+  id                        Int                     @id @default(autoincrement())
+  serologiaId               Int
+  serologia                 Serologia               @relation(fields: [serologiaId], references: [id])
+  determinacionSerologicaId Int
+  determinacionSerologica   DeterminacionSerologica @relation(fields: [determinacionSerologicaId], references: [id])
+  resultado                 String
+  valor                     String?
+  unidad                    String?
+  observacion               String?
+  createdAt                 DateTime                @default(now())
+  updatedAt                 DateTime                @updatedAt
+
+  @@unique([serologiaId, determinacionSerologicaId])
+  @@map("serologia_resultados")
+}
+
+// ==========================================
+// MÓDULO DE INMUNOHEMATOLOGÍA (PCI / PCD) (DER)
+// ==========================================
+
+model Pci {
+  id            Int      @id @default(autoincrement())
+  fecha         DateTime @db.Date
+  hora          DateTime @db.Time
+  observaciones String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  resultados        PciResultado[]
+  donaciones        PciDonacion[]
+  donacionesDer     PciDonacionDer[]
+  estudiosGestantes PciInmunohematologicoGestante[]
+  estudiosRn        EstudioInmunohematologicoRn[]
+
+  @@map("pci")
+}
+
+model PciDonacionDer {
+  id         Int         @id @default(autoincrement())
+  idPci      Int         @map("id_pci")
+  pci        Pci         @relation(fields: [idPci], references: [id])
+  idDonacion Int         @map("id_donacion")
+  donacion   DonacionDer @relation(fields: [idDonacion], references: [id])
+
+  @@index([idPci])
+  @@index([idDonacion])
+  @@map("pci_donaciones_der")
+}
+
+model Antigeno {
+  id         Int            @id @default(autoincrement())
+  nombre     String         @unique
+  resultados PciResultado[]
+
+  @@map("antigenos")
+}
+
+model PciResultado {
+  id          Int      @id @default(autoincrement())
+  pciId       Int
+  pci         Pci      @relation(fields: [pciId], references: [id])
+  antigenoId  Int
+  antigeno    Antigeno @relation(fields: [antigenoId], references: [id])
+  resultado   String
+  intensidad  String?
+  observacion String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([pciId, antigenoId])
+  @@map("pci_resultados")
+}
+
+model Pcd {
+  id            Int      @id @default(autoincrement())
+  fecha         DateTime @db.Date
+  hora          DateTime @db.Time
+  observaciones String?
+
+  resultados PcdResultado[]
+  estudiosRn EstudioInmunohematologicoRn[]
+
+  @@map("pcd")
+}
+
+model DeterminacionPcd {
+  id         Int            @id @default(autoincrement())
+  nombre     String         @unique
+  resultados PcdResultado[]
+
+  @@map("determinaciones_pcd")
+}
+
+model PcdResultado {
+  id                 Int               @id @default(autoincrement())
+  resultado          String?
+  valor              String?
+  unidad             String?
+  observacion        String?
+  idPcd              Int               @map("id_pcd")
+  pcd                Pcd               @relation(fields: [idPcd], references: [id])
+  idDeterminacionPcd Int?              @map("id_determinacion_pcd")
+  determinacionPcd   DeterminacionPcd? @relation(fields: [idDeterminacionPcd], references: [id])
+
+  @@index([idPcd])
+  @@index([idDeterminacionPcd])
+  @@map("pcd_resultados")
+}
+
+// ==========================================
+// MÓDULO GESTANTES Y RECIÉN NACIDOS (DER)
+// ==========================================
+
+model EstudioInmunohematologicoGestante {
+  id        Int       @id @default(autoincrement())
+  numero    String?
+  fecha     DateTime? @db.Date
+  idPersona Int       @map("id_persona")
+  gestante  Persona   @relation("PersonaGestante", fields: [idPersona], references: [id])
+
+  pciAsociados PciInmunohematologicoGestante[]
+
+  @@index([idPersona])
+  @@map("estudios_inmunohematologicos_gestantes")
+}
+
+model PciInmunohematologicoGestante {
+  id                                    Int                               @id @default(autoincrement())
+  idPci                                 Int                               @map("id_pci")
+  pci                                   Pci                               @relation(fields: [idPci], references: [id])
+  idEstudiosInmunohematologicosGestante Int                               @map("id_estudios_inmunohematologicos_gestantes")
+  estudioGestante                       EstudioInmunohematologicoGestante @relation(fields: [idEstudiosInmunohematologicosGestante], references: [id])
+
+  @@index([idPci])
+  @@index([idEstudiosInmunohematologicosGestante])
+  @@map("pci_inmunohematologicos_gestantes")
+}
+
+model EstudioInmunohematologicoRn {
+  id            Int       @id @default(autoincrement())
+  numero        String?
+  fecha         DateTime? @db.Date
+  rn            String?
+  dni           String?
+  idMadre       Int?      @map("id_madre")
+  madre         Persona?  @relation("PersonaMadreRn", fields: [idMadre], references: [id])
+  idGrupoFactor Int?      @map("id_grupo_factor")
+  grupoFactor   Gyf?      @relation(fields: [idGrupoFactor], references: [id])
+  ipAntiD       String?   @map("IP_anti_D")
+  idPcd         Int?      @map("id_pcd")
+  pcd           Pcd?      @relation(fields: [idPcd], references: [id])
+  idPci         Int?      @map("id_pci")
+  pci           Pci?      @relation(fields: [idPci], references: [id])
+  observaciones String?
+
+  @@index([idMadre])
+  @@index([idGrupoFactor])
+  @@index([idPcd])
+  @@index([idPci])
+  @@map("estudios_inmunohematologicos_rn")
+}
+
+// ==========================================
+// MÓDULO SANGRÍAS TERAPÉUTICAS Y TRANSFUSIONES (DER)
+// ==========================================
+
+model ObraSocial {
+  id     Int     @id @default(autoincrement())
+  nombre String?
+
+  sangrias SangriaTerapeutica[]
+
+  @@map("obra_social")
+}
+
+model Medico {
+  id     Int     @id @default(autoincrement())
+  nombre String?
+
+  sangrias SangriaTerapeutica[]
+
+  @@map("medicos")
+}
+
+model SangriaTerapeutica {
+  id           Int         @id @default(autoincrement())
+  diagnostico  String?
+  extraccion   String?
+  reposicion   String?
+  idPersona    Int?        @map("id_persona")
+  persona      Persona?    @relation(fields: [idPersona], references: [id])
+  idObraSocial Int?        @map("id_obra_social")
+  obraSocial   ObraSocial? @relation(fields: [idObraSocial], references: [id])
+  idMedico     Int?        @map("id_medico")
+  medico       Medico?     @relation(fields: [idMedico], references: [id])
+
+  @@index([idPersona])
+  @@index([idObraSocial])
+  @@index([idMedico])
+  @@map("sangrias_terapeuticas")
+}
+
+model Fenotipo {
+  id     Int     @id @default(autoincrement())
+  nombre String?
+
+  transfusionesComoFenotipo1 Transfusion[] @relation("Fenotipo1")
+  transfusionesComoFenotipo2 Transfusion[] @relation("Fenotipo2")
+
+  @@map("fenotipos")
+}
+
+model TipoTransfusion {
+  id     Int     @id @default(autoincrement())
+  nombre String?
+
+  transfusiones Transfusion[]
+
+  @@map("tipo_transfusion")
+}
+
+model Transfusion {
+  id                Int              @id @default(autoincrement())
+  numeroOLote       String?          @map("numero_o_lote")
+  rt                String?          @map("RT")
+  tolerancia        String?
+  pci               String?
+  pcd               String?
+  anticuerpo        String?
+  idFenotipo1       Int?             @map("id_fenotipo_1")
+  fenotipo1         Fenotipo?        @relation("Fenotipo1", fields: [idFenotipo1], references: [id])
+  idGrupoFactor     Int?             @map("id_grupo_factor")
+  grupoFactor       Gyf?             @relation(fields: [idGrupoFactor], references: [id])
+  idFenotipo2       Int?             @map("id_fenotipo_2")
+  fenotipo2         Fenotipo?        @relation("Fenotipo2", fields: [idFenotipo2], references: [id])
+  idTipoTransfusion Int?             @map("id_tipo_transfusion")
+  tipoTransfusion   TipoTransfusion? @relation(fields: [idTipoTransfusion], references: [id])
+
+  @@index([idFenotipo1])
+  @@index([idGrupoFactor])
+  @@index([idFenotipo2])
+  @@index([idTipoTransfusion])
+  @@map("transfusiones")
+}
+
+// ==========================================
+// MODELOS EXISTENTES DE LA APLICACIÓN
+// (conservados para compatibilidad)
+// ==========================================
+
 model Donante {
   id              Int           @id @default(autoincrement())
   nombre          String
@@ -145,52 +534,6 @@ model Donacion {
   @@map("donaciones")
 }
 
-model Antigeno {
-  id         Int            @id @default(autoincrement())
-  nombre     String         @unique
-  resultados PciResultado[]
-
-  @@map("antigenos")
-}
-
-model DeterminacionSerologica {
-  id         Int                  @id @default(autoincrement())
-  nombre     String               @unique
-  resultados SerologiaResultado[]
-
-  @@map("determinaciones_serologicas")
-}
-
-model Pci {
-  id            Int      @id @default(autoincrement())
-  fecha         DateTime @db.Date
-  hora          DateTime @db.Time
-  observaciones String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  resultados PciResultado[]
-  donaciones PciDonacion[]
-
-  @@map("pci")
-}
-
-model PciResultado {
-  id          Int      @id @default(autoincrement())
-  pciId       Int
-  pci         Pci      @relation(fields: [pciId], references: [id])
-  antigenoId  Int
-  antigeno    Antigeno @relation(fields: [antigenoId], references: [id])
-  resultado   String
-  intensidad  String?
-  observacion String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@unique([pciId, antigenoId])
-  @@map("pci_resultados")
-}
-
 model PciDonacion {
   pciId      Int
   pci        Pci      @relation(fields: [pciId], references: [id])
@@ -199,37 +542,6 @@ model PciDonacion {
 
   @@id([pciId, donacionId])
   @@map("pci_donaciones")
-}
-
-model Serologia {
-  id            Int      @id @default(autoincrement())
-  fecha         DateTime @db.Date
-  hora          DateTime @db.Time
-  observaciones String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  resultados SerologiaResultado[]
-  donaciones SerologiaDonacion[]
-
-  @@map("serologias")
-}
-
-model SerologiaResultado {
-  id                        Int                     @id @default(autoincrement())
-  serologiaId               Int
-  serologia                 Serologia               @relation(fields: [serologiaId], references: [id])
-  determinacionSerologicaId Int
-  determinacionSerologica   DeterminacionSerologica @relation(fields: [determinacionSerologicaId], references: [id])
-  resultado                 String
-  valor                     String?
-  unidad                    String?
-  observacion               String?
-  createdAt                 DateTime                @default(now())
-  updatedAt                 DateTime                @updatedAt
-
-  @@unique([serologiaId, determinacionSerologicaId])
-  @@map("serologia_resultados")
 }
 
 model SerologiaDonacion {
