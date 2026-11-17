@@ -25,6 +25,10 @@ Thumbs.db
 # IA
 .atl
 
+# Python (skills locales)
+__pycache__/
+*.pyc
+
 # OpenCode
 opencode.json
 
