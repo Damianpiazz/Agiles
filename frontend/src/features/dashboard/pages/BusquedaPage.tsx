@@ -16,10 +16,10 @@ import { StatusChip } from "@/shared/components/ui/StatusChip";
 import { documentoLegible, formatoFecha, grupoFactorLegible, nombreCompleto } from "@/shared/utils/formato";
 
 const ACCESOS = [
-  { to: rutas.postaFija, etiqueta: "Registrar donación (Posta fija)", icono: "♥" },
+  { to: rutas.postaFija, etiqueta: "Registrar donación (Posta Fija)", icono: "♥" },
   { to: rutas.unidadTransfusional, etiqueta: "Registrar transfusión", icono: "⊕" },
   { to: rutas.gestantes, etiqueta: "Cargar estudio de gestante", icono: "◌" },
-  { to: rutas.donacionesEstudios, etiqueta: "Cargar serologías y PCI", icono: "◉" },
+  { to: `${rutas.postaFija}?seccion=donaciones`, etiqueta: "Cargar serologías y PCI", icono: "◉" },
 ];
 
 export function BusquedaPage() {

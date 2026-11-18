@@ -17,6 +17,8 @@ import { SearchField } from "@/shared/components/ui/SearchField";
 import { Section } from "@/shared/components/ui/Section";
 import { StatusChip } from "@/shared/components/ui/StatusChip";
 import { mensajeDeError } from "@/infrastructure/api/errors";
+import { usePaginacion } from "@/shared/hooks/usePaginacion";
+import { cn } from "@/shared/lib/cn";
 import { documentoLegible, fechaParaInput, formatoFecha, grupoFactorLegible, nombreCompleto } from "@/shared/utils/formato";
 
 interface Formulario {
@@ -82,13 +84,25 @@ function formularioDesde(persona: Persona): Formulario {
   };
 }
 
+type Seccion = "registro" | "personas";
+
 export function PersonasPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const seccionParam = searchParams.get("seccion");
+  const seccion: Seccion = seccionParam === "personas" ? "personas" : "registro";
+
   const [termino, setTermino] = useState("");
   const consulta = searchParams.get("q")?.trim() ?? "";
   const idSeleccionado = searchParams.get("id") ? Number(searchParams.get("id")) : null;
   const [formulario, setFormulario] = useState<Formulario>(FORMULARIO_VACIO);
   const queryClient = useQueryClient();
+
+  const [terminoListado, setTerminoListado] = useState(searchParams.get("pq") ?? "");
+  const listadoQ = searchParams.get("pq")?.trim() ?? "";
+  const listadoSexo = searchParams.get("psexo") ?? "";
+  const listadoGf = searchParams.get("pgf") ?? "";
+  const claveListado = `${listadoQ}|${listadoSexo}|${listadoGf}`;
+  const paginacion = usePaginacion(claveListado);
 
   const resultados = useQuery({
     queryKey: ["personas", "buscar", consulta],
@@ -103,6 +117,17 @@ export function PersonasPage() {
   });
 
   const catalogos = useQuery({ queryKey: ["catalogos", "consolidado"], queryFn: () => catalogosApi.consolidado() });
+  const listado = useQuery({
+    queryKey: ["personas", "listar", claveListado, paginacion.pagina],
+    queryFn: () =>
+      personasApi.listar({
+        ...paginacion.params,
+        ...(listadoQ ? { q: listadoQ } : {}),
+        ...(listadoSexo ? { sexoBiologico: listadoSexo } : {}),
+        ...(listadoGf ? { idGrupoFactor: listadoGf } : {}),
+      }),
+    enabled: seccion === "personas",
+  });
   const provincias = useQuery({ queryKey: ["ubicaciones", "provincias"], queryFn: () => ubicacionesApi.provincias() });
   const ciudades = useQuery({
     queryKey: ["ubicaciones", "ciudades", formulario.idProvincia],
@@ -125,6 +150,22 @@ export function PersonasPage() {
   function nuevaPersona() {
     setFormulario({ ...FORMULARIO_VACIO, dni: consulta.replace(/\D/g, "") });
     setSearchParams(consulta ? { q: consulta } : {});
+  }
+
+  function actualizarParametrosListado(cambios: Record<string, string | null>) {
+    setSearchParams((actuales) => {
+      const siguientes = new URLSearchParams(actuales);
+      for (const [clave, valor] of Object.entries(cambios)) {
+        if (valor === null || valor === "") siguientes.delete(clave);
+        else siguientes.set(clave, valor);
+      }
+      return siguientes;
+    });
+  }
+
+  function abrirDesdeListado(persona: Persona) {
+    setTermino(persona.dni ?? "");
+    setSearchParams({ seccion: "registro", q: persona.dni ?? "", id: String(persona.id) });
   }
 
   const guardar = useMutation({
@@ -199,6 +240,68 @@ export function PersonasPage() {
     },
   ];
 
+  const columnasListado: Columna<Persona>[] = [
+    {
+      clave: "nombre",
+      titulo: "Apellido y Nombre",
+      celda: (persona) => nombreCompleto(persona),
+    },
+    {
+      clave: "dni",
+      titulo: "DNI",
+      celda: (persona) => <span className="mono">{documentoLegible(persona.dni)}</span>,
+    },
+    {
+      clave: "hc",
+      titulo: "Historia clínica",
+      celda: (persona) => <span className="mono">{persona.historiaClinica || "—"}</span>,
+    },
+    { clave: "telefono", titulo: "Teléfono", celda: (persona) => persona.telefono || "—" },
+    {
+      clave: "nacimiento",
+      titulo: "Fecha de nacimiento",
+      celda: (persona) => formatoFecha(persona.fechaNacimiento),
+    },
+    { clave: "edad", titulo: "Edad", celda: (persona) => (persona.edad === null || persona.edad === undefined ? "—" : persona.edad) },
+    {
+      clave: "sexo",
+      titulo: "Sexo",
+      celda: (persona) =>
+        persona.sexoBiologico === "MASCULINO"
+          ? "Masculino"
+          : persona.sexoBiologico === "FEMENINO"
+            ? "Femenino"
+            : "—",
+    },
+    {
+      clave: "gyf",
+      titulo: "G y F",
+      celda: (persona) => <span className="mono">{grupoFactorLegible(persona.grupoFactor)}</span>,
+    },
+    {
+      clave: "direccion",
+      titulo: "Domicilio",
+      celda: (persona) => direccionLegible(persona),
+    },
+    {
+      clave: "semaforo",
+      titulo: "Semaforización",
+      celda: (persona) => {
+        const semaforo = presentacionSemaforo(persona.semaforo);
+        return <StatusChip tono={semaforo.tono}>{semaforo.etiqueta}</StatusChip>;
+      },
+    },
+    {
+      clave: "accion",
+      titulo: "Historial",
+      celda: (persona) => (
+        <Button type="button" size="sm" variant="ghost" onClick={() => abrirDesdeListado(persona)}>
+          Abrir
+        </Button>
+      ),
+    },
+  ];
+
   const grupoFactor = catalogos.data?.gruposFactor ?? [];
 
   return (
@@ -213,7 +316,32 @@ export function PersonasPage() {
         }
       />
 
-      <Section title="Búsqueda" description="Buscar por DNI, nombre o HC (Ctrl K)">
+      <div className="section-tabs" role="tablist" aria-label="Secciones de Personas">
+        {(
+          [
+            ["registro", "Consulta y alta"],
+            ["personas", "Personas"],
+          ] as const
+        ).map(([id, etiqueta]) => (
+          <button
+            key={id}
+            id={`tab-${id}`}
+            type="button"
+            role="tab"
+            aria-selected={seccion === id}
+            aria-controls={`panel-${id}`}
+            className={cn("section-tabs__tab", seccion === id && "section-tabs__tab--activo")}
+            onClick={() => actualizarParametrosListado({ seccion: id })}
+          >
+            {etiqueta}
+          </button>
+        ))}
+      </div>
+
+      <div role="tabpanel" id="panel-registro" aria-labelledby="tab-registro" hidden={seccion !== "registro"}>
+        {seccion === "registro" ? (
+          <>
+            <Section title="Búsqueda" description="Buscar por DNI, nombre o HC (Ctrl K)">
         <SearchField
           label="DNI / Identificación"
           placeholder="Buscar por DNI, nombre o HC"
@@ -439,6 +567,107 @@ export function PersonasPage() {
           </div>
         </form>
       </Section>
+          </>
+        ) : null}
+      </div>
+
+      <div role="tabpanel" id="panel-personas" aria-labelledby="tab-personas" hidden={seccion !== "personas"}>
+        {seccion === "personas" ? (
+          <>
+            <Section title="Buscar persona">
+              <SearchField
+                label="Persona"
+                placeholder="Buscar por DNI, nombre, apellido o HC"
+                value={terminoListado}
+                onChange={setTerminoListado}
+                onSubmit={() => {
+                  actualizarParametrosListado({ pq: terminoListado.trim() || null });
+                  paginacion.setPagina(1);
+                }}
+              />
+            </Section>
+
+            <Section title="Filtros">
+              <div className="form-grid">
+                <Field label="Sexo biológico" htmlFor="filtro-persona-sexo" ancho={4}>
+                  <select
+                    id="filtro-persona-sexo"
+                    className="select"
+                    value={listadoSexo}
+                    onChange={(evento) => actualizarParametrosListado({ psexo: evento.target.value || null })}
+                  >
+                    <option value="">Todos</option>
+                    <option value="FEMENINO">Femenino</option>
+                    <option value="MASCULINO">Masculino</option>
+                  </select>
+                </Field>
+                <Field label="Grupo y factor" htmlFor="filtro-persona-gf" ancho={4}>
+                  <select
+                    id="filtro-persona-gf"
+                    className="select"
+                    value={listadoGf}
+                    onChange={(evento) => actualizarParametrosListado({ pgf: evento.target.value || null })}
+                  >
+                    <option value="">Todos</option>
+                    {(catalogos.data?.gruposFactor ?? []).map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {[item.grupo, item.factor].filter(Boolean).join("")}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                <div className="field field--4 filtros__acciones">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      actualizarParametrosListado({ pq: null, psexo: null, pgf: null });
+                      setTerminoListado("");
+                    }}
+                  >
+                    Limpiar filtros
+                  </Button>
+                </div>
+              </div>
+            </Section>
+
+            <Section title="Personas" description="Todas las personas cargadas en el sistema">
+              <div className="tabla-donaciones">
+                <DataTable
+                  columnas={columnasListado}
+                  filas={listado.data?.data ?? []}
+                  claveFila={(persona) => persona.id}
+                  cargando={listado.isLoading}
+                  error={listado.isError ? "No se pudo consultar el listado de personas." : undefined}
+                  onReintentar={() => void listado.refetch()}
+                  meta={listado.data?.meta}
+                  pagina={paginacion.pagina}
+                  porPagina={paginacion.porPagina}
+                  onCambiarPagina={paginacion.setPagina}
+                  claveReset={claveListado}
+                />
+              </div>
+            </Section>
+          </>
+        ) : null}
+      </div>
     </>
+  );
+}
+
+function direccionLegible(persona: Persona): string {
+  const direccion = persona.direccion;
+  if (!direccion) return "—";
+  return (
+    [
+      direccion.calle,
+      direccion.numero,
+      direccion.piso,
+      direccion.departamento,
+      direccion.ciudad?.nombre,
+      direccion.ciudad?.provincia?.nombre,
+    ]
+      .filter(Boolean)
+      .join(" ") || "—"
   );
 }

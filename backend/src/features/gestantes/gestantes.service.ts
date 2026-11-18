@@ -25,20 +25,23 @@ export async function listarGestantes(query: Record<string, unknown>) {
   const limit = parsePositiveInt(query.limit, 25, 200);
   const search = firstValue(query.q);
   const personaId = firstValue(query.personaId);
+  const dni = firstValue(query.dni);
   const rango = parseDateRange(query);
 
   const where: Prisma.EstudioInmunohematologicoGestanteWhereInput = {};
   if (personaId) where.idPersona = Number(personaId);
   if (rango.gte || rango.lte) where.fecha = rango;
-  if (search) {
-    const documento = normalizarDocumento(search);
-    where.gestante = {
-      OR: [
-        { dni: { contains: documento } },
+  if (search || dni) {
+    const filtroPersona: Prisma.PersonaWhereInput = {};
+    if (dni) filtroPersona.dni = normalizarDocumento(dni);
+    if (search) {
+      filtroPersona.OR = [
+        { dni: { contains: normalizarDocumento(search) } },
         { nombre: { contains: search, mode: "insensitive" } },
         { apellido: { contains: search, mode: "insensitive" } },
-      ],
-    };
+      ];
+    }
+    where.gestante = filtroPersona;
   }
 
   const [total, items] = await Promise.all([

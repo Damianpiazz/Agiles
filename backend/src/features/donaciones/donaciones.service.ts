@@ -17,6 +17,10 @@ export const donacionInclude = {
     include: {
       grupoFactor: true,
       direccion: { include: { ciudad: { include: { provincia: true } } } },
+      donaciones: {
+        select: { id: true, fecha: true },
+        orderBy: [{ fecha: "desc" }, { id: "desc" }],
+      },
     },
   },
   serologiaDonaciones: {
@@ -73,9 +77,26 @@ function mapDonacion(donacion: DonacionConEstudios) {
   return {
     ...donacion,
     grupoFactor: donacion.persona?.grupoFactor ?? null,
+    fechasDonaciones: (donacion.persona?.donaciones ?? []).flatMap((item) =>
+      item.fecha ? [item.fecha.toISOString()] : [],
+    ),
     estadoEstudios: calcularEstadoEstudios(donacion),
   };
 }
+
+const CON_SEROLOGIA_PRIMERA = {
+  serologiaDonaciones: {
+    some: { serologia: { tipoMuestra: "PRIMERA", resultados: { some: {} } } },
+  },
+} satisfies Prisma.DonacionDerWhereInput;
+
+const CON_PCI = {
+  pciDonaciones: { some: { pci: { resultados: { some: {} } } } },
+} satisfies Prisma.DonacionDerWhereInput;
+
+const CON_ALGUN_ESTUDIO = {
+  OR: [{ serologiaDonaciones: { some: {} } }, { pciDonaciones: { some: {} } }],
+} satisfies Prisma.DonacionDerWhereInput;
 
 export async function listarDonaciones(query: Record<string, unknown>) {
   const page = parsePositiveInt(query.page, 1);
@@ -83,12 +104,18 @@ export async function listarDonaciones(query: Record<string, unknown>) {
   const search = firstValue(query.q);
   const personaId = firstValue(query.personaId);
   const dni = firstValue(query.dni);
+  const dniReceptor = firstValue(query.dniReceptor);
+  const estado = firstValue(query.estado);
+  const tipo = firstValue(query.tipo);
   const rango = parseDateRange(query);
 
   const where: Prisma.DonacionDerWhereInput = {};
   if (personaId) where.idPersona = Number(personaId);
   if (dni) where.persona = { dni: normalizarDocumento(dni) };
+  if (dniReceptor) where.dniReceptorReposicion = normalizarDocumento(dniReceptor);
   if (rango.gte || rango.lte) where.fecha = rango;
+  if (tipo === "VOLUNTARIO") where.voluntario = true;
+  if (tipo === "REPOSICION") where.reposicion = true;
   if (search) {
     const documento = normalizarDocumento(search);
     where.OR = [
@@ -96,6 +123,11 @@ export async function listarDonaciones(query: Record<string, unknown>) {
       { persona: { nombre: { contains: search, mode: "insensitive" } } },
       { persona: { apellido: { contains: search, mode: "insensitive" } } },
     ];
+  }
+  if (estado === "COMPLETO") where.AND = [CON_SEROLOGIA_PRIMERA, CON_PCI];
+  else if (estado === "PENDIENTE") where.NOT = CON_ALGUN_ESTUDIO;
+  else if (estado === "EN_CARGA") {
+    where.AND = [CON_ALGUN_ESTUDIO, { NOT: { AND: [CON_SEROLOGIA_PRIMERA, CON_PCI] } }];
   }
 
   const [total, items] = await Promise.all([
@@ -301,6 +333,7 @@ export async function estudiosDeDonacion(id: number) {
       voluntario: donacion.voluntario,
       reposicion: donacion.reposicion,
       autoexcluido: donacion.autoexcluido,
+      dniReceptorReposicion: donacion.dniReceptorReposicion,
       observaciones: donacion.observaciones,
     },
     persona: donacion.persona,

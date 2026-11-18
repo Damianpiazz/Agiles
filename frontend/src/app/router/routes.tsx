@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router";
+import { Navigate, Route, Routes, useLocation } from "react-router";
 import { AccesoDenegadoPage } from "@/app/pages/AccesoDenegadoPage";
 import { NoEncontradoPage } from "@/app/pages/NoEncontradoPage";
 import { AuthLayout } from "@/app/layouts/AuthLayout";
@@ -7,7 +7,6 @@ import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { BusquedaPage } from "@/features/dashboard/pages/BusquedaPage";
 import { PersonasPage } from "@/features/personas/pages/PersonasPage";
 import { PostaFijaPage } from "@/features/donaciones/pages/PostaFijaPage";
-import { EstudiosPage } from "@/features/donaciones/pages/EstudiosPage";
 import { UnidadTransfusionalPage } from "@/features/transfusiones/pages/UnidadTransfusionalPage";
 import { GestantesPage } from "@/features/gestantes/pages/GestantesPage";
 import { MaternidadPage } from "@/features/gestantes/pages/MaternidadPage";
@@ -18,6 +17,13 @@ import { CatalogosPage } from "@/features/catalogos/pages/CatalogosPage";
 import { AuditoriaPage } from "@/features/auditoria/pages/AuditoriaPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { rutas } from "./paths";
+
+function RedireccionPostaFija() {
+  const ubicacion = useLocation();
+  const parametros = new URLSearchParams(ubicacion.search);
+  parametros.set("seccion", "donaciones");
+  return <Navigate to={{ pathname: rutas.postaFija, search: `?${parametros.toString()}` }} replace />;
+}
 
 export function AppRoutes() {
   return (
@@ -31,7 +37,7 @@ export function AppRoutes() {
           <Route path={rutas.inicio} element={<BusquedaPage />} />
           <Route path={rutas.personas} element={<PersonasPage />} />
           <Route path={rutas.postaFija} element={<PostaFijaPage />} />
-          <Route path={rutas.donacionesEstudios} element={<EstudiosPage />} />
+          <Route path={rutas.donacionesEstudiosLegacy} element={<RedireccionPostaFija />} />
           <Route path={rutas.unidadTransfusional} element={<UnidadTransfusionalPage />} />
           <Route
             path={rutas.gestantes}

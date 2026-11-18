@@ -285,6 +285,112 @@ a {
   flex-wrap: wrap;
 }
 
+/* ---------- Posta Fija: pestañas, formulario y acciones ---------- */
+
+.section-tabs {
+  display: flex;
+  gap: var(--s-1);
+  margin-bottom: var(--s-6);
+  border-bottom: 1px solid var(--c-line-strong);
+}
+
+.section-tabs--wrap {
+  flex-wrap: wrap;
+  row-gap: var(--s-1);
+}
+
+.section-tabs__tab {
+  position: relative;
+  min-height: var(--control-h);
+  padding: 0 var(--s-4);
+  border: 0;
+  background: transparent;
+  color: var(--c-ink-muted);
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.section-tabs__count {
+  display: inline-block;
+  margin-left: var(--s-2);
+  padding: 0 var(--s-2);
+  border-radius: var(--r-full, 999px);
+  background: var(--c-brand-soft);
+  color: var(--c-brand-strong);
+  font-size: var(--text-caption, var(--text-body-sm));
+  font-variant-numeric: tabular-nums;
+}
+
+.section-tabs__tab:hover {
+  background: var(--c-brand-soft);
+  color: var(--c-brand);
+}
+
+.section-tabs__tab--activo {
+  color: var(--c-brand-strong);
+}
+
+.section-tabs__tab--activo::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--c-brand);
+}
+
+.posta-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-6);
+}
+
+.estudios-acciones {
+  display: flex;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+.estudios-borrador {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-top: var(--s-4);
+}
+
+.filtros__acciones {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+
+.tabla-donaciones .table {
+  min-width: 2100px;
+}
+
+.celda-estudio {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-1);
+}
+
+.celda-estudio__accion {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--c-brand);
+  font-size: var(--text-meta);
+  cursor: pointer;
+  text-align: left;
+}
+
+.celda-estudio__accion:hover {
+  text-decoration: underline;
+}
+
 .section {
   margin-bottom: var(--s-8);
   background: var(--c-surface);
@@ -927,6 +1033,21 @@ a {
   background: var(--c-brand-soft);
 }
 
+button.link-list__item {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--c-line);
+  background: transparent;
+  color: var(--c-ink);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+button.link-list__item:last-child {
+  border-bottom: 0;
+}
+
 /* ---------- Valor con rango ---------- */
 
 .value-range {
@@ -1049,8 +1170,173 @@ a {
 }
 
 .resultado-row__nombre {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
   font-size: var(--text-body-sm);
   font-weight: 600;
+}
+
+.resultado-row__quitar {
+  border: 0;
+  background: transparent;
+  color: var(--c-danger);
+  font-size: var(--text-meta);
+  cursor: pointer;
+}
+
+.resultado-row__opciones {
+  display: flex;
+  gap: var(--s-2);
+}
+
+.chip-resultado {
+  padding: var(--s-1) var(--s-3);
+  border: 1px solid var(--c-line-strong);
+  border-radius: 999px;
+  background: var(--c-surface);
+  color: var(--c-ink-soft);
+  font-size: var(--text-body-sm);
+  cursor: pointer;
+}
+
+.chip-resultado--negativo {
+  border-color: var(--c-ok);
+  background: var(--c-ok-bg);
+  color: var(--c-ok);
+  font-weight: 600;
+}
+
+.chip-resultado--positivo {
+  border-color: var(--c-danger);
+  background: var(--c-danger-bg);
+  color: var(--c-danger);
+  font-weight: 600;
+}
+
+/* ---------- Selector compacto y modal de estudios ---------- */
+
+.selector-resultados__alta {
+  display: flex;
+  gap: var(--s-3);
+  align-items: center;
+}
+
+.selector-resultados__alta .select {
+  flex: 1;
+}
+
+.selector-resultados__ayuda {
+  margin-block: var(--s-2) var(--s-3);
+  font-size: var(--text-meta);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  padding: var(--s-8) var(--s-4);
+  background: rgba(10, 59, 51, 0.45);
+}
+
+.modal {
+  width: min(880px, 100%);
+  background: var(--c-surface);
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-sm);
+  box-shadow: 0 16px 48px rgba(10, 59, 51, 0.25);
+}
+
+.modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-5) var(--s-6);
+  border-bottom: 1px solid var(--c-line);
+}
+
+.modal__title {
+  font-size: var(--text-display);
+}
+
+.modal__subtitle {
+  margin-top: var(--s-1);
+  color: var(--c-ink-soft);
+  font-size: var(--text-body-sm);
+}
+
+.modal__cerrar {
+  border: 0;
+  background: transparent;
+  color: var(--c-ink-muted);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modal__body {
+  padding: var(--s-6);
+}
+
+.modal__metadata {
+  margin-bottom: var(--s-5);
+}
+
+.modal__tabs {
+  display: flex;
+  gap: var(--s-1);
+  border-bottom: 1px solid var(--c-line-strong);
+  margin-bottom: var(--s-4);
+}
+
+.modal__tab {
+  position: relative;
+  min-height: var(--control-h);
+  padding: 0 var(--s-4);
+  border: 0;
+  background: transparent;
+  color: var(--c-ink-muted);
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal__tab--activo {
+  color: var(--c-brand-strong);
+}
+
+.modal__tab--activo::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--c-brand);
+}
+
+.modal__panel {
+  min-height: 120px;
+}
+
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s-3);
+  margin-top: var(--s-6);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--c-line);
+}
+
+@media (max-width: 720px) {
+  .posta-form-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .catalog-chip {

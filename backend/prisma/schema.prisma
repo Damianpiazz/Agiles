@@ -190,6 +190,7 @@ model DonacionDer {
   voluntario      Boolean?
   reposicion      Boolean?
   autoexcluido    Boolean?
+  dniReceptorReposicion String? @map("dni_receptor_reposicion")
   observaciones   String?
   operador        String?
   idPersona       Int?      @map("id_persona")

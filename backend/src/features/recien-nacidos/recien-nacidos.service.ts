@@ -33,10 +33,12 @@ export async function listarRecienNacidos(query: Record<string, unknown>) {
   const limit = parsePositiveInt(query.limit, 25, 200);
   const search = firstValue(query.q);
   const madreId = firstValue(query.madreId);
+  const dni = firstValue(query.dni);
   const rango = parseDateRange(query);
 
   const where: Prisma.EstudioInmunohematologicoRnWhereInput = {};
   if (madreId) where.idMadre = Number(madreId);
+  if (dni) where.dni = normalizarDocumento(dni);
   if (rango.gte || rango.lte) where.fecha = rango;
   if (search) {
     const documento = normalizarDocumento(search);

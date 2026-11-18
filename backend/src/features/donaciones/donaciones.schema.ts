@@ -3,7 +3,7 @@ import { createPersonaSchema } from "../personas/personas.schema";
 import { pciResultadoSchema } from "../pci/pci.schema";
 import { serologiaResultadoSchema } from "../serologias/serologias.schema";
 import { TipoMuestraSerologia } from "../../../generated/prisma/enums";
-import { nullableNumber, optionalText, timeSchema } from "../../validators/common";
+import { nullableNumber, optionalDocumento, optionalText, timeSchema } from "../../validators/common";
 
 const tiposMuestra = Object.values(TipoMuestraSerologia) as [TipoMuestraSerologia, ...TipoMuestraSerologia[]];
 
@@ -18,15 +18,28 @@ export const donacionBaseSchema = z.object({
   voluntario: z.boolean().optional(),
   reposicion: z.boolean().optional(),
   autoexcluido: z.boolean().optional(),
+  dniReceptorReposicion: optionalDocumento,
   observaciones: optionalText(1000),
   operador: optionalText(100),
   idPersona: nullableNumber(),
 });
 
-export const createDonacionSchema = donacionBaseSchema.extend({
-  persona: createPersonaSchema.optional(),
-  idGrupoFactor: nullableNumber(),
-});
+/** Una donación para reposición debe indicar el DNI del paciente receptor. */
+function validarDniReceptor(donacion: { reposicion?: boolean | null; dniReceptorReposicion?: string | null }) {
+  return !donacion.reposicion || Boolean(donacion.dniReceptorReposicion);
+}
+
+const MENSAJE_DNI_RECEPTOR = "Indicá el DNI del paciente receptor cuando la donación es para reposición";
+
+export const createDonacionSchema = donacionBaseSchema
+  .extend({
+    persona: createPersonaSchema.optional(),
+    idGrupoFactor: nullableNumber(),
+  })
+  .refine(validarDniReceptor, {
+    message: MENSAJE_DNI_RECEPTOR,
+    path: ["dniReceptorReposicion"],
+  });
 
 export const updateDonacionSchema = donacionBaseSchema.partial();
 
@@ -67,6 +80,10 @@ export const donacionCompletaSchema = z
   })
   .refine((value) => value.idPersona !== undefined || value.persona !== undefined, {
     message: "Indicá idPersona o los datos de la persona",
+  })
+  .refine((value) => validarDniReceptor(value.donacion), {
+    message: MENSAJE_DNI_RECEPTOR,
+    path: ["donacion", "dniReceptorReposicion"],
   });
 
 export type CreateDonacionInput = z.infer<typeof createDonacionSchema>;

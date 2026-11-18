@@ -3,7 +3,8 @@ export const rutas = {
   inicio: "/",
   personas: "/personas",
   postaFija: "/posta-fija",
-  donacionesEstudios: "/donaciones-estudios",
+  // Legacy: esta ruta solo redirecciona a Posta Fija.
+  donacionesEstudiosLegacy: "/donaciones-estudios",
   unidadTransfusional: "/unidad-transfusional",
   gestantes: "/gestantes",
   maternidad: "/maternidad",

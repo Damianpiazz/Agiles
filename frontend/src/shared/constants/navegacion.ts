@@ -11,8 +11,7 @@ export interface ItemNav {
 export const ITEMS_NAV: ItemNav[] = [
   { to: "/", label: "Búsqueda", icon: "⌕", grupo: "Operación" },
   { to: "/personas", label: "Personas", icon: "◫", grupo: "Operación" },
-  { to: "/posta-fija", label: "Posta fija", icon: "♥", grupo: "Operación" },
-  { to: "/donaciones-estudios", label: "Donaciones y estudios", icon: "◉", grupo: "Operación" },
+  { to: "/posta-fija", label: "Posta Fija", icon: "♥", grupo: "Operación" },
   { to: "/unidad-transfusional", label: "Unidad transfusional", icon: "⊕", grupo: "Operación" },
   { to: "/gestantes", label: "Gestantes y RN", icon: "◌", grupo: "Operación", roles: ["ADMINISTRADOR", "TECNICO_HEMOTERAPIA"] },
   { to: "/maternidad", label: "Consulta de estudios", icon: "👁", grupo: "Operación", roles: ["ADMINISTRADOR", "CONSULTA_MATERNIDAD"] },

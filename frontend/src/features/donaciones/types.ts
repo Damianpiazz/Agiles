@@ -56,9 +56,11 @@ export interface Donacion {
   voluntario?: boolean | null;
   reposicion?: boolean | null;
   autoexcluido?: boolean | null;
+  dniReceptorReposicion?: string | null;
   operador?: string | null;
   observaciones?: string | null;
   estadoEstudios?: { codigo: string; etiqueta: string };
+  fechasDonaciones?: string[];
   serologiaDonaciones?: Array<{ id: number; serologia: Serologia }>;
   pciDonaciones?: Array<{ id: number; pci: Pci }>;
 }
@@ -70,7 +72,7 @@ export interface EstudiosDonacion {
     operador?: string | null;
     voluntario?: boolean | null;
     reposicion?: boolean | null;
-    autoexcluido?: boolean | null;
+    dniReceptorReposicion?: string | null;
     observaciones?: string | null;
   };
   persona: Persona | null;
@@ -122,7 +124,7 @@ export type DonacionCompletaInput = {
     fecha?: string;
     voluntario?: boolean;
     reposicion?: boolean;
-    autoexcluido?: boolean;
+    dniReceptorReposicion?: string;
     observaciones?: string;
     operador?: string;
   };

@@ -12,26 +12,36 @@ import { mensajeDeError } from "@/infrastructure/api/errors";
 import { formatoFecha, formatoNumero } from "@/shared/utils/formato";
 
 interface InformeFila {
+  numero: NumeroHemo;
   titulo: string;
   detalle: string;
-  numeros: NumeroHemo[];
 }
 
 const INFORMES: InformeFila[] = [
   {
+    numero: 1,
     titulo: "HEMO 1 · Donantes atendidos y aptitud",
     detalle: "Ingresos, aptitud y tipo de donante",
-    numeros: [1],
   },
   {
+    numero: 2,
     titulo: "HEMO 2 · Hemocomponentes obtenidos y descartes",
     detalle: "Componentes, fracciones y descartes",
-    numeros: [2],
   },
   {
-    titulo: "HEMO 3-5 · Transfusiones, reacciones, gestantes/RN",
-    detalle: "Transfusiones, reacciones y estudios inmunohematológicos",
-    numeros: [3, 4, 5],
+    numero: 3,
+    titulo: "HEMO 3 · Transfusiones realizadas",
+    detalle: "Transfusiones por tipo, grupo y factor",
+  },
+  {
+    numero: 4,
+    titulo: "HEMO 4 · Reacciones adversas",
+    detalle: "Tolerancia y reacciones durante la transfusión",
+  },
+  {
+    numero: 5,
+    titulo: "HEMO 5 · Gestantes y recién nacidos",
+    detalle: "Estudios inmunohematológicos de gestantes y RN",
   },
 ];
 
@@ -181,34 +191,31 @@ export function ReportesPage() {
       </Section>
 
       <Section
-        title={periodo ? `Planillas generadas (${periodo})` : "Planillas generadas"}
+        title={periodo ? `Planillas generadas · 5 planillas (${periodo})` : "Planillas generadas · 5 planillas"}
         description="Ver / Descargar · Datos consolidados automáticamente"
       >
         <div className="link-list">
           {INFORMES.map((fila) => (
-            <div className="link-list__item" key={fila.titulo}>
+            <div className="link-list__item" key={fila.numero}>
               <span>
                 <strong>{fila.titulo}</strong>
                 <span className="muted"> · {fila.detalle}</span>
               </span>
               <div className="action-links">
-                {fila.numeros.map((numero) => (
-                  <span className="action-group" key={numero}>
-                    {fila.numeros.length > 1 ? <span className="muted">HEMO {numero}</span> : null}
-                    <Button type="button" size="sm" variant="ghost" onClick={() => setSeleccionado(numero)}>
-                      Ver
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      loading={descargarInforme.isPending && descargarInforme.variables === numero}
-                      onClick={() => descargarInforme.mutate(numero)}
-                    >
-                      Descargar
-                    </Button>
-                  </span>
-                ))}
+                <span className="action-group">
+                  <Button type="button" size="sm" variant="ghost" onClick={() => setSeleccionado(fila.numero)}>
+                    Ver
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    loading={descargarInforme.isPending && descargarInforme.variables === fila.numero}
+                    onClick={() => descargarInforme.mutate(fila.numero)}
+                  >
+                    Descargar
+                  </Button>
+                </span>
               </div>
             </div>
           ))}
@@ -217,7 +224,7 @@ export function ReportesPage() {
 
       {seleccionado ? (
         <Section
-          title={INFORMES.find((fila) => fila.numeros.includes(seleccionado))?.titulo ?? "Informe"}
+          title={INFORMES.find((fila) => fila.numero === seleccionado)?.titulo ?? "Informe"}
           description={`${informe.data?.detalle?.length ?? 0} registros`}
         >
           {informe.isError ? (

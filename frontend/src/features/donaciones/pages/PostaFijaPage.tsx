@@ -1,263 +1,395 @@
-import { useState, type FormEvent } from "react";
-import { Link } from "react-router";
-import { useMutation } from "@tanstack/react-query";
-import { rutas } from "@/app/router/paths";
-import { SelectorPersona } from "@/features/personas/components/SelectorPersona";
-import { catalogosApi } from "@/features/catalogos/api/catalogos.api";
-import { donacionesApi } from "@/features/donaciones/api/donaciones.api";
-import type { Persona } from "@/features/personas/types";
-import { Field } from "@/shared/components/ui/Field";
-import { FormActions } from "@/shared/components/ui/FormActions";
-import { Notice } from "@/shared/components/ui/Notice";
-import { PageHeader } from "@/shared/components/ui/PageHeader";
-import { PersonBanner } from "@/shared/components/ui/PersonBanner";
-import { Section } from "@/shared/components/ui/Section";
+import { useState } from "react";
+import { useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { mensajeDeError } from "@/infrastructure/api/errors";
-import { presentacionSemaforo } from "@/features/personas/model/semaforo";
-import { fechaParaInput, grupoFactorLegible, nombreCompleto } from "@/shared/utils/formato";
+import { donacionesApi } from "@/features/donaciones/api/donaciones.api";
+import { EstudiosModal } from "@/features/donaciones/components/EstudiosModal";
+import { RegistroDonacion, type FocoEstudios } from "@/features/donaciones/components/RegistroDonacion";
+import type { Donacion, EstudiosInput } from "@/features/donaciones/types";
+import type { Persona } from "@/features/personas/types";
+import { Button } from "@/shared/components/ui/Button";
+import { DataTable, type Columna } from "@/shared/components/ui/DataTable";
+import { Field } from "@/shared/components/ui/Field";
+import { PageHeader } from "@/shared/components/ui/PageHeader";
+import { SearchField } from "@/shared/components/ui/SearchField";
+import { Section } from "@/shared/components/ui/Section";
+import { StatusChip } from "@/shared/components/ui/StatusChip";
+import { cn } from "@/shared/lib/cn";
+import { usePaginacion } from "@/shared/hooks/usePaginacion";
+import {
+  documentoLegible,
+  formatoFecha,
+  formatoNumero,
+  grupoFactorLegible,
+  nombreCompleto,
+} from "@/shared/utils/formato";
 
-type TipoDonacion = "VOLUNTARIO" | "REPOSICION" | "AUTOEXCLUIDO";
+type Seccion = "registro" | "donaciones";
+type TipoEstudio = "PCI" | "PRIMERA" | "SEGUNDA";
 
 export function PostaFijaPage() {
-  const [persona, setPersona] = useState<Persona | null>(null);
-  const [termino, setTermino] = useState("");
-  const [tipo, setTipo] = useState<TipoDonacion>("VOLUNTARIO");
-  const [peso, setPeso] = useState("");
-  const [tension, setTension] = useState("");
-  const [hemoglobina, setHemoglobina] = useState("");
-  const [fecha, setFecha] = useState(fechaParaInput(new Date().toISOString()));
-  const [operador, setOperador] = useState("");
-  const [observaciones, setObservaciones] = useState("");
-  const [donacionId, setDonacionId] = useState<number | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [termino, setTermino] = useState(searchParams.get("q") ?? "");
+  const [borrador, setBorrador] = useState<EstudiosInput | null>(null);
 
-  const catalogos = useQuery({ queryKey: ["catalogos", "consolidado"], queryFn: () => catalogosApi.consolidado() });
+  const seccionParam = searchParams.get("seccion");
+  const seccion: Seccion = seccionParam === "donaciones" ? "donaciones" : "registro";
 
-  const guardar = useMutation({
-    mutationFn: () =>
-      donacionesApi.crearCompleta({
-        idPersona: persona?.id ?? 0,
-        donacion: {
-          fecha: fecha || undefined,
-          peso: peso ? Number(peso) : null,
-          tensionArterial: tension || undefined,
-          hemoglobina: hemoglobina ? Number(hemoglobina) : null,
-          voluntario: tipo === "VOLUNTARIO",
-          reposicion: tipo === "REPOSICION",
-          autoexcluido: tipo === "AUTOEXCLUIDO",
-          observaciones: observaciones || undefined,
-          operador: operador || undefined,
-        },
+  const q = searchParams.get("q")?.trim() ?? "";
+  const dni = searchParams.get("dni")?.trim() ?? "";
+  const tipo = searchParams.get("tipo") ?? "";
+  const estado = searchParams.get("estado") ?? "";
+  const desde = searchParams.get("desde") ?? "";
+  const hasta = searchParams.get("hasta") ?? "";
+  const dniReceptor = searchParams.get("dniReceptor")?.trim() ?? "";
+  const filtros = { q, dni, tipo, estado, desde, hasta };
+  const claveFiltros = `${q}|${dni}|${tipo}|${estado}|${dniReceptor}|${desde}|${hasta}`;
+  const { pagina, porPagina, setPagina, params } = usePaginacion(claveFiltros);
+
+  const donacionParam = searchParams.get("donacion");
+  const donacionId =
+    donacionParam && /^\d+$/.test(donacionParam)
+      ? Number(donacionParam) > 0
+        ? Number(donacionParam)
+        : null
+      : null;
+  const modalAbierto = searchParams.get("modal") === "estudios" && donacionParam !== null && donacionParam !== "";
+
+  const focoParam = searchParams.get("foco");
+  const foco: FocoEstudios =
+    focoParam === "PCI" || focoParam === "PRIMERA" || focoParam === "SEGUNDA" || focoParam === "TODOS"
+      ? focoParam
+      : "TODOS";
+
+  const donaciones = useQuery({
+    queryKey: ["donaciones", "listar", claveFiltros, pagina],
+    queryFn: () =>
+      donacionesApi.listar({
+        ...params,
+        ...(q ? { q } : {}),
+        ...(dni ? { dni } : {}),
+        ...(tipo ? { tipo } : {}),
+        ...(estado ? { estado } : {}),
+        ...(dniReceptor ? { dniReceptor } : {}),
+        ...(desde ? { desde } : {}),
+        ...(hasta ? { hasta } : {}),
       }),
-    onSuccess: (resultado) => setDonacionId(resultado.donacion.id),
   });
 
-  function enviar(evento: FormEvent<HTMLFormElement>) {
-    evento.preventDefault();
-    if (persona && !guardar.isPending) guardar.mutate();
+  function actualizarParametros(cambios: Record<string, string | null>) {
+    setSearchParams((actuales) => {
+      const siguientes = new URLSearchParams(actuales);
+      for (const [clave, valor] of Object.entries(cambios)) {
+        if (valor === null || valor === "") siguientes.delete(clave);
+        else siguientes.set(clave, valor);
+      }
+      return siguientes;
+    });
   }
+
+  function abrirEstudios(idDonacion: number | null, estudioFoco: FocoEstudios) {
+    actualizarParametros({
+      modal: "estudios",
+      donacion: String(idDonacion ?? 0),
+      foco: estudioFoco,
+    });
+  }
+
+  function cerrarEstudios() {
+    actualizarParametros({ modal: null, donacion: null, foco: null });
+  }
+
+  function cambiarFiltro(clave: keyof typeof filtros, valor: string) {
+    actualizarParametros({ [clave]: valor || null });
+  }
+
+  const columnas: Columna<Donacion>[] = [
+    {
+      clave: "idDonante",
+      titulo: "Id Donante",
+      celda: (donacion) => <span className="mono">{donacion.idPersona ?? donacion.persona?.id ?? "—"}</span>,
+    },
+    { clave: "nombre", titulo: "Nombre y Apellido", celda: (donacion) => nombreCompleto(donacion.persona) },
+    {
+      clave: "dni",
+      titulo: "DNI",
+      celda: (donacion) => <span className="mono">{documentoLegible(donacion.persona?.dni)}</span>,
+    },
+    {
+      clave: "nacimiento",
+      titulo: "Lugar y Fecha de Nacimiento",
+      celda: (donacion) => lugarYFechaNacimiento(donacion.persona),
+    },
+    { clave: "direccion", titulo: "Dirección", celda: (donacion) => direccionLegible(donacion.persona) },
+    { clave: "telefono", titulo: "Teléfono", celda: (donacion) => donacion.persona?.telefono || "—" },
+    { clave: "peso", titulo: "Peso", celda: (donacion) => (donacion.peso ? `${formatoNumero(Number(donacion.peso))} kg` : "—") },
+    { clave: "tension", titulo: "Tensión Arterial", celda: (donacion) => donacion.tensionArterial || "—" },
+    {
+      clave: "hemoglobina",
+      titulo: "Hemoglobina",
+      celda: (donacion) => (donacion.hemoglobina ? `${formatoNumero(Number(donacion.hemoglobina))} g/dl` : "—"),
+    },
+    {
+      clave: "fechasDonaciones",
+      titulo: "Fechas de Donaciones",
+      celda: (donacion) =>
+        donacion.fechasDonaciones?.length
+          ? donacion.fechasDonaciones.map(formatoFecha).join(", ")
+          : formatoFecha(donacion.fecha),
+    },
+    {
+      clave: "paciente",
+      titulo: "Paciente",
+      celda: (donacion) =>
+        donacion.dniReceptorReposicion ? <span className="mono">{documentoLegible(donacion.dniReceptorReposicion)}</span> : "—",
+    },
+    { clave: "voluntario", titulo: "Voluntario", celda: (donacion) => (donacion.voluntario ? "Sí" : "No") },
+    { clave: "reposicion", titulo: "Reposición", celda: (donacion) => (donacion.reposicion ? "Sí" : "No") },
+    { clave: "autoexcluido", titulo: "AutoExcluido", celda: (donacion) => (donacion.autoexcluido ? "Sí" : "No") },
+    { clave: "observaciones", titulo: "Observaciones", celda: (donacion) => donacion.observaciones || "—" },
+    { clave: "gyf", titulo: "G y F", celda: (donacion) => grupoFactorLegible(donacion.grupoFactor) },
+    ...(["PCI", "PRIMERA", "SEGUNDA"] as const).map<Columna<Donacion>>((tipoEstudio) => ({
+      clave: `estudio-${tipoEstudio}`,
+      titulo: tituloEstudio(tipoEstudio),
+      celda: (donacion) => {
+        const estudio = estadoEstudio(donacion, tipoEstudio);
+        return (
+          <div className="celda-estudio">
+            <StatusChip tono={estudio.hecho ? "ok" : "warn"}>{estudio.etiqueta}</StatusChip>
+            <button
+              type="button"
+              className="celda-estudio__accion"
+              onClick={() => abrirEstudios(donacion.id, tipoEstudio)}
+            >
+              {estudio.hecho ? "Ver / cargar →" : "Cargar →"}
+            </button>
+          </div>
+        );
+      },
+    })),
+    {
+      clave: "estado",
+      titulo: "Estado",
+      celda: (donacion) => {
+        const codigo = donacion.estadoEstudios?.codigo ?? "PENDIENTE";
+        return (
+          <StatusChip tono={codigo === "COMPLETO" ? "ok" : codigo === "EN_CARGA" ? "warn" : "neutral"}>
+            {donacion.estadoEstudios?.etiqueta ?? "Pendiente de carga"}
+          </StatusChip>
+        );
+      },
+    },
+  ];
 
   return (
     <>
       <PageHeader
-        title="Posta fija: registro de donante y donación"
-        subtitle={`Donación en curso: DON-${donacionId ?? 1025}. Los datos de persona se precargan por DNI. PCI y serologías se cargan desde “Donaciones y estudios” para esta donación.`}
-        actions={
-          donacionId ? (
-            <Link className="btn btn--primary" to={`${rutas.donacionesEstudios}?donacion=${donacionId}`}>
-              Cargar estudios
-            </Link>
-          ) : undefined
-        }
+        title="Posta Fija"
+        subtitle="Registro de donaciones y carga de PCI y serologías en una sola pantalla."
       />
 
-      <Section title="Identificación y datos personales" description="Buscar donante por DNI, nombre o historia clínica">
-        <SelectorPersona
-          valor={termino}
-          onChange={setTermino}
-          onSeleccionar={(encontrada) => {
-            setPersona(encontrada);
-            setTermino(nombreCompleto(encontrada));
-          }}
-          label="Nombre y apellido / DNI"
-        />
-        {persona ? (
-          <div style={{ marginTop: "var(--s-4)" }}>
-            <PersonBanner
-              persona={persona}
-              estado={presentacionSemaforo(persona.semaforo)}
-              datosExtra={[
-                `HC ${persona.historiaClinica ?? "—"}`,
-                persona.telefono ? `Tel. ${persona.telefono}` : "",
-                persona.direccion
-                  ? [
-                      persona.direccion.calle,
-                      persona.direccion.numero,
-                      persona.direccion.ciudad?.nombre,
-                      persona.direccion.ciudad?.provincia?.nombre,
-                    ]
-                      .filter(Boolean)
-                      .join(" ")
-                  : "",
-              ]}
-            />
-            <p className="soft" style={{ marginTop: "var(--s-2)" }}>
-              Grupo y factor: {grupoFactorLegible(persona.grupoFactor)} · Fecha de nacimiento:{" "}
-              {fechaParaInput(persona.fechaNacimiento) || "Sin dato"}
-            </p>
-          </div>
-        ) : null}
-      </Section>
+      <div className="section-tabs" role="tablist" aria-label="Secciones de Posta Fija">
+        {(
+          [
+            ["registro", "Registro de donación"],
+            ["donaciones", "Donaciones"],
+          ] as const
+        ).map(([id, etiqueta]) => (
+          <button
+            key={id}
+            id={`tab-${id}`}
+            type="button"
+            role="tab"
+            aria-selected={seccion === id}
+            aria-controls={`panel-${id}`}
+            className={cn("section-tabs__tab", seccion === id && "section-tabs__tab--activo")}
+            onClick={() => actualizarParametros({ seccion: id })}
+          >
+            {etiqueta}
+          </button>
+        ))}
+      </div>
 
-      {guardar.isError ? (
-        <Notice tono="danger" titulo="No se pudo registrar la donación">
-          {mensajeDeError(guardar.error)}
-        </Notice>
-      ) : null}
-
-      {donacionId ? (
-        <Notice tono="info" titulo="Donación registrada">
-          Donación DON-{donacionId}. Desde “Donaciones y estudios” podés cargar PCI, serología de 1ra y 2da muestra.
-        </Notice>
-      ) : null}
-
-      <form onSubmit={enviar}>
-        <Section title="Tipo de donación y destino" description="Voluntario, reposición o autoexcluido">
-          <div className="checkbox-row">
-            {(
-              [
-                ["VOLUNTARIO", "Voluntario"],
-                ["REPOSICION", "Reposición"],
-                ["AUTOEXCLUIDO", "Autoexcluido"],
-              ] as const
-            ).map(([valor, etiqueta]) => (
-              <label className="checkbox" key={valor}>
-                <input
-                  type="radio"
-                  name="tipo-donacion"
-                  value={valor}
-                  checked={tipo === valor}
-                  onChange={() => setTipo(valor)}
-                />
-                {etiqueta}
-              </label>
-            ))}
-          </div>
-          <p className="muted" style={{ marginTop: "var(--s-2)" }}>
-            {tipo === "REPOSICION"
-              ? "Indicá para qué paciente es la reposición en el historial de la persona."
-              : "No aplica (donación voluntaria)."}
-          </p>
-        </Section>
-
-        <Section title="Controles físicos" description="Datos de la extracción">
-          <div className="form-grid">
-            <Field label="Fecha" htmlFor="donacion-fecha" ancho={3}>
-              <input
-                id="donacion-fecha"
-                className="input"
-                type="date"
-                value={fecha}
-                onChange={(evento) => setFecha(evento.target.value)}
-              />
-            </Field>
-            <Field label="Peso" htmlFor="donacion-peso" ancho={3}>
-              <div className="input-row">
-                <input
-                  id="donacion-peso"
-                  className="input input--data"
-                  type="number"
-                  step="0.1"
-                  value={peso}
-                  onChange={(evento) => setPeso(evento.target.value)}
-                />
-                <span className="input-row__suffix">kg</span>
-              </div>
-            </Field>
-            <Field label="Tensión arterial" htmlFor="donacion-ta" ancho={3}>
-              <input
-                id="donacion-ta"
-                className="input input--data"
-                value={tension}
-                onChange={(evento) => setTension(evento.target.value)}
-                placeholder="110 / 70"
-              />
-            </Field>
-            <Field label="Hemoglobina" htmlFor="donacion-hb" ancho={3}>
-              <div className="input-row">
-                <input
-                  id="donacion-hb"
-                  className="input input--data"
-                  type="number"
-                  step="0.1"
-                  value={hemoglobina}
-                  onChange={(evento) => setHemoglobina(evento.target.value)}
-                />
-                <span className="input-row__suffix">g/dl</span>
-              </div>
-            </Field>
-            <Field label="Operador" htmlFor="donacion-operador" ancho={6}>
-              <input
-                id="donacion-operador"
-                className="input"
-                value={operador}
-                onChange={(evento) => setOperador(evento.target.value)}
-              />
-            </Field>
-            <Field label="Grupo y factor" htmlFor="donacion-gf" ancho={6}>
-              <select id="donacion-gf" className="select" defaultValue="">
-                <option value="">{persona ? grupoFactorLegible(persona.grupoFactor) : "Sin determinar"}</option>
-                {(catalogos.data?.gruposFactor ?? []).map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {[item.grupo, item.factor].filter(Boolean).join("")}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          </div>
-        </Section>
-
-        <Section
-          title="G y F, PCI y serología"
-          description="Al seleccionar PCI o Serología se abre la carga para esta donación en “Donaciones y estudios”."
-        >
-          <div className="link-list">
-            <Link className="link-list__item" to={donacionId ? `${rutas.donacionesEstudios}?donacion=${donacionId}` : rutas.donacionesEstudios}>
-              <span>PCI (carga diferida)</span>
-              <span>Pendiente · Cargar →</span>
-            </Link>
-            <Link className="link-list__item" to={donacionId ? `${rutas.donacionesEstudios}?donacion=${donacionId}` : rutas.donacionesEstudios}>
-              <span>Serología 1ra muestra</span>
-              <span>Pendiente · Cargar →</span>
-            </Link>
-            <Link className="link-list__item" to={donacionId ? `${rutas.donacionesEstudios}?donacion=${donacionId}` : rutas.donacionesEstudios}>
-              <span>Serología 2da muestra</span>
-              <span>Pendiente · Cargar →</span>
-            </Link>
-          </div>
-        </Section>
-
-        <Section title="Observaciones">
-          <Field label="Observaciones" htmlFor="donacion-observaciones" ancho={12}>
-            <textarea
-              id="donacion-observaciones"
-              className="textarea"
-              value={observaciones}
-              onChange={(evento) => setObservaciones(evento.target.value)}
-              placeholder="Sin reacciones adversas durante la extracción."
-            />
-          </Field>
-          <FormActions
-            submitLabel="Guardar donación"
-            loading={guardar.isPending}
-            disabled={!persona}
-            onCancel={() => {
-              setPersona(null);
-              setTermino("");
-            }}
+      <div role="tabpanel" id="panel-registro" aria-labelledby="tab-registro" hidden={seccion !== "registro"}>
+        {seccion === "registro" ? (
+          <RegistroDonacion
+            donacionId={donacionId}
+            borrador={borrador}
+            onBorradorCambiado={setBorrador}
+            onDonacionCreada={(id) =>
+              actualizarParametros({ donacion: String(id), seccion: "donaciones", modal: null, foco: null })
+            }
+            onAbrirEstudios={(estudioFoco) => abrirEstudios(donacionId, estudioFoco)}
           />
-        </Section>
-      </form>
+        ) : null}
+      </div>
+
+      <div role="tabpanel" id="panel-donaciones" aria-labelledby="tab-donaciones" hidden={seccion !== "donaciones"}>
+        {seccion === "donaciones" ? (
+          <>
+            <Section title="Buscar donación, DNI o ID">
+              <SearchField
+                label="Donación / donante"
+                placeholder="Buscar donación, DNI o ID"
+                value={termino}
+                onChange={setTermino}
+                onSubmit={() => {
+                  actualizarParametros({ q: termino.trim() || null });
+                  setPagina(1);
+                }}
+              />
+            </Section>
+
+            <Section title="Filtros">
+              <div className="form-grid">
+                <Field label="DNI" htmlFor="filtro-dni" ancho={3}>
+                  <input
+                    id="filtro-dni"
+                    className="input input--data"
+                    value={dni}
+                    onChange={(evento) => cambiarFiltro("dni", evento.target.value)}
+                    placeholder="DNI del donante"
+                  />
+                </Field>
+                <Field label="Tipo de donación" htmlFor="filtro-tipo" ancho={3}>
+                  <select
+                    id="filtro-tipo"
+                    className="select"
+                    value={tipo}
+                    onChange={(evento) => cambiarFiltro("tipo", evento.target.value)}
+                  >
+                    <option value="">Todos</option>
+                    <option value="VOLUNTARIO">Voluntario</option>
+                    <option value="REPOSICION">Reposición</option>
+                  </select>
+                </Field>
+                <Field label="Estado de estudios" htmlFor="filtro-estado" ancho={3}>
+                  <select
+                    id="filtro-estado"
+                    className="select"
+                    value={estado}
+                    onChange={(evento) => cambiarFiltro("estado", evento.target.value)}
+                  >
+                    <option value="">Todos</option>
+                    <option value="PENDIENTE">Pendiente</option>
+                    <option value="EN_CARGA">En carga</option>
+                    <option value="COMPLETO">Completo</option>
+                  </select>
+                </Field>
+                <Field label="DNI del paciente (reposición)" htmlFor="filtro-paciente" ancho={3}>
+                  <input
+                    id="filtro-paciente"
+                    className="input input--data"
+                    value={dniReceptor}
+                    onChange={(evento) => actualizarParametros({ dniReceptor: evento.target.value || null })}
+                    placeholder="DNI receptor"
+                  />
+                </Field>
+                <Field label="Desde" htmlFor="filtro-desde" ancho={3}>
+                  <input
+                    id="filtro-desde"
+                    className="input"
+                    type="date"
+                    value={desde}
+                    onChange={(evento) => cambiarFiltro("desde", evento.target.value)}
+                  />
+                </Field>
+                <Field label="Hasta" htmlFor="filtro-hasta" ancho={3}>
+                  <input
+                    id="filtro-hasta"
+                    className="input"
+                    type="date"
+                    value={hasta}
+                    onChange={(evento) => cambiarFiltro("hasta", evento.target.value)}
+                  />
+                </Field>
+                <div className="field field--6 filtros__acciones">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      actualizarParametros({
+                        q: null,
+                        dni: null,
+                        tipo: null,
+                        estado: null,
+                        dniReceptor: null,
+                        desde: null,
+                        hasta: null,
+                      });
+                      setTermino("");
+                    }}
+                  >
+                    Limpiar filtros
+                  </Button>
+                </div>
+              </div>
+            </Section>
+
+            <div id="donaciones">
+              <Section title="Donaciones" description="Todas las donaciones registradas">
+                <div className="tabla-donaciones">
+                  <DataTable
+                    columnas={columnas}
+                    filas={donaciones.data?.data ?? []}
+                    claveFila={(donacion) => donacion.id}
+                    cargando={donaciones.isLoading}
+                    error={donaciones.isError ? "No se pudo consultar el listado de donaciones." : undefined}
+                    onReintentar={() => void donaciones.refetch()}
+                    meta={donaciones.data?.meta}
+                    pagina={pagina}
+                    porPagina={porPagina}
+                    onCambiarPagina={setPagina}
+                    claveReset={claveFiltros}
+                  />
+                </div>
+              </Section>
+            </div>
+          </>
+        ) : null}
+      </div>
+
+      {modalAbierto ? (
+        <EstudiosModal
+          donacionId={donacionId}
+          foco={foco}
+          onCerrar={cerrarEstudios}
+          onGuardarBorrador={setBorrador}
+        />
+      ) : null}
     </>
   );
+}
+
+function tituloEstudio(tipo: TipoEstudio): string {
+  if (tipo === "PCI") return "PCI";
+  return tipo === "PRIMERA" ? "Serología 1ra muestra" : "Serología 2da muestra";
+}
+
+function estadoEstudio(
+  donacion: Donacion,
+  tipo: TipoEstudio,
+): { hecho: boolean; etiqueta: string } {
+  if (tipo === "PCI") {
+    const hecho = (donacion.pciDonaciones ?? []).some((item) => item.pci.resultados.length > 0);
+    return { hecho, etiqueta: hecho ? "Hecho" : "Pendiente" };
+  }
+  const hecho = (donacion.serologiaDonaciones ?? []).some(
+    (item) => item.serologia.tipoMuestra === tipo && item.serologia.resultados.length > 0,
+  );
+  return { hecho, etiqueta: hecho ? "Hecho" : "Pendiente" };
+}
+
+function direccionLegible(persona: Persona | null | undefined): string {
+  const direccion = persona?.direccion;
+  if (!direccion) return "—";
+  return (
+    [direccion.calle, direccion.numero, direccion.piso, direccion.departamento, direccion.ciudad?.nombre, direccion.ciudad?.provincia?.nombre]
+      .filter(Boolean)
+      .join(" ") || "—"
+  );
+}
+
+function lugarYFechaNacimiento(persona: Persona | null | undefined): string {
+  const lugar = persona?.lugarNacimiento || persona?.direccion?.ciudad?.nombre || "—";
+  return `${lugar} · ${formatoFecha(persona?.fechaNacimiento)}`;
 }
