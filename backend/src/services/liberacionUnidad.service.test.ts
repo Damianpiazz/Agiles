@@ -1,3 +1,4 @@
+
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -219,5 +220,41 @@ describe("liberacionUnidad.service", () => {
     );
 
     expect(resultado.estadoUnidad).toBe("LIBERADA");
+  });
+
+  it("permite bloquear una unidad aunque tenga estudios pendientes", async () => {
+    const db = fakeDb({
+      conAnticuerpos: false,
+    });
+
+    const resultado = await cambiarEstadoUnidad(
+      1,
+      {
+        accion: "BLOQUEAR",
+        usuario: "Operador_prueba",
+        motivo: "Estudios de calificación pendientes.",
+        discrepanciaResuelta: false,
+      },
+      db as never,
+    );
+
+    expect(resultado.estadoUnidad).toBe("BLOQUEADA");
+
+    expect(db._update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          estadoUnidad: "BLOQUEADA",
+        }),
+      }),
+    );
+
+    expect(db._createEvento).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          estado: "BLOQUEADA",
+          motivo: "Estudios de calificación pendientes.",
+        }),
+      }),
+    );
   });
 });

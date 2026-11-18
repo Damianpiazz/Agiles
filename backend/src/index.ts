@@ -13,6 +13,7 @@ import seleccionComponenteRoutes from "./routes/seleccionComponente.routes";
 import liberacionUnidadRoutes from "./routes/liberacionUnidad.routes";
 import recepcionUnidadRoutes from "./routes/recepcionUnidad.routes";
 import pacienteRoutes from "./routes/paciente.routes";
+import consultaResultadosRoutes from "./routes/consultaResultados.routes";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -37,5 +38,6 @@ app.use("/api/solicitudes-transfusiones", seleccionComponenteRoutes);
 app.use("/api/unidades", liberacionUnidadRoutes);
 app.use("/api/inventario-unidades", recepcionUnidadRoutes);
 app.use("/api/pacientes", pacienteRoutes);
+app.use("/api/consultas-resultados", consultaResultadosRoutes);
 
 app.listen(PORT, () => console.log(`API en http://localhost:${PORT}`));

@@ -1,0 +1,275 @@
+
+.consulta-container {
+  --tinta: #292631;
+  --papel: #f6f7f9;
+  --superficie: #ffffff;
+  --linea: #e3e5e9;
+  --acento: #9b1c31;
+  --error: #a4262c;
+  --ok: #1d6b4f;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 2rem clamp(1rem, 3vw, 2.5rem) 3rem;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  text-align: left;
+  border-radius: 12px;
+}
+
+.consulta-container *,
+.consulta-container *::before,
+.consulta-container *::after {
+  box-sizing: border-box;
+}
+
+.consulta-header {
+  margin-bottom: 1.75rem;
+}
+
+.consulta-header h1 {
+  margin: 0 0 .5rem;
+  color: var(--tinta);
+  font-size: clamp(1.65rem, 3vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -.035em;
+}
+
+.consulta-header p {
+  margin: 0;
+  color: #706d78;
+  line-height: 1.6;
+}
+
+.consulta-card {
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgb(31 36 48 / 4%);
+}
+
+.consulta-card h2 {
+  margin: 0 0 1.25rem;
+  color: var(--tinta);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.consulta-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 1rem;
+}
+
+.consulta-field {
+  display: flex;
+  flex: 1 1 260px;
+  min-width: 0;
+  flex-direction: column;
+  gap: .45rem;
+}
+
+.consulta-field label {
+  color: var(--tinta);
+  font-size: .9rem;
+  font-weight: 650;
+}
+
+.consulta-field input {
+  width: 100%;
+  min-height: 44px;
+  padding: .7rem .8rem;
+  color: var(--tinta);
+  background: var(--superficie);
+  border: 1px solid #d8dbe2;
+  border-radius: 8px;
+  font: inherit;
+  font-size: .95rem;
+}
+
+.consulta-field input:focus {
+  outline: none;
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px rgb(155 28 49 / 12%);
+}
+
+.consulta-form button {
+  min-height: 44px;
+  padding: .7rem 1.35rem;
+  color: #fff;
+  background: var(--acento);
+  border: 1px solid var(--acento);
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.consulta-form button:hover:not(:disabled) {
+  background: #7d1628;
+  border-color: #7d1628;
+}
+
+.consulta-form button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.consulta-banner {
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--linea);
+  border-left-width: 5px;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.consulta-banner-ok {
+  border-color: #a6d8b5;
+  border-left-color: var(--ok);
+  background: #effaf2;
+  color: #176b35;
+}
+
+.consulta-banner-error {
+  border-color: #efb4b4;
+  border-left-color: var(--error);
+  background: #fff1f1;
+  color: #b42318;
+}
+
+.consulta-datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 2rem;
+}
+
+.consulta-datos p {
+  margin: 0;
+}
+
+.consulta-subtitulo {
+  margin: 2rem 0 1rem;
+  color: var(--tinta);
+  font-size: 1.35rem;
+}
+
+.consulta-donacion-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+}
+
+.consulta-donacion-header h2 {
+  margin: 0 0 1rem;
+}
+
+.consulta-estado {
+  display: inline-flex;
+  padding: .35rem .7rem;
+  border-radius: 999px;
+  background: #f9e9ed;
+  color: var(--acento);
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.consulta-seccion {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--linea);
+}
+
+.consulta-seccion h3 {
+  margin: 0 0 .85rem;
+  color: var(--tinta);
+  font-size: 1rem;
+}
+
+.consulta-seccion > p {
+  margin: .4rem 0;
+  color: #706d78;
+}
+
+.consulta-resultado {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .5rem;
+  margin: .6rem 0;
+  padding: .85rem 1rem;
+  background: #faf9fa;
+  border: 1px solid var(--linea);
+  border-radius: 8px;
+}
+
+.consulta-resultado p {
+  flex-basis: 100%;
+  margin: .15rem 0;
+}
+
+.consulta-resultado strong {
+  color: var(--acento);
+}
+
+.consulta-grupo-sanguineo {
+  display: block;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  margin-bottom: .25rem;
+}
+
+.consulta-metadatos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .25rem;
+  color: #666;
+  font-size: .9rem;
+}
+
+.consulta-metadatos span {
+  display: block;
+}
+
+.consulta-bloqueo {
+  padding: .8rem 1rem;
+  border-left: 4px solid var(--error);
+  border-radius: 6px;
+  background: #fff1f1;
+  color: #a4262c !important;
+}
+
+.consulta-container button:focus-visible,
+.consulta-container input:focus-visible {
+  outline: 3px solid rgb(155 28 49 / 35%);
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .consulta-container {
+    padding: 1.25rem .85rem 2rem;
+  }
+
+  .consulta-card {
+    padding: 1rem;
+  }
+
+  .consulta-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .consulta-form button {
+    width: 100%;
+  }
+}

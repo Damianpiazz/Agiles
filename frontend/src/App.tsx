@@ -14,6 +14,7 @@ import SeleccionarComponente from "./pages/SeleccionarComponente";
 import LiberacionUnidad from "./pages/LiberacionUnidad";
 import RecepcionUnidad from "./pages/RecepcionUnidad";
 import type { Donante } from "./types/donante";
+import ConsultaResultados from "./pages/ConsultaResultados";
 import "./App.css";
 
 type Vista =
@@ -29,7 +30,8 @@ type Vista =
   | "tamizaje"
   | "seleccionar"
   | "liberacion"
-  | "recepcion";
+  | "recepcion"
+  | "consultaResultados";
 
 type DonanteEntrevista = Pick<
   Donante,
@@ -190,6 +192,15 @@ export default function App() {
           </span>
           Liberar unidad
         </button>
+        <button
+           type="button"
+           className={vista === "consultaResultados" ? "activo" : ""}
+           aria-current={vista === "consultaResultados" ? "page" : undefined}
+          onClick={() => setVista("consultaResultados")}
+          >
+        <span className="nav-icon" aria-hidden="true">⌕</span>
+          Consultar resultados
+</button>
 
         <button
           type="button"
@@ -243,6 +254,7 @@ export default function App() {
         {vista === "seleccionar" && <SeleccionarComponente />}
         {vista === "liberacion" && <LiberacionUnidad />}
         {vista === "recepcion" && <RecepcionUnidad />}
+        {vista === "consultaResultados" && <ConsultaResultados />}
       </main>
 
       <footer className="app-footer">
