@@ -63,6 +63,26 @@ enum EstadoSolicitudTransfusion {
   CANCELADA
 }
 
+enum ModalidadTransfusion {
+  INTERNACION
+  AMBULATORIA
+  DOMICILIARIA
+}
+
+enum CaracterTransfusion {
+  PROGRAMADA
+  NO_URGENTE
+  RESERVA
+  URGENTE
+  EMERGENCIA
+}
+
+enum AntecedenteTransfusional {
+  SI
+  NO
+  IGNORADO
+}
+
 enum EstadoUnidadSangre {
   DISPONIBLE
   RESERVADA
@@ -323,14 +343,63 @@ model SolicitudTransfusion {
   observaciones      String?
   operador           String
   fechaHora          DateTime                   @default(now())
+  modalidad          ModalidadTransfusion?
+  lugarRealizacion   String?
+  servicioSalaCama   String?
+  servicioSolicitante String?
+  sala               String?
+  cama               String?
+  piso               String?
+  sector             String?
+  unidadRealizacion  String?
+  servicioDerivante  String?
+  domicilioRealizacion String?
+  localidadReferencia String?
+  diagnosticoBase    String?
+  diagnosticoIndicacion String?
+  antecedenteTransfusional AntecedenteTransfusional?
+  reaccionTransfusionalPrev AntecedenteTransfusional?
+  sensibilizacionObstetrica AntecedenteTransfusional?
+  hematocrito        Float?
+  hemoglobina        Float?
+  plaquetas          Int?
+  fechaHoraLaboratorio DateTime?
+  volumenMl          Int?
+  irradiado          Boolean @default(false)
+  lavado             Boolean @default(false)
+  desleucocitado     Boolean @default(false)
+  fraccionadoPediatrico Boolean @default(false)
+  caracter           CaracterTransfusion?
+  fechaHoraRecepcion DateTime?
+  medicoPrescriptor String?
+  firmaAclarada      String?
+  matriculaPrescriptor String?
   createdAt          DateTime                   @default(now())
   updatedAt          DateTime                   @updatedAt
 
   unidades UnidadSangre[]
+  auditoria SolicitudTransfusionAuditoria[]
 
   @@index([estado, fechaHora])
   @@index([pacienteId])
   @@map("solicitudes_transfusion")
+}
+
+model SolicitudTransfusionAuditoria {
+  id            Int                 @id @default(autoincrement())
+  solicitudId   Int
+  solicitud     SolicitudTransfusion @relation(fields: [solicitudId], references: [id])
+  accion        String
+  datoModificado String
+  valorAnterior String?
+  valorNuevo    String?
+  motivo        String?
+  operador      String
+  fechaHora     DateTime            @default(now())
+  createdAt     DateTime            @default(now())
+
+  @@index([solicitudId, fechaHora])
+  @@map("solicitudes_transfusion_auditoria")
 }
 
 model UnidadSangre {
