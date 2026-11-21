@@ -77,6 +77,12 @@ enum EstadoUnidad {
   BLOQUEADA
 }
 
+enum MotivoBajaUnidad {
+  VENCIDA
+  TRANSFUNDIDA
+  DESCARTADA
+}
+
 model Donante {
   id              Int           @id @default(autoincrement())
   nombre          String
@@ -341,6 +347,9 @@ model UnidadSangre {
   solicitud          SolicitudTransfusion? @relation(fields: [solicitudId], references: [id])
   reservadaPor       String?
   reservadaEn        DateTime?
+  motivoBaja         MotivoBajaUnidad?
+  operadorBaja       String?
+  fechaBaja          DateTime?
   createdAt          DateTime              @default(now())
   updatedAt          DateTime              @updatedAt
 

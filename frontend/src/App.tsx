@@ -13,6 +13,7 @@ import TamizajeInfecciones from "./pages/TamizajeInfecciones";
 import SeleccionarComponente from "./pages/SeleccionarComponente";
 import LiberacionUnidad from "./pages/LiberacionUnidad";
 import RecepcionUnidad from "./pages/RecepcionUnidad";
+import DarDeBajaUnidad from "./pages/DarDeBajaUnidad";
 import type { Donante } from "./types/donante";
 import ConsultaResultados from "./pages/ConsultaResultados";
 import "./App.css";
@@ -31,6 +32,7 @@ type Vista =
   | "seleccionar"
   | "liberacion"
   | "recepcion"
+  | "baja"
   | "consultaResultados";
 
 type DonanteEntrevista = Pick<
@@ -213,6 +215,18 @@ export default function App() {
           </span>
           Recepción de unidades
         </button>
+
+        <button
+          type="button"
+          className={vista === "baja" ? "activo" : ""}
+          aria-current={vista === "baja" ? "page" : undefined}
+          onClick={() => setVista("baja")}
+        >
+          <span className="nav-icon" aria-hidden="true">
+            ⊘
+          </span>
+          Dar de baja unidad
+        </button>
       </nav>
 
       <main className="app-main">
@@ -254,6 +268,7 @@ export default function App() {
         {vista === "seleccionar" && <SeleccionarComponente />}
         {vista === "liberacion" && <LiberacionUnidad />}
         {vista === "recepcion" && <RecepcionUnidad />}
+        {vista === "baja" && <DarDeBajaUnidad />}
         {vista === "consultaResultados" && <ConsultaResultados />}
       </main>
 

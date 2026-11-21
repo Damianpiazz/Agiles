@@ -1,0 +1,45 @@
+# HU-023 – Dar de baja unidad
+
+Feature: F-03 Inventario de Hemocomponentes · Branch: `feature/HU-023–Dar-de-baja-unidad` · Delivery: `ask-on-risk` (forecast ≈ 650 líneas autoradas) · Test runner: backend `npm test` (vitest), frontend `npm test` (vitest)
+
+## Specs
+
+- **S1 (CA1)** — «Dado que existe una unidad registrada en el inventario, cuando el operador selecciona la opción de darla de baja, entonces el sistema permite registrar el motivo de la baja.»
+- **S2 (CA2)** — «Dado que una unidad puede dejar de estar disponible por diferentes causas, cuando el operador registra la baja, entonces el sistema permite indicar si la unidad fue vencida, transfundida o descartada.» Motivos admitidos: `VENCIDA`, `TRANSFUNDIDA`, `DESCARTADA`.
+- **S3 (CA3)** — «Dado que se confirma la baja de una unidad, cuando finaliza la operación, entonces el sistema actualiza su estado para que no figure como disponible en el inventario.»
+- **S4 (CA4)** — «Dado que una unidad ya fue dada de baja, cuando un usuario intenta utilizarla o seleccionarla como disponible, entonces el sistema impide la operación.»
+- **S5 (CA5)** — «Dado que se realiza la baja de una unidad, cuando el operador confirma la operación, entonces el sistema registra el motivo, el usuario, la fecha y la hora para garantizar la trazabilidad.»
+
+### Supuestos (assumptions)
+
+- **A1** — La baja es terminal: el estado siempre pasa a `DADA_DE_BAJA` y el motivo (vencida/transfundida/descartada) se guarda en un campo aparte. El valor `VENCIDA` del enum `EstadoUnidadSangre` no se usa en esta HU.
+- **A2** — No se puede dar de baja dos veces la misma unidad: la segunda intento responde conflicto (409).
+- **A3** — S4 se apoya en la lógica existente de selección de componentes, que ya solo considera unidades en estado `DISPONIBLE`; se agrega un test de regresión que lo comprueba con una unidad `DADA_DE_BAJA`.
+
+## Tasks
+
+- T1 — [S1-S5] Prisma: enum `MotivoBajaUnidad` + columnas `motivoBaja`, `operadorBaja`, `fechaBaja` en `unidades_sangre` + migración SQL. route: inline — **DONE**. `prisma validate` OK; cliente regenerado. Migración `backend/prisma/migrations/20261119120000_hu023_baja_unidad/migration.sql` (DDL nullable, no destructiva).
+- T2 — [S1,S2,S5] Backend: tipos Zod, servicio, controller y ruta `POST /api/inventario-unidades/:id/baja` + tests. route: inline — **DONE**. RED: `Cannot find module '../types/bajaUnidad.types'`. GREEN: `bajaUnidad.service.test.ts` 9/9. Controller 400/404/409/500 cubierto.
+- T3 — [S4] Backend: test de regresión que prueba que una unidad `DADA_DE_BAJA` no se lista ni se reserva. route: inline — **DONE**. Dos casos: `listarUnidadesCompatibles` filtra `estado: "DISPONIBLE"`; `reservarUnidad` no llama `updateMany`.
+- T4 — [S1-S5] Frontend: página «Dar de baja unidad», schema Zod, estilos, entrada de navegación + test. route: inline — **DONE**. RED: `Cannot find module './bajaUnidad'`. GREEN: 6/6 schema. `npm run build` OK.
+- T5 — [S1-S5] Seeder de demo para probar la HU: `backend/prisma/seed-baja-unidad.ts` (unidades `U-BAJA-*` en DISPONIBLE/RESERVADA/BLOQUEADA/DADA_DE_BAJA) + scripts `db:seed:baja` y `db:seed:baja:reset`. route: inline — **DONE**. Idempotente (`upsert` por `numeroUnidad`). Smoke sin base: carga, importa y ejecuta; falla solo en la conexión (`P1001`).
+
+## Log
+
+- **L1 (request original, verbatim)** — «Quiero implementar la [HU-023] – Dar de baja unidad que esta en trello usa el mcp de trello para conectarte sacar que dice la tarjeta e implementarlo»
+- **L2 (fuente, verbatim)** — Tarjeta Trello `https://trello.com/c/ysDVA5ep/34-hu-023-dar-de-baja-unidad` (board `2026-UTN-GRUPO-12`, lista *In Development*):
+  > Como operador del Servicio de Hemoterapia quiero dar de baja una unidad de hemocomponente para registrar su disposición final y evitar que una unidad que ya no está disponible pueda ser utilizada.
+  >
+  > **Feature:** [F-03] Inventario de Hemocomponentes · **Prioridad:** Must · **Estimación:** 3
+- **L3 (análisis)** — El modelo `UnidadSangre` ya tiene el estado `DADA_DE_BAJA` en el enum `EstadoUnidadSangre` (sin uso previo) y la lógica de selección (`seleccionComponente.service.ts`) ya filtra por `estado: "DISPONIBLE"`. Falta: campos de trazabilidad de la baja, endpoint de baja y UI.
+- **L4 (decisión)** — Se sigue el patrón de `liberacionUnidad` (`POST /:id/estado`): la baja se expone como `POST /api/inventario-unidades/:id/baja` y se resuelve con un módulo `bajaUnidad` (types/service/controller) manteniendo el router del recurso `inventario-unidades`.
+- **L5 (verificación independiente)** — Verificador `gentle-ai-verify` sobre el baseline `58009945010ad177645adc295564903ad56dfa97`: **sin blockers**, S1–S5 todos MET con evidencia `path:line`. Invariante probado: una baja rechazada (404/409) no llama `update` y deja el registro almacenado idéntico. Suites: backend 22 archivos/142 tests, frontend 7/34, `npm run build` OK, `prisma validate` OK.
+- **L6 (advisories aceptados)** — (1) Dar de baja una unidad `RESERVADA` conserva `solicitudId`, así que sigue figurando en `listarUnidadesReservadas`; queda **fuera del alcance de S4** (que habla de seleccionarla como *disponible*) y CA2 admite explícitamente el motivo «transfundida» → se acepta como limitación conocida, no se expande el alcance. (2) Las columnas nullable nuevas agregan claves `null` aditivas a las respuestas `findMany` existentes: aditivo y requerido por la UI, no es cambio de formato.
+- **L7 (gap de entorno)** — Docker/PostgreSQL no están levantados: `migration.sql` no se aplicó y no hubo E2E HTTP/DB. `prisma validate` pasa y el SQL coincide con el schema; el verificador lo califica **advisory (gap de verificación de entorno), no blocker**. Comando faltante: `prisma migrate deploy` contra un Postgres vivo.
+- **L8 (tests de regresión del verificador)** — Se commitearon los probes del verificador como tests: `backend/src/controllers/bajaUnidad.controller.test.ts` (5), `backend/src/types/bajaUnidad.types.test.ts` (3) y 2 casos agregados a `frontend/src/schemas/bajaUnidad.test.ts`. Suites finales: backend **150/150**, frontend **36/36**.
+- **L9 (baseline pre-existente)** — `npx tsc --noEmit` en `backend/` ya fallaba en el baseline sobre `src/services/recepcionUnidad.service.test.ts` (líneas 21–22), archivo no tocado por esta HU. No lo introduce este cambio.
+- **L10 (commits y assess nativo)** — Commits de la feature: `f255274` backend (migración + tipos + servicio + controller + ruta + tests), `a1ebfb5` frontend (schema + página + estilos + navegación + tests), `13861ae` documento de feature. Baseline `58009945010ad177645adc295564903ad56dfa97`. Assess nativo (`gentle-ai review assess --base-ref 5800994 --committed-only`): `risk: medium` (`executable_change`: la migración SQL), `review_due: false`, `review_due_reason: under_budget` → sin review nativo en este punto; el boundary queda pendiente en el slice.
+- **L11 (request verbatim)** — «Creame algun seeder o algo para poder probar la User history que hicimos.»
+- **L12 (seeder de demo)** — Se agregó `backend/prisma/seed-baja-unidad.ts` + scripts `db:seed:baja` y `db:seed:baja:reset` en `backend/package.json`. Crea 9 unidades `U-BAJA-*`: 4 DISPONIBLE (para dar de baja), 1 RESERVADA (caso límite conocido), 1 BLOQUEADA y 3 DADA_DE_BAJA con motivo/operador/fecha/hora (trazabilidad CA5 + no reutilizables CA4). Idempotente por `numeroUnidad`; `--reset` restaura el estado de demo para repetir la prueba. Sin test automatizado: no hay RED determinista sin base viva (igual que el `seed.ts` existente); verificación proporcional = smoke de carga/ejecución (falla solo en `P1001`).
+- **L13 (E2E contra el compose — cierra el gap de L7)** — Con Docker/Postgres levantados se aplicaron las migraciones pendientes (`20261116164500_actualizar_datos_donante` + `20261119120000_hu023_baja_unidad`, ambas aditivas) y se corrió el seeder (9 unidades `U-BAJA-*` en una base con 60 filas previas por tabla). Endpoint verificado en vivo sobre `U-BAJA-01` (id 61): **200** con la unidad devuelta en `DADA_DE_BAJA` y `motivoBaja`/`operadorBaja`/`fechaBaja` persistidos; **409** en la segunda baja; **404** con unidad inexistente; **400** con body inválido. `npm run db:seed:baja:reset` restaura el estado de demo. El gap de "migración runtime no aplicada" queda **cerrado**.
+- **L14 (observación de entorno)** — La base del compose estaba en la línea de `refactor/damian` (migraciones `20261117120000_refactor_der_usuarios_auditoria` + `20261118000000_dni_receptor_reposicion`), mientras que esta branch viene de `main`. Ambas migraciones aplicadas eran aditivas y no colisionaron, pero la divergencia de linaje es pre-existente y ajena a esta HU.

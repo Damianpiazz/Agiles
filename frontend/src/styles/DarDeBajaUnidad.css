@@ -1,0 +1,242 @@
+.baja {
+  --tinta: #292631;
+  --papel: #f6f7f9;
+  --superficie: #ffffff;
+  --linea: #e3e5e9;
+  --acento: #9b1c31;
+  --error: #a4262c;
+  --ok: #1d6b4f;
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 2rem clamp(1rem, 3vw, 2.5rem) 3rem;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  text-align: left;
+  border-radius: 12px;
+}
+
+.baja *,
+.baja *::before,
+.baja *::after {
+  box-sizing: border-box;
+}
+
+.baja-header {
+  margin-bottom: 1.75rem;
+}
+
+.baja-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.65rem, 3vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  color: var(--tinta);
+}
+
+.baja-header p {
+  margin: 0;
+  color: #706d78;
+  font-size: 1rem;
+}
+
+.baja fieldset,
+.baja-inventario {
+  min-width: 0;
+  margin: 0 0 1.5rem;
+  padding: 1.5rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgb(31 36 48 / 4%);
+}
+
+.baja legend,
+.baja-inventario h2 {
+  padding: 0 0.6rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--tinta);
+}
+
+.baja-inventario h2 {
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.baja-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem 1.5rem;
+}
+
+.baja-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.baja-field label {
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--tinta);
+}
+
+.baja input,
+.baja select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.65rem 0.8rem;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--tinta);
+  background: #fff;
+  border: 1px solid #d8dbe2;
+  border-radius: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.baja input::placeholder {
+  color: #96939d;
+}
+
+.baja input:hover,
+.baja select:hover {
+  border-color: #b9bac4;
+}
+
+.baja input:focus,
+.baja select:focus {
+  outline: none;
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px rgb(155 28 49 / 12%);
+}
+
+.baja input:focus-visible,
+.baja select:focus-visible,
+.baja button:focus-visible {
+  outline: 3px solid rgb(155 28 49 / 35%);
+  outline-offset: 2px;
+}
+
+.baja input[aria-invalid="true"],
+.baja select[aria-invalid="true"] {
+  border-color: var(--error);
+  border-width: 2px;
+}
+
+.baja-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--error);
+}
+
+.baja-banner {
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.1rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-left-width: 5px;
+  border-radius: 8px;
+}
+
+.baja-banner-ok {
+  border-left-color: var(--ok);
+}
+
+.baja-banner-error {
+  border-left-color: var(--error);
+}
+
+.baja-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin: 0 0 2rem;
+}
+
+.baja button {
+  min-height: 44px;
+  padding: 0.7rem 1.5rem;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: #fff;
+  background: var(--acento);
+  border: 1px solid var(--acento);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.baja button:hover:not(:disabled) {
+  background: #7d1628;
+  border-color: #7d1628;
+}
+
+.baja button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.baja button:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+.baja-vacio {
+  margin: 0;
+  color: #706d78;
+}
+
+.baja-tabla-contenedor {
+  overflow-x: auto;
+}
+
+.baja-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.baja-tabla th,
+.baja-tabla td {
+  padding: 0.75rem 0.85rem;
+  border-bottom: 1px solid var(--linea);
+  text-align: left;
+}
+
+.baja-tabla th {
+  font-weight: 650;
+  color: #5b5863;
+  background: #fafbfc;
+}
+
+@media (min-width: 640px) {
+  .baja-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .baja {
+    padding: 1.25rem 0.85rem 2rem;
+  }
+
+  .baja fieldset,
+  .baja-inventario {
+    padding: 1rem;
+  }
+
+  .baja-actions {
+    justify-content: stretch;
+  }
+
+  .baja-actions button {
+    width: 100%;
+  }
+}
