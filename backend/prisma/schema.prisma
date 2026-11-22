@@ -103,6 +103,18 @@ enum MotivoBajaUnidad {
   DESCARTADA
 }
 
+enum TipoEstudioPretransfusional {
+  TIPIFICACION_ABO_RHD
+  DETECCION_ANTICUERPOS
+  PRUEBA_CRUZADA
+}
+
+enum ResultadoCompatibilidadPretransfusional {
+  COMPATIBLE
+  INCOMPATIBLE
+}
+
+
 model Donante {
   id              Int           @id @default(autoincrement())
   nombre          String
@@ -379,6 +391,7 @@ model SolicitudTransfusion {
 
   unidades UnidadSangre[]
   auditoria SolicitudTransfusionAuditoria[]
+  estudiosPretransfusionales EstudioPretransfusional[]
 
   @@index([estado, fechaHora])
   @@index([pacienteId])
@@ -422,6 +435,8 @@ model UnidadSangre {
   createdAt          DateTime              @default(now())
   updatedAt          DateTime              @updatedAt
 
+  estudiosPretransfusionales EstudioPretransfusional[]
+
   @@index([estado, fechaVencimiento])
   @@map("unidades_sangre")
 }
@@ -440,4 +455,28 @@ model EventoEstadoUnidad {
 
   @@index([donacionId, fechaHora])
   @@map("eventos_estado_unidad")
+}
+
+
+model EstudioPretransfusional {
+  id              Int                                      @id @default(autoincrement())
+
+  solicitudId     Int
+  solicitud       SolicitudTransfusion                     @relation(fields: [solicitudId], references: [id])
+
+  unidadSangreId  Int?
+  unidadSangre    UnidadSangre?                             @relation(fields: [unidadSangreId], references: [id])
+
+  tipo            TipoEstudioPretransfusional
+  resultado       String
+  compatibilidad  ResultadoCompatibilidadPretransfusional?
+
+  observaciones   String?
+  operador        String
+  fechaHora       DateTime                                 @default(now())
+  createdAt       DateTime                                 @default(now())
+
+  @@index([solicitudId, fechaHora])
+  @@index([unidadSangreId])
+  @@map("estudios_pretransfusionales")
 }
