@@ -17,6 +17,7 @@ import DarDeBajaUnidad from "./pages/DarDeBajaUnidad";
 import type { Donante } from "./types/donante";
 import ConsultaResultados from "./pages/ConsultaResultados";
 import GestionSolicitudesTransfusion from "./pages/GestionSolicitudesTransfusion";
+import EstudiosPretransfusionales from "./pages/EstudiosPretransfusionales";
 import "./App.css";
 
 type Vista =
@@ -35,6 +36,7 @@ type Vista =
   | "recepcion"
   | "baja"
   | "solicitudesTransfusion"
+  | "estudiosPretransfusionales"
   | "consultaResultados";
 
 type DonanteEntrevista = Pick<
@@ -187,6 +189,25 @@ export default function App() {
 
         <button
           type="button"
+          className={
+            vista === "estudiosPretransfusionales" ? "activo" : ""
+          }
+          aria-current={
+            vista === "estudiosPretransfusionales"
+              ? "page"
+              : undefined
+          }
+          onClick={() => setVista("estudiosPretransfusionales")}
+        >
+          <span className="nav-icon" aria-hidden="true">
+            ◈
+          </span>
+          Estudios pretransfusionales
+        </button>
+
+
+        <button
+          type="button"
           className={vista === "seleccionar" ? "activo" : ""}
           aria-current={vista === "seleccionar" ? "page" : undefined}
           onClick={() => setVista("seleccionar")}
@@ -282,6 +303,7 @@ export default function App() {
         {vista === "recepcion" && <RecepcionUnidad />}
         {vista === "baja" && <DarDeBajaUnidad />}
         {vista === "solicitudesTransfusion" && <GestionSolicitudesTransfusion />}
+        {vista === "estudiosPretransfusionales" && <EstudiosPretransfusionales />}
         {vista === "consultaResultados" && <ConsultaResultados />}
       </main>
 
