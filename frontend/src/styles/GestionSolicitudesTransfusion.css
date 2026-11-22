@@ -1,0 +1,494 @@
+.solicitudes {
+  --tinta: #292631;
+  --papel: #f6f7f9;
+  --superficie: #ffffff;
+  --linea: #e3e5e9;
+  --acento: #9b1c31;
+  --error: #a4262c;
+  --ok: #1d6b4f;
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 2rem clamp(1rem, 3vw, 2.5rem) 3rem;
+  color: var(--tinta);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.solicitudes *,
+.solicitudes *::before,
+.solicitudes *::after {
+  box-sizing: border-box;
+}
+
+.solicitudes-header {
+  margin-bottom: 1.5rem;
+}
+
+.solicitudes-header h1 {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.65rem, 3vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.solicitudes-header p {
+  margin: 0;
+  color: #706d78;
+}
+
+.solicitudes-panel {
+  margin-bottom: 1.5rem;
+  padding: 1.35rem;
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgb(31 36 48 / 4%);
+}
+
+.solicitudes-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.solicitudes-panel-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.solicitudes-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.solicitudes-form fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--linea);
+  border-radius: 8px;
+}
+
+.solicitudes-lugar-condicional {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--linea);
+}
+
+.solicitudes-form legend {
+  padding: 0 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.solicitudes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem 1rem;
+}
+
+.solicitudes-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.solicitudes-field label,
+.solicitudes-filtro label {
+  color: #45404c;
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.solicitudes-field input,
+.solicitudes-field select,
+.solicitudes-field textarea,
+.solicitudes-filtro select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0.6rem 0.7rem;
+  color: var(--tinta);
+  background: #fff;
+  border: 1px solid #d7d9e0;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.solicitudes-field textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.solicitudes-field input:focus,
+.solicitudes-field select:focus,
+.solicitudes-field textarea:focus,
+.solicitudes-filtro select:focus {
+  outline: none;
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px rgb(155 28 49 / 12%);
+}
+
+.solicitudes-actions,
+.solicitudes-item-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.solicitudes-actions button,
+.solicitudes-item-acciones button {
+  min-height: 40px;
+  padding: 0.55rem 1rem;
+  color: #fff;
+  background: var(--acento);
+  border: 1px solid var(--acento);
+  border-radius: 7px;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.solicitudes-actions button:hover:not(:disabled),
+.solicitudes-item-acciones button:hover:not(:disabled) {
+  background: #7d1628;
+}
+
+.solicitudes-actions button:disabled,
+.solicitudes-item-acciones button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.solicitudes-actions .solicitudes-secundario,
+.solicitudes-item-acciones .solicitudes-secundario,
+.solicitudes-secundario {
+  color: var(--acento);
+  background: #fff;
+}
+
+.solicitudes-item-acciones .solicitudes-peligro {
+  color: #a4262c;
+  background: #fff;
+  border-color: #d7a4aa;
+}
+
+.solicitudes-banner {
+  margin-bottom: 1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--linea);
+  border-left-width: 5px;
+  border-radius: 7px;
+  overflow-wrap: anywhere;
+}
+
+.solicitudes-banner-ok {
+  color: #176b35;
+  background: #effaf2;
+  border-color: #a6d8b5;
+}
+
+.solicitudes-banner-error {
+  color: #a4262c;
+  background: #fff1f1;
+  border-color: #efb4b4;
+}
+
+.solicitudes-errores-campos {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  color: #7f1d1d;
+  background: #fff7f7;
+  border: 1px solid #efb4b4;
+  border-left: 5px solid var(--error);
+  border-radius: 7px;
+}
+
+.solicitudes-errores-campos ul {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0.45rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.solicitudes-pacientes {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.solicitudes-paciente {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.75rem 0.9rem;
+  color: var(--tinta);
+  background: #fff;
+  border: 1px solid var(--linea);
+  border-radius: 7px;
+}
+
+.solicitudes-paciente:hover {
+  border-color: var(--acento);
+}
+
+.solicitudes-paciente span,
+.solicitudes-paciente-seleccionado span {
+  color: #706d78;
+  font-size: 0.85rem;
+}
+
+.solicitudes-paciente-datos {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.solicitudes-paciente > button {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 0.5rem 0.9rem;
+  color: #fff;
+  background: var(--acento);
+  border: 1px solid var(--acento);
+  border-radius: 7px;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.solicitudes-alerta-pediatrica {
+  margin: 0.8rem 0 0;
+  padding: 0.75rem 0.9rem;
+  color: #684300;
+  background: #fff8e6;
+  border: 1px solid #ead49a;
+  border-left: 5px solid #805200;
+  border-radius: 7px;
+  font-size: 0.86rem;
+}
+
+.solicitudes-dialog-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(25 20 24 / 48%);
+}
+
+.solicitudes-dialog {
+  width: min(100%, 520px);
+  padding: 1.4rem;
+  background: #fff;
+  border: 1px solid #ead49a;
+  border-top: 5px solid #805200;
+  border-radius: 9px;
+  box-shadow: 0 16px 48px rgb(25 20 24 / 22%);
+}
+
+.solicitudes-dialog h2 {
+  margin: 0 0 0.65rem;
+  color: #684300;
+  font-size: 1.1rem;
+}
+
+.solicitudes-dialog p {
+  margin: 0 0 1rem;
+  color: #494652;
+}
+
+.solicitudes-paciente-seleccionado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.8rem 0.9rem;
+  background: #f9f3f5;
+  border: 1px solid #ecdce0;
+  border-radius: 7px;
+}
+
+.solicitudes-paciente-seleccionado div {
+  display: grid;
+}
+
+.solicitudes-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.25rem;
+  margin-top: 0.9rem;
+}
+
+.solicitudes-checks label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #494652;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.solicitudes-checks input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: var(--acento);
+}
+
+.solicitudes-nota {
+  margin: 0.8rem 0;
+  color: #706d78;
+  font-size: 0.82rem;
+}
+
+.solicitudes-filtro {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.solicitudes-filtro select {
+  width: auto;
+  min-width: 150px;
+}
+
+.solicitudes-lista {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.solicitud-item {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--linea);
+  border-radius: 8px;
+}
+
+.solicitud-item-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.solicitud-item-cabecera h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.solicitud-item-cabecera p {
+  margin: 0;
+  color: #706d78;
+  font-size: 0.84rem;
+}
+
+.solicitud-estado {
+  flex: 0 0 auto;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  color: #624700;
+  background: #fff5d8;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.solicitud-estado-aprobada {
+  color: #176b35;
+  background: #effaf2;
+}
+
+.solicitud-estado-cancelada {
+  color: #a4262c;
+  background: #fff1f1;
+}
+
+.solicitud-resumen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.1rem;
+  margin: 0.85rem 0;
+  color: #514b57;
+  font-size: 0.84rem;
+}
+
+.solicitud-cancelacion {
+  margin-top: 0.8rem;
+  padding: 0.8rem;
+  background: #fff8f8;
+  border: 1px solid #efb4b4;
+  border-radius: 7px;
+}
+
+.solicitud-auditoria {
+  margin-top: 0.75rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--linea);
+}
+
+.solicitud-auditoria summary {
+  color: var(--acento);
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.solicitud-auditoria ol {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.7rem 0 0;
+  padding-left: 1.35rem;
+  color: #514b57;
+  font-size: 0.82rem;
+}
+
+.solicitud-auditoria li p {
+  margin: 0.25rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 800px) {
+  .solicitudes-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .solicitudes {
+    padding: 1.25rem 0.75rem 2rem;
+  }
+
+  .solicitudes-panel {
+    padding: 1rem;
+  }
+
+  .solicitudes-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .solicitudes-panel-header,
+  .solicitudes-paciente-seleccionado,
+  .solicitud-item-cabecera {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .solicitudes-actions button,
+  .solicitudes-panel-header > button {
+    width: 100%;
+  }
+
+  .solicitudes-filtro {
+    justify-content: space-between;
+  }
+}
