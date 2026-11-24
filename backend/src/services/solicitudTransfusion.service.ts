@@ -1,6 +1,7 @@
 import { prisma } from "../config/prisma";
 import type {
   ActualizarSolicitudTransfusionInput,
+  AprobarSolicitudTransfusionInput,
   CancelarSolicitudTransfusionInput,
   CrearSolicitudTransfusionInput,
   ListarSolicitudesTransfusionInput,
@@ -16,6 +17,7 @@ type SolicitudDb = {
     findMany(args: unknown): Promise<any[]>;
     findUnique(args: unknown): Promise<any>;
     update(args: unknown): Promise<any>;
+    updateMany(args: unknown): Promise<{ count: number }>;
   };
   solicitudTransfusionAuditoria: {
     create(args: unknown): Promise<unknown>;
@@ -57,9 +59,23 @@ export class SolicitudTransfusionNoEncontradaError extends Error {
 }
 
 export class SolicitudTransfusionCanceladaError extends Error {
-  constructor() {
-    super("La solicitud está cancelada y no puede modificarse.");
+  constructor(mensaje = "La solicitud está cancelada y no puede modificarse.") {
+    super(mensaje);
     this.name = "SolicitudTransfusionCanceladaError";
+  }
+}
+
+export class SolicitudTransfusionYaAprobadaError extends Error {
+  constructor(mensaje = "La solicitud de transfusión ya fue aprobada.") {
+    super(mensaje);
+    this.name = "SolicitudTransfusionYaAprobadaError";
+  }
+}
+
+export class SolicitudTransfusionSinPacienteError extends Error {
+  constructor() {
+    super("La solicitud no tiene un paciente asociado y no puede aprobarse.");
+    this.name = "SolicitudTransfusionSinPacienteError";
   }
 }
 
@@ -219,25 +235,109 @@ export async function actualizar(
     );
     if (cambios.length === 0) throw new SolicitudTransfusionSinCambiosError();
 
+    const revocaAprobacion = actual.estado === "APROBADA";
+    const dataUpdate = revocaAprobacion
+      ? {
+          ...data,
+          estado: "PENDIENTE" as const,
+          aprobadaPor: null,
+          fechaHoraAprobacion: null,
+          opinionMedica: null,
+        }
+      : data;
+
     const solicitud = await tx.solicitudTransfusion.update({
       where: { id },
-      data,
+      data: dataUpdate,
       include: includePaciente,
     });
 
-    await tx.solicitudTransfusionAuditoria.createMany({
-      data: cambios.map(([campo]) => ({
+    const eventosAuditoria = cambios.map(([campo]) => ({
+      solicitudId: id,
+      accion: "MODIFICACION",
+      datoModificado: campo,
+      valorAnterior: serializar(actual[campo]),
+      valorNuevo: serializar(data[campo as keyof typeof data]),
+      motivo: datos.motivoModificacion,
+      operador: datos.operador,
+    }));
+
+    if (revocaAprobacion) {
+      eventosAuditoria.push({
         solicitudId: id,
-        accion: "MODIFICACION",
-        datoModificado: campo,
-        valorAnterior: serializar(actual[campo]),
-        valorNuevo: serializar(data[campo as keyof typeof data]),
+        accion: "APROBACION_REVOCADA",
+        datoModificado: "estado",
+        valorAnterior: "APROBADA",
+        valorNuevo: "PENDIENTE",
         motivo: datos.motivoModificacion,
         operador: datos.operador,
-      })),
+      });
+    }
+
+    await tx.solicitudTransfusionAuditoria.createMany({
+      data: eventosAuditoria,
     });
 
     return solicitud;
+  });
+}
+
+export async function aprobar(
+  id: number,
+  datos: AprobarSolicitudTransfusionInput,
+  db: SolicitudDbRoot = dbPredeterminada,
+) {
+  return db.$transaction(async (tx) => {
+    const actual = await tx.solicitudTransfusion.findUnique({
+      where: { id },
+    });
+    if (!actual) throw new SolicitudTransfusionNoEncontradaError();
+    if (actual.estado === "CANCELADA") {
+      throw new SolicitudTransfusionCanceladaError(
+        "La solicitud está cancelada y no puede aprobarse.",
+      );
+    }
+    if (actual.estado === "APROBADA") {
+      throw new SolicitudTransfusionYaAprobadaError();
+    }
+    if (actual.pacienteId === null || actual.pacienteId === undefined) {
+      throw new SolicitudTransfusionSinPacienteError();
+    }
+
+    const opinionMedica = datos.opinionMedica?.trim() || null;
+    const fechaHoraAprobacion = new Date();
+
+    const resultado = await tx.solicitudTransfusion.updateMany({
+      where: { id, estado: "PENDIENTE" },
+      data: {
+        estado: "APROBADA",
+        aprobadaPor: datos.operador,
+        fechaHoraAprobacion,
+        opinionMedica,
+      },
+    });
+    if (resultado.count === 0) {
+      throw new SolicitudTransfusionYaAprobadaError(
+        "La solicitud ya fue aprobada o dejó de estar pendiente.",
+      );
+    }
+
+    await tx.solicitudTransfusionAuditoria.create({
+      data: {
+        solicitudId: id,
+        accion: "APROBACION",
+        datoModificado: "estado",
+        valorAnterior: "PENDIENTE",
+        valorNuevo: "APROBADA",
+        motivo: opinionMedica,
+        operador: datos.operador,
+      },
+    });
+
+    return tx.solicitudTransfusion.findUnique({
+      where: { id },
+      include: includePaciente,
+    });
   });
 }
 
