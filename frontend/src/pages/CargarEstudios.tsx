@@ -1,9 +1,19 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { Banner } from "../components/Banner";
+import { FormField, FormGrid, FormSection } from "../components/FormField";
+import { FormSteps } from "../components/FormSteps";
+import { PageHeader } from "../components/PageHeader";
+import { EmptyState } from "../components/States";
 import { pciFormSchema } from "../schemas/pci";
 import { serologiaFormSchema } from "../schemas/serologia";
 import type { Antigeno, DeterminacionSerologica } from "../types/estudio";
 import "../styles/CargarEstudios.css";
+
+const PASOS = [
+  "Prueba de Coombs indirecta",
+  "Serología",
+] as const;
 
 type Props = {
   donacionId: number;
@@ -86,6 +96,7 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
     filaSerologiaVacia(),
   ]);
   const [enviandoSer, setEnviandoSer] = useState(false);
+  const [paso, setPaso] = useState(0);
 
   useEffect(() => {
     let activo = true;
@@ -162,6 +173,9 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
         texto:
           parsed.error.issues[0]?.message ?? "Revisá los datos ingresados.",
       });
+      requestAnimationFrame(() => {
+        document.querySelector<HTMLElement>("form [aria-invalid='true']")?.focus();
+      });
       return;
     }
 
@@ -222,6 +236,9 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
         texto:
           parsed.error.issues[0]?.message ?? "Revisá los datos ingresados.",
       });
+      requestAnimationFrame(() => {
+        document.querySelector<HTMLElement>("form [aria-invalid='true']")?.focus();
+      });
       return;
     }
 
@@ -260,92 +277,75 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
   }
 
   return (
-    <main className="estudios">
-      <header className="estudios-header">
-        <h1>Calificación biológica</h1>
-        <p>
-          Cargá la Prueba de Coombs Indirecta (PCI) y la serología de la
-          donación <strong>#{donacionId}</strong>.
-        </p>
-        {onVolver && (
-          <div className="estudios-actions">
-            <button
-              type="button"
-              className="estudios-secundario"
-              onClick={onVolver}
-            >
+    <div className="estudios">
+      <PageHeader
+        title="Cargar estudios de calificación"
+        eyebrow={`Donación #${donacionId}`}
+        description="Cargá la Prueba de Coombs Indirecta (PCI) y la serología de la donación."
+        actions={
+          onVolver ? (
+            <button type="button" className="ui-btn ui-btn-secondary" onClick={onVolver}>
               Volver
             </button>
-          </div>
-        )}
-      </header>
+          ) : undefined
+        }
+      />
 
-      {catalogosError && (
-        <div className="estudios-banner estudios-banner-error" role="status">
-          {catalogosError}
-        </div>
-      )}
+      {catalogosError ? <Banner tone="error">{catalogosError}</Banner> : null}
 
+      <FormSteps pasos={PASOS} actual={paso} />
+
+      {paso === 0 && (
       <form onSubmit={enviarPci} noValidate>
-        <fieldset>
-          <legend>Prueba de Coombs indirecta (PCI)</legend>
+        <FormSection title="Prueba de Coombs indirecta (PCI)" description="Registrá fecha, hora y resultados por antígeno.">
 
-          {pciBanner && (
-            <div
-              className={`estudios-banner ${pciBanner.tipo === "ok" ? "estudios-banner-ok" : "estudios-banner-error"}`}
-              role="status"
-            >
-              {pciBanner.texto}
-            </div>
-          )}
+          {pciBanner ? <Banner tone={pciBanner.tipo}>{pciBanner.texto}</Banner> : null}
 
-          <div className="estudios-grid">
-            <div className="estudios-field">
-              <label htmlFor="pciFecha">Fecha</label>
+          <FormGrid columns={3}>
+            <FormField id="pciFecha" label="Fecha" required>
               <input
                 id="pciFecha"
                 type="date"
                 value={pciFecha}
                 onChange={(e) => setPciFecha(e.target.value)}
               />
-            </div>
+            </FormField>
 
-            <div className="estudios-field">
-              <label htmlFor="pciHora">Hora</label>
+            <FormField id="pciHora" label="Hora" required>
               <input
                 id="pciHora"
                 type="time"
                 value={pciHora}
                 onChange={(e) => setPciHora(e.target.value)}
               />
-            </div>
+            </FormField>
 
-            <div className="estudios-field">
-              <label htmlFor="pciObs">
-                Observaciones{" "}
-                <span className="estudios-optional">(opcional)</span>
-              </label>
+            <FormField id="pciObs" label="Observaciones" optional>
               <input
                 id="pciObs"
                 value={pciObs}
                 onChange={(e) => setPciObs(e.target.value)}
               />
-            </div>
-          </div>
+            </FormField>
+          </FormGrid>
 
           <h3 className="estudios-subtitulo">Resultados por antígeno</h3>
+
+          {antigenos.length === 0 && !catalogosError ? (
+            <EmptyState title="Cargando catálogo de antígenos" description="Los antígenos disponibles se obtienen del servidor." />
+          ) : null}
 
           {pciFilas.map((fila, i) => (
             <div className="estudios-fila" key={fila.id}>
               <div className="estudios-fila-grid">
-                <div className="estudios-field">
-                  <label htmlFor={`pciAntigeno-${i}`}>Antígeno</label>
+                <FormField id={`pciAntigeno-${i}`} label="Antígeno" required>
                   <select
                     id={`pciAntigeno-${i}`}
                     value={fila.antigenoId}
                     onChange={(e) =>
                       actualizarPci(i, "antigenoId", e.target.value)
                     }
+                    aria-invalid={Boolean(pciBanner?.tipo === "error") && !fila.antigenoId}
                   >
                     <option value="">Seleccioná…</option>
                     {antigenos.map((a) => (
@@ -354,10 +354,9 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
                       </option>
                     ))}
                   </select>
-                </div>
+                </FormField>
 
-                <div className="estudios-field">
-                  <label htmlFor={`pciResultado-${i}`}>Resultado</label>
+                <FormField id={`pciResultado-${i}`} label="Resultado" required>
                   <select
                     id={`pciResultado-${i}`}
                     value={fila.resultado}
@@ -371,13 +370,9 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
                       </option>
                     ))}
                   </select>
-                </div>
+                </FormField>
 
-                <div className="estudios-field">
-                  <label htmlFor={`pciIntensidad-${i}`}>
-                    Intensidad{" "}
-                    <span className="estudios-optional">(opcional)</span>
-                  </label>
+                <FormField id={`pciIntensidad-${i}`} label="Intensidad" optional>
                   <input
                     id={`pciIntensidad-${i}`}
                     value={fila.intensidad}
@@ -385,13 +380,9 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
                       actualizarPci(i, "intensidad", e.target.value)
                     }
                   />
-                </div>
+                </FormField>
 
-                <div className="estudios-field">
-                  <label htmlFor={`pciObsFila-${i}`}>
-                    Observación{" "}
-                    <span className="estudios-optional">(opcional)</span>
-                  </label>
+                <FormField id={`pciObsFila-${i}`} label="Observación" optional>
                   <input
                     id={`pciObsFila-${i}`}
                     value={fila.observacion}
@@ -399,13 +390,13 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
                       actualizarPci(i, "observacion", e.target.value)
                     }
                   />
-                </div>
+                </FormField>
               </div>
 
               {pciFilas.length > 1 && (
                 <button
                   type="button"
-                  className="estudios-secundario"
+                  className="ui-btn ui-btn-secondary"
                   onClick={() =>
                     setPciFilas((prev) => prev.filter((_, idx) => idx !== i))
                   }
@@ -416,75 +407,76 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
             </div>
           ))}
 
-          <div className="estudios-actions">
+          <div className="ui-step-actions">
             <button
               type="button"
-              className="estudios-secundario"
+              className="ui-btn ui-btn-secondary"
               onClick={() => setPciFilas((prev) => [...prev, filaPciVacia()])}
             >
               + Agregar antígeno
+            </button>
+            <button
+              type="button"
+              className="ui-btn ui-btn-secondary"
+              onClick={() => {
+                setPaso(1);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            >
+              Siguiente: serología
             </button>
             <button type="submit" disabled={enviandoPci || Boolean(catalogosError)}>
               {enviandoPci ? "Cargando…" : "Cargar PCI"}
             </button>
           </div>
-        </fieldset>
+        </FormSection>
       </form>
+      )}
 
+      {paso === 1 && (
       <form onSubmit={enviarSerologia} noValidate>
-        <fieldset>
-          <legend>Serología</legend>
+        <FormSection title="Serología" description="Registrá fecha, hora y resultados por determinación.">
 
-          {serBanner && (
-            <div
-              className={`estudios-banner ${serBanner.tipo === "ok" ? "estudios-banner-ok" : "estudios-banner-error"}`}
-              role="status"
-            >
-              {serBanner.texto}
-            </div>
-          )}
+          {serBanner ? <Banner tone={serBanner.tipo}>{serBanner.texto}</Banner> : null}
 
-          <div className="estudios-grid">
-            <div className="estudios-field">
-              <label htmlFor="serFecha">Fecha</label>
+          <FormGrid columns={3}>
+            <FormField id="serFecha" label="Fecha" required>
               <input
                 id="serFecha"
                 type="date"
                 value={serFecha}
                 onChange={(e) => setSerFecha(e.target.value)}
               />
-            </div>
+            </FormField>
 
-            <div className="estudios-field">
-              <label htmlFor="serHora">Hora</label>
+            <FormField id="serHora" label="Hora" required>
               <input
                 id="serHora"
                 type="time"
                 value={serHora}
                 onChange={(e) => setSerHora(e.target.value)}
               />
-            </div>
+            </FormField>
 
-            <div className="estudios-field">
-              <label htmlFor="serObs">
-                Observaciones{" "}
-                <span className="estudios-optional">(opcional)</span>
-              </label>
+            <FormField id="serObs" label="Observaciones" optional>
               <input
                 id="serObs"
                 value={serObs}
                 onChange={(e) => setSerObs(e.target.value)}
               />
-            </div>
-          </div>
+            </FormField>
+          </FormGrid>
 
           <h3 className="estudios-subtitulo">Resultados por determinación</h3>
+
+          {determinaciones.length === 0 && !catalogosError ? (
+            <EmptyState title="Cargando catálogo de determinaciones" description="Las determinaciones disponibles se obtienen del servidor." />
+          ) : null}
 
           {serFilas.map((fila, i) => (
             <div className="estudios-fila" key={fila.id}>
               <div className="estudios-fila-grid">
-                <div className="estudios-field">
-                  <label htmlFor={`serDet-${i}`}>Determinación</label>
+                <FormField id={`serDet-${i}`} label="Determinación" required>
                   <select
                     id={`serDet-${i}`}
                     value={fila.determinacionSerologicaId}
@@ -495,6 +487,7 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
                         e.target.value,
                       )
                     }
+                    aria-invalid={Boolean(serBanner?.tipo === "error") && !fila.determinacionSerologicaId}
                   >
                     <option value="">Seleccioná…</option>
                     {determinaciones.map((d) => (
@@ -503,10 +496,9 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
                       </option>
                     ))}
                   </select>
-                </div>
+                </FormField>
 
-                <div className="estudios-field">
-                  <label htmlFor={`serResultado-${i}`}>Resultado</label>
+                <FormField id={`serResultado-${i}`} label="Resultado" required>
                   <select
                     id={`serResultado-${i}`}
                     value={fila.resultado}
@@ -520,12 +512,9 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
                       </option>
                     ))}
                   </select>
-                </div>
+                </FormField>
 
-                <div className="estudios-field">
-                  <label htmlFor={`serValor-${i}`}>
-                    Valor <span className="estudios-optional">(opcional)</span>
-                  </label>
+                <FormField id={`serValor-${i}`} label="Valor" optional>
                   <input
                     id={`serValor-${i}`}
                     value={fila.valor}
@@ -533,12 +522,9 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
                       actualizarSer(i, "valor", e.target.value)
                     }
                   />
-                </div>
+                </FormField>
 
-                <div className="estudios-field">
-                  <label htmlFor={`serUnidad-${i}`}>
-                    Unidad <span className="estudios-optional">(opcional)</span>
-                  </label>
+                <FormField id={`serUnidad-${i}`} label="Unidad" optional>
                   <input
                     id={`serUnidad-${i}`}
                     value={fila.unidad}
@@ -546,13 +532,9 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
                       actualizarSer(i, "unidad", e.target.value)
                     }
                   />
-                </div>
+                </FormField>
 
-                <div className="estudios-field">
-                  <label htmlFor={`serObsFila-${i}`}>
-                    Observación{" "}
-                    <span className="estudios-optional">(opcional)</span>
-                  </label>
+                <FormField id={`serObsFila-${i}`} label="Observación" optional>
                   <input
                     id={`serObsFila-${i}`}
                     value={fila.observacion}
@@ -560,13 +542,13 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
                       actualizarSer(i, "observacion", e.target.value)
                     }
                   />
-                </div>
+                </FormField>
               </div>
 
               {serFilas.length > 1 && (
                 <button
                   type="button"
-                  className="estudios-secundario"
+                  className="ui-btn ui-btn-secondary"
                   onClick={() =>
                     setSerFilas((prev) => prev.filter((_, idx) => idx !== i))
                   }
@@ -577,15 +559,25 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
             </div>
           ))}
 
-          <div className="estudios-actions">
+          <div className="ui-step-actions">
             <button
               type="button"
-              className="estudios-secundario"
+              className="ui-btn ui-btn-secondary"
               onClick={() =>
                 setSerFilas((prev) => [...prev, filaSerologiaVacia()])
               }
             >
               + Agregar determinación
+            </button>
+            <button
+              type="button"
+              className="ui-btn ui-btn-secondary"
+              onClick={() => {
+                setPaso(0);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            >
+              Anterior: PCI
             </button>
             <button
               type="submit"
@@ -594,8 +586,9 @@ export default function CargarEstudios({ donacionId, onVolver }: Props) {
               {enviandoSer ? "Cargando…" : "Cargar serología"}
             </button>
           </div>
-        </fieldset>
+        </FormSection>
       </form>
-    </main>
+      )}
+    </div>
   );
 }

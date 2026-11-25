@@ -1,6 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { z } from "zod";
+import { Banner } from "../components/Banner";
+import { ConfirmDialog } from "../components/ConfirmDialog";
+import { DataTable } from "../components/DataTable";
+import type { DataTableColumn } from "../components/DataTable";
+import { PageHeader } from "../components/PageHeader";
+import { StatusBadge } from "../components/StatusBadge";
 import {
   bajaUnidadSchema,
   type BajaUnidadForm,
@@ -8,7 +14,7 @@ import {
 import "../styles/DarDeBajaUnidad.css";
 
 const API_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:3000"
+  import.meta.env.VITE_API_URL || "http://localhost:3001"
 ).replace(/\/+$/, "");
 
 type Campo = keyof BajaUnidadForm;
@@ -78,6 +84,9 @@ export default function DarDeBajaUnidad() {
   const [enviando, setEnviando] = useState(false);
   const [unidades, setUnidades] = useState<UnidadInventario[]>([]);
   const [cargandoInventario, setCargandoInventario] = useState(true);
+  const [filtroEstado, setFiltroEstado] = useState("");
+  const [confirmando, setConfirmando] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const unidadesElegibles = unidades.filter(
     (u) => u.estado !== "DADA_DE_BAJA",
@@ -123,7 +132,15 @@ export default function DarDeBajaUnidad() {
     return errores[campo]?.[0];
   }
 
-  async function onSubmit(e: FormEvent) {
+  function focoPrimerError() {
+    requestAnimationFrame(() => {
+      formRef.current
+        ?.querySelector<HTMLElement>('[aria-invalid="true"]')
+        ?.focus();
+    });
+  }
+
+  function onSubmit(e: FormEvent) {
     e.preventDefault();
     setBanner(null);
 
@@ -131,10 +148,24 @@ export default function DarDeBajaUnidad() {
     if (!parsed.success) {
       setErrores(z.flattenError(parsed.error).fieldErrors as Errores);
       setBanner({ tipo: "error", texto: "Revisá los campos marcados." });
+      focoPrimerError();
+      return;
+    }
+
+    if (!unidadSeleccionada) {
+      setBanner({ tipo: "error", texto: "Seleccioná una unidad válida." });
       return;
     }
 
     setErrores({});
+    setConfirmando(true);
+  }
+
+  async function ejecutarBaja() {
+    const parsed = bajaUnidadSchema.safeParse(form);
+    if (!parsed.success) return;
+
+    setConfirmando(false);
     setEnviando(true);
     try {
       const { unidadId, motivo, operador } = parsed.data;
@@ -162,6 +193,7 @@ export default function DarDeBajaUnidad() {
       if (res.status === 400 && data.campos) {
         setErrores(data.campos as Errores);
         setBanner({ tipo: "error", texto: "Revisá los campos marcados." });
+        focoPrimerError();
         return;
       }
       setBanner({
@@ -178,27 +210,83 @@ export default function DarDeBajaUnidad() {
     }
   }
 
+  const columnas = useMemo<DataTableColumn<UnidadInventario>[]>(
+    () => [
+      {
+        id: "numeroUnidad",
+        header: "Unidad",
+        sortValue: (u) => u.numeroUnidad,
+        render: (u) => <strong>{u.numeroUnidad}</strong>,
+      },
+      {
+        id: "tipo",
+        header: "Hemocomponente",
+        sortValue: (u) => u.tipoHemocomponente,
+        render: (u) => etiquetasHemocomponente[u.tipoHemocomponente] ?? u.tipoHemocomponente,
+      },
+      {
+        id: "grupo",
+        header: "Grupo / Factor",
+        sortValue: (u) => `${u.grupoABO}${u.factorRhD}`,
+        render: (u) => `${u.grupoABO} ${u.factorRhD === "POSITIVO" ? "+" : "-"}`,
+      },
+      {
+        id: "vencimiento",
+        header: "Vencimiento",
+        sortValue: (u) => u.fechaVencimiento,
+        render: (u) => formatearFechaVencimiento(u.fechaVencimiento),
+      },
+      {
+        id: "estado",
+        header: "Estado",
+        sortValue: (u) => u.estado,
+        render: (u) => <StatusBadge estado={u.estado} />,
+      },
+      {
+        id: "motivo",
+        header: "Motivo de baja",
+        sortValue: (u) => u.motivoBaja ?? "",
+        render: (u) =>
+          u.motivoBaja ? (etiquetasMotivoBaja[u.motivoBaja] ?? u.motivoBaja) : "—",
+      },
+      {
+        id: "operadorBaja",
+        header: "Operador de baja",
+        sortValue: (u) => u.operadorBaja ?? "",
+        render: (u) => u.operadorBaja || "—",
+      },
+      {
+        id: "fechaBaja",
+        header: "Fecha y hora de baja",
+        sortValue: (u) => u.fechaBaja ?? "",
+        render: (u) =>
+          u.fechaBaja ? formatearFechaHoraArgentina(u.fechaBaja) : "—",
+      },
+    ],
+    [],
+  );
+
+  const textoBusqueda = (u: UnidadInventario) =>
+    [
+      u.numeroUnidad,
+      etiquetasHemocomponente[u.tipoHemocomponente] ?? u.tipoHemocomponente,
+      u.grupoABO,
+      u.factorRhD,
+      u.estado,
+      u.motivoBaja ?? "",
+      u.operadorBaja ?? "",
+    ].join(" ");
+
   return (
-    <main className="baja">
-      <header className="baja-header">
-        <h1>Dar de baja unidad</h1>
-        <p>
-          Registrá la disposición final de una unidad de hemocomponente para
-          que deje de estar disponible en el inventario, conservando su
-          trazabilidad.
-        </p>
-      </header>
+    <div className="baja">
+      <PageHeader
+        title="Dar de baja unidad"
+        description="Registrá la disposición final de una unidad de hemocomponente para que deje de estar disponible en el inventario, conservando su trazabilidad."
+      />
 
-      {banner && (
-        <div
-          className={`baja-banner ${banner.tipo === "ok" ? "baja-banner-ok" : "baja-banner-error"}`}
-          role="status"
-        >
-          {banner.texto}
-        </div>
-      )}
+      {banner ? <Banner tone={banner.tipo}>{banner.texto}</Banner> : null}
 
-      <form onSubmit={onSubmit} noValidate>
+      <form ref={formRef} onSubmit={onSubmit} noValidate>
         <fieldset>
           <legend>Datos de la baja</legend>
           <div className="baja-grid">
@@ -281,60 +369,59 @@ export default function DarDeBajaUnidad() {
         </div>
       </form>
 
+      <ConfirmDialog
+        open={confirmando}
+        title="Confirmar baja de unidad"
+        description={
+          <>
+            <p>
+              Se dará de baja la unidad{" "}
+              <strong>{unidadSeleccionada?.numeroUnidad ?? "—"}</strong> con el
+              motivo <strong>{etiquetasMotivoBaja[form.motivo] ?? form.motivo}</strong>,
+              registrada por <strong>{form.operador.trim()}</strong>.
+            </p>
+            <p>La unidad dejará de estar disponible y la operación quedará auditada.</p>
+          </>
+        }
+        confirmLabel="Confirmar baja"
+        destructive
+        busy={enviando}
+        onConfirm={() => void ejecutarBaja()}
+        onCancel={() => setConfirmando(false)}
+      />
+
       <section className="baja-inventario">
         <h2>Unidades registradas en inventario</h2>
-        {cargandoInventario ? (
-          <p className="baja-vacio">Cargando inventario…</p>
-        ) : unidades.length === 0 ? (
-          <p className="baja-vacio">
-            Todavía no hay unidades registradas en el inventario.
-          </p>
-        ) : (
-          <div className="baja-tabla-contenedor">
-            <table className="baja-tabla">
-              <thead>
-                <tr>
-                  <th>Unidad</th>
-                  <th>Hemocomponente</th>
-                  <th>Grupo / Factor</th>
-                  <th>Vencimiento</th>
-                  <th>Estado</th>
-                  <th>Motivo de baja</th>
-                  <th>Operador de baja</th>
-                  <th>Fecha y hora de baja</th>
-                </tr>
-              </thead>
-              <tbody>
-                {unidades.map((u) => (
-                  <tr key={u.id}>
-                    <td>{u.numeroUnidad}</td>
-                    <td>
-                      {etiquetasHemocomponente[u.tipoHemocomponente] ??
-                        u.tipoHemocomponente}
-                    </td>
-                    <td>
-                      {u.grupoABO} {u.factorRhD === "POSITIVO" ? "+" : "-"}
-                    </td>
-                    <td>{formatearFechaVencimiento(u.fechaVencimiento)}</td>
-                    <td>{etiquetasEstado[u.estado] ?? u.estado}</td>
-                    <td>
-                      {u.motivoBaja
-                        ? (etiquetasMotivoBaja[u.motivoBaja] ?? u.motivoBaja)
-                        : "—"}
-                    </td>
-                    <td>{u.operadorBaja || "—"}</td>
-                    <td>
-                      {u.fechaBaja
-                        ? formatearFechaHoraArgentina(u.fechaBaja)
-                        : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <DataTable
+          rows={unidades}
+          columns={columnas}
+          rowKey={(u) => u.id}
+          searchText={textoBusqueda}
+          searchPlaceholder="Buscar por unidad, estado, motivo u operador…"
+          loading={cargandoInventario}
+          filters={[
+            {
+              id: "estado",
+              label: "Estado",
+              value: filtroEstado,
+              options: [
+                { value: "", label: "Todos los estados" },
+                ...["DISPONIBLE", "RESERVADA", "EMITIDA", "BLOQUEADA", "VENCIDA", "DADA_DE_BAJA"].map(
+                  (estado) => ({
+                    value: estado,
+                    label: etiquetasEstado[estado] ?? estado,
+                  }),
+                ),
+              ],
+              onChange: setFiltroEstado,
+            },
+          ]}
+          filterRow={(u) => !filtroEstado || u.estado === filtroEstado}
+          emptyTitle="No hay unidades registradas"
+          emptyDescription="Las unidades recepcionadas aparecerán aquí con su trazabilidad."
+          caption="Inventario de hemocomponentes"
+        />
       </section>
-    </main>
+    </div>
   );
 }

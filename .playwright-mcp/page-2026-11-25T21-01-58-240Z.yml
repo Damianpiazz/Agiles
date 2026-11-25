@@ -1,0 +1,163 @@
+- generic [ref=f78e3]:
+  - link "Saltar al contenido principal" [ref=f78e4] [cursor=pointer]:
+    - /url: "#contenido-principal"
+  - complementary "Navegación principal" [ref=f78e5]:
+    - generic [ref=f78e6]:
+      - generic [aria-hidden] [ref=f78e7]:
+        - generic [ref=f78e8]: F
+        - generic [ref=f78e9]: +
+      - generic [ref=f78e10]:
+        - heading "FLORHEMA" [level=1] [ref=f78e11]
+        - paragraph [ref=f78e12]: Sistema de Gestión de Hemoterapia
+    - navigation "Módulos del sistema" [ref=f78e13]:
+      - generic [ref=f78e14]:
+        - paragraph [ref=f78e15]: Inicio
+        - button "Resumen" [ref=f78e16] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e17]: ◫
+        - button "Buscar donante" [ref=f78e19] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e20]: ⌕
+        - button "Alta de donante" [ref=f78e22] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e23]: ＋
+      - generic [ref=f78e25]:
+        - paragraph [ref=f78e26]: Donación y calificación
+        - button "Registrar donación" [active] [ref=f78e27] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e28]: ♥
+        - button "Calificación biológica" [ref=f78e30] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e31]: ✓
+        - button "Tipificación sanguínea" [ref=f78e33] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e34]: ⊕
+        - button "Tamizaje de infecciones" [ref=f78e36] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e37]: ◉
+        - button "Consultar resultados" [ref=f78e39] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e40]: ⌕
+      - generic [ref=f78e42]:
+        - paragraph [ref=f78e43]: Pacientes y transfusión
+        - button "Alta de paciente" [ref=f78e44] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e45]: ＋
+        - button "Buscar paciente" [ref=f78e47] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e48]: ⌕
+        - button "Solicitudes de transfusión" [ref=f78e50] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e51]: ▤
+        - button "Estudios pretransfusionales" [ref=f78e53] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e54]: ◈
+        - button "Seleccionar componente" [ref=f78e56] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e57]: ⚕
+        - button "Emitir sangre" [ref=f78e59] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e60]: ↗
+      - generic [ref=f78e62]:
+        - paragraph [ref=f78e63]: Inventario
+        - button "Recepción de unidades" [ref=f78e64] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e65]: ＋
+        - button "Liberar unidad" [ref=f78e67] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e68]: ✓
+        - button "Dar de baja unidad" [ref=f78e70] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e71]: ⊘
+    - generic [ref=f78e73]:
+      - paragraph [ref=f78e74]:
+        - generic [ref=f78e76]: Servicio de Hemoterapia
+      - button "Colapsar menú lateral" [ref=f78e77] [cursor=pointer]:
+        - generic [aria-hidden] [ref=f78e78]: «
+        - generic [ref=f78e79]: Colapsar menú
+  - generic [ref=f78e80]:
+    - banner [ref=f78e81]:
+      - navigation "Ruta de navegación" [ref=f78e82]:
+        - generic [ref=f78e83]: Inicio
+        - generic [aria-hidden] [ref=f78e84]: /
+        - generic [ref=f78e85]: Donación y calificación
+        - generic [aria-hidden] [ref=f78e86]: /
+        - strong [ref=f78e87]: Registrar donación
+      - generic [ref=f78e88]:
+        - generic [ref=f78e89]: FLORHEMA
+        - generic [ref=f78e90]: Servicio de Hemoterapia
+    - main [ref=f78e91]:
+      - generic [ref=f78e1318]:
+        - generic [ref=f78e1320]:
+          - heading "Registrar donación" [level=1] [ref=f78e1321]
+          - paragraph [ref=f78e1322]: Asociá la extracción a un donante y dejá constancia del operador.
+        - group "Donante" [ref=f78e1323]:
+          - paragraph [ref=f78e1325]: Elegí el donante en el primer paso. No hace falta una entrevista previa para registrar la donación.
+        - generic [ref=f78e1326]:
+          - list "Progreso del formulario" [ref=f78e1327]:
+            - listitem [ref=f78e1328]:
+              - generic [aria-hidden] [ref=f78e1329]: "1"
+              - generic [ref=f78e1330]: Donante y responsable
+            - listitem [ref=f78e1331]:
+              - generic [aria-hidden] [ref=f78e1332]: "2"
+              - generic [ref=f78e1333]: Datos de extracción
+            - listitem [ref=f78e1334]:
+              - generic [aria-hidden] [ref=f78e1335]: "3"
+              - generic [ref=f78e1336]: Modalidad y cierre
+          - group "Donante y responsable" [ref=f78e1337]:
+            - paragraph [ref=f78e1339]: Elegí al donante y confirmá quién registra la extracción.
+            - generic [ref=f78e1340]:
+              - generic [ref=f78e1341]:
+                - generic [ref=f78e1342]: Donante*
+                - combobox "Donante" [ref=f78e1343]:
+                  - option "Seleccioná un donante"
+                  - option "Acosta Naranjo, Roser · DNI 87661052"
+                  - option "Alvarado Salazar, Raquel · DNI 87627046"
+                  - option "Amador Matos, Nicolás · DNI 40025474"
+                  - option "Amaya Delacrúz, José Eduardo · DNI 47432656"
+                  - option "Amaya Quintana, María Teresa · DNI 61166222"
+                  - option "Aragón Moya, Antonio · DNI 51794009"
+                  - option "Archuleta Lerma, David · DNI 55049324"
+                  - option "Argüello Saldaña, Javier · DNI 72612658"
+                  - option "Arriaga Mata, Rubén · DNI 66551220"
+                  - option "Ballesteros Flores, María Soledad · DNI 91728881"
+                  - option "Becerra Montoya, Antonio · DNI 90428255"
+                  - option "Benavides Pichardo, Lorenzo · DNI 87534389"
+                  - option "Benítez, Sofía · DNI 31222333"
+                  - option "Borrego Véliz, Tomás · DNI 48580813"
+                  - option "Camarillo Castro, Benito · DNI 68072516"
+                  - option "Caraballo Carvajal, Guillermina · DNI 65295261"
+                  - option "Carvajal Cantú, Elvira · DNI 85106248"
+                  - option "Casares Rivas, Alejandra · DNI 44191116"
+                  - option "Ceballos Serna, Lourdes · DNI 55080434"
+                  - option "Delao Almaráz, Salvador · DNI 76490604"
+                  - option "Espinoza Apodaca, Elisa · DNI 59112267"
+                  - option "Fajardo Mayorga, Clara · DNI 50559850"
+                  - option "Fierro Bueno, Carolina · DNI 78361606"
+                  - option "Galindo Armijo, Francisco · DNI 69128953"
+                  - option "Gallegos Mascareñas, Alicia · DNI 42035716"
+                  - option "Guajardo Pelayo, Adán · DNI 69836675"
+                  - option "Guerrero Mascareñas, Elisa · DNI 66253109"
+                  - option "Guerrero Ornelas, Agustín · DNI 83431189"
+                  - option "Haro Cerda, Julia · DNI 48871762"
+                  - option "Herrera Ochoa, Marcela · DNI 73959369"
+                  - option "Iglesias Barrera, Adán · DNI 65317075"
+                  - option "Lara Medina, Jordi · DNI 76540048"
+                  - option "Lara Álvarez, María Eugenia · DNI 59309383"
+                  - option "Manzanares Candelaria, Benito · DNI 56809643"
+                  - option "Montero Reséndez, Conchita · DNI 97177046"
+                  - option "Olivera Delagarza, Juan Ramón · DNI 92107361"
+                  - option "Olivárez Mayorga, Alicia · DNI 80919170"
+                  - option "Ortega Banda, Carles · DNI 81679701"
+                  - option "Pacheco Villanueva, Berta · DNI 55354585"
+                  - option "Pedroza Arellano, Pablo · DNI 40429142"
+                  - option "Portillo Madrid, Marilú · DNI 98758787"
+                  - option "Ramírez, Carlos · DNI 27123456" [selected]
+                  - option "Ramírez Cortés, Amalia · DNI 63601520"
+                  - option "Reynoso Lomeli, Enrique · DNI 81506268"
+                  - option "Rivero Lira, Rosa · DNI 92008217"
+                  - option "Rodarte Paz, Benjamín · DNI 46647073"
+                  - option "Roybal Cazares, Guillermo · DNI 81092900"
+                  - option "Salas Acuña, Alfonso · DNI 94741973"
+                  - option "Salcedo Quiñones, Lorena · DNI 73355583"
+                  - option "Samaniego Sedillo, Mariana · DNI 99222665"
+                  - option "Sandoval Dávila, Inés · DNI 77507290"
+                  - option "Santacruz Pichardo, Rodrigo · DNI 67412788"
+                  - option "Serna Rojas, Laura · DNI 59931461"
+                  - option "Solorzano Cavazos, Carlota · DNI 75729880"
+                  - option "Terrazas Arias, Julio César · DNI 68210561"
+                  - option "Ulibarri Quesada, Mercedes · DNI 96251433"
+                  - option "Valle Alemán, David · DNI 90684097"
+                  - option "Villalpando Rojo, Rosa · DNI 48334651"
+                  - option "Villegas Riojas, Germán · DNI 43172007"
+                  - option "Vázquez Laureano, Susana · DNI 51788009"
+              - generic [ref=f78e1344]:
+                - generic [ref=f78e1345]: Operador*
+                - textbox "Operador" [ref=f78e1346]
+              - generic [ref=f78e1347]:
+                - generic [ref=f78e1348]: Fecha y hora de la extracción
+                - textbox "Fecha y hora de la extracción" [ref=f78e1349]: 2026-11-25T18:01
+          - button "Siguiente" [ref=f78e1351] [cursor=pointer]

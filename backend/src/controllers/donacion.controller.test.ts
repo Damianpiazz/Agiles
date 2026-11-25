@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Request, Response } from "express";
 import * as donacionService from "../services/donacion.service";
-import { create, getById } from "./donacion.controller";
+import { create, getById, listar } from "./donacion.controller";
 
 vi.mock("../services/donacion.service", () => {
   class DonanteNoEncontradoError extends Error {
@@ -20,12 +20,14 @@ vi.mock("../services/donacion.service", () => {
     DonanteNoEncontradoError,
     EntrevistaPendienteNoEncontradaError,
     create: vi.fn(),
+    listar: vi.fn(),
     buscarPorId: vi.fn(),
   };
 });
 
 const mockCreate = vi.mocked(donacionService.create);
 const mockBuscarPorId = vi.mocked(donacionService.buscarPorId);
+const mockListar = vi.mocked(donacionService.listar);
 
 function mockRes() {
   const res = {
@@ -123,6 +125,19 @@ describe("donacion.controller create", () => {
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ error: "Error interno" });
+  });
+});
+
+describe("donacion.controller listar", () => {
+  it("responde 200 con el listado de donaciones y su donante", async () => {
+    const donaciones = [{ id: 1, donante: { id: 2, dni: "12345678" } }];
+    mockListar.mockResolvedValue(donaciones as never);
+    const res = mockRes();
+
+    await listar({} as Request, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(donaciones);
   });
 });
 

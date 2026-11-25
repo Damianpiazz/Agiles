@@ -1,9 +1,17 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { Banner } from "../components/Banner";
+import { DataTable, type DataTableColumn } from "../components/DataTable";
+import { DonacionesTable } from "../components/DonacionesTable";
+import { FormField, FormGrid, FormSection } from "../components/FormField";
+import { PageHeader } from "../components/PageHeader";
+import { StatusBadge } from "../components/StatusBadge";
+import { useDonaciones } from "../hooks/useDatos";
+import type { DonacionResumen } from "../types/donacion";
 import "../styles/TipificacionSanguinea.css";
 
 const API_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:3000"
+  import.meta.env.VITE_API_URL || "http://localhost:3001"
 ).replace(/\/+$/, "");
 
 type Tipificacion = {
@@ -15,36 +23,83 @@ type Tipificacion = {
   fechaHora: string;
 };
 
-type Banner = {
+type BannerMensaje = {
   tipo: "ok" | "error";
   texto: string;
 } | null;
 
+const columnasHistorial: DataTableColumn<Tipificacion>[] = [
+  {
+    id: "id",
+    header: "ID",
+    render: (item) => item.id,
+    sortValue: (item) => item.id,
+  },
+  {
+    id: "grupoABO",
+    header: "Grupo ABO",
+    render: (item) => item.grupoABO,
+    sortValue: (item) => item.grupoABO,
+  },
+  {
+    id: "factorRhD",
+    header: "Factor RhD",
+    render: (item) => (
+      <StatusBadge
+        estado={item.factorRhD}
+        etiqueta={item.factorRhD === "POSITIVO" ? "Positivo (+)" : "Negativo (-)"}
+      />
+    ),
+    sortValue: (item) => item.factorRhD,
+  },
+  {
+    id: "operador",
+    header: "Operador",
+    render: (item) => item.operador,
+    sortValue: (item) => item.operador,
+  },
+  {
+    id: "fechaHora",
+    header: "Fecha y hora",
+    render: (item) => new Date(item.fechaHora).toLocaleString("es-AR"),
+    sortValue: (item) => item.fechaHora,
+  },
+];
+
 export default function TipificacionSanguinea() {
-  const [donacionId, setDonacionId] = useState("");
+  const { datos: donaciones, cargando } = useDonaciones();
+  const [seleccionada, setSeleccionada] = useState<DonacionResumen | null>(null);
   const [grupoABO, setGrupoABO] = useState("");
   const [factorRhD, setFactorRhD] = useState("");
   const [operador, setOperador] = useState("");
 
   const [historial, setHistorial] = useState<Tipificacion[]>([]);
-  const [banner, setBanner] = useState<Banner>(null);
+  const [filtroGrupo, setFiltroGrupo] = useState("");
+  const [filtroFactor, setFiltroFactor] = useState("");
+  const [banner, setBanner] = useState<BannerMensaje>(null);
 
   const [consultando, setConsultando] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [historialConsultado, setHistorialConsultado] = useState(false);
 
   function obtenerIdDonacion(): number | null {
-    const id = Number(donacionId);
-
-    if (!Number.isInteger(id) || id <= 0 || !donacionId.trim()) {
+    if (!seleccionada) {
       setBanner({
         tipo: "error",
-        texto: "Ingresá un ID de donación válido.",
+        texto: "Seleccioná una donación de la tabla antes de continuar.",
       });
+      document.getElementById("donacionesTipificacion")?.scrollIntoView({ behavior: "smooth" });
       return null;
     }
 
-    return id;
+    return seleccionada.id;
+  }
+
+  function seleccionar(donacion: DonacionResumen) {
+    setSeleccionada(donacion);
+    setHistorial([]);
+    setHistorialConsultado(false);
+    setBanner(null);
   }
 
   async function consultarHistorial() {
@@ -111,6 +166,7 @@ export default function TipificacionSanguinea() {
         tipo: "error",
         texto: "Seleccioná el grupo ABO y el factor RhD.",
       });
+      document.getElementById(!grupoABO ? "grupoABO" : "factorRhDPositivo")?.focus();
       return;
     }
 
@@ -119,6 +175,7 @@ export default function TipificacionSanguinea() {
         tipo: "error",
         texto: "Ingresá el nombre del operador.",
       });
+      document.getElementById("tipificacionOperador")?.focus();
       return;
     }
 
@@ -181,89 +238,89 @@ export default function TipificacionSanguinea() {
   }
 
   return (
-    <main className="tipificacion-container">
-      <header className="tipificacion-header">
-        <h1>Tipificación sanguínea ABO/RhD</h1>
-        <p>
-          Registrá el grupo sanguíneo y el factor RhD de una donación
-          previamente registrada.
-        </p>
-      </header>
+    <div className="tipificacion-container">
+      <PageHeader
+        title="Tipificación sanguínea ABO/RhD"
+        description="Seleccioná una donación de la tabla y registrá su grupo sanguíneo y factor RhD."
+      />
 
       {banner && (
-        <div
-          className={`tipificacion-banner tipificacion-banner-${banner.tipo}`}
-          role="status"
-        >
+        <Banner tone={banner.tipo === "error" ? "error" : "ok"}>
           {banner.texto}
-        </div>
+        </Banner>
       )}
 
+      <section id="donacionesTipificacion" className="tipificacion-card" aria-labelledby="donacionesTipificacionTitulo">
+        <h2 id="donacionesTipificacionTitulo">Donaciones registradas</h2>
+        <DonacionesTable
+          rows={donaciones}
+          loading={cargando}
+          selectedId={seleccionada?.id ?? null}
+          onSeleccionar={seleccionar}
+          actionLabel="Tipificar"
+        />
+        <p className="tipificacion-seleccion" aria-live="polite">
+          {seleccionada ? (
+            <>
+              <strong>Donación #{seleccionada.id}</strong> · {seleccionada.donante.apellido},{" "}
+              {seleccionada.donante.nombre} (DNI {seleccionada.donante.dni})
+            </>
+          ) : (
+            "Seleccioná una donación de la tabla para continuar."
+          )}
+        </p>
+      </section>
+
       <section className="tipificacion-card">
-        <h2>Datos de la tipificación</h2>
-
-        <form onSubmit={registrar} className="tipificacion-form">
-          <div className="tipificacion-field">
-            <label htmlFor="tipificacionDonacionId">
-              ID de la donación
-            </label>
-            <input
-              id="tipificacionDonacionId"
-              type="number"
-              min="1"
-              step="1"
-              value={donacionId}
-              onChange={(e) => setDonacionId(e.target.value)}
-              placeholder="Ej.: 1"
-              required
-            />
-          </div>
-
-          <div className="tipificacion-field">
-            <label htmlFor="grupoABO">Grupo ABO</label>
-            <select
-              id="grupoABO"
-              value={grupoABO}
-              onChange={(e) => setGrupoABO(e.target.value)}
-              required
-            >
-              <option value="">Seleccioná un grupo</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="AB">AB</option>
-              <option value="O">O</option>
-            </select>
-          </div>
-
-          <fieldset className="tipificacion-rh">
-            <legend>Factor RhD</legend>
-
-            <label>
-              <input
-                type="radio"
-                name="factorRhD"
-                value="POSITIVO"
-                checked={factorRhD === "POSITIVO"}
-                onChange={(e) => setFactorRhD(e.target.value)}
+        <FormSection title="Datos de la tipificación">
+          <form onSubmit={registrar} className="tipificacion-form">
+          <FormGrid columns={2}>
+            <FormField id="grupoABO" label="Grupo ABO" required>
+              <select
+                id="grupoABO"
+                value={grupoABO}
+                onChange={(e) => setGrupoABO(e.target.value)}
                 required
-              />
-              Positivo (+)
-            </label>
+              >
+                <option value="">Seleccioná un grupo</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="AB">AB</option>
+                <option value="O">O</option>
+              </select>
+            </FormField>
+          </FormGrid>
 
-            <label>
-              <input
-                type="radio"
-                name="factorRhD"
-                value="NEGATIVO"
-                checked={factorRhD === "NEGATIVO"}
-                onChange={(e) => setFactorRhD(e.target.value)}
-              />
-              Negativo (-)
-            </label>
-          </fieldset>
+          <FormSection title="Factor RhD">
+            <div className="tipificacion-opciones" role="group" aria-label="Factor RhD">
+              <label>
+                <input
+                  id="factorRhDPositivo"
+                  type="radio"
+                  name="factorRhD"
+                  value="POSITIVO"
+                  checked={factorRhD === "POSITIVO"}
+                  onChange={(e) => setFactorRhD(e.target.value)}
+                  required
+                />
+                Positivo (+)
+              </label>
 
-          <div className="tipificacion-field">
-            <label htmlFor="tipificacionOperador">Operador</label>
+              <label>
+                <input
+                  id="factorRhDNegativo"
+                  type="radio"
+                  name="factorRhD"
+                  value="NEGATIVO"
+                  checked={factorRhD === "NEGATIVO"}
+                  onChange={(e) => setFactorRhD(e.target.value)}
+                />
+                Negativo (-)
+              </label>
+            </div>
+          </FormSection>
+
+          <FormField id="tipificacionOperador" label="Operador" required>
             <input
               id="tipificacionOperador"
               type="text"
@@ -273,7 +330,7 @@ export default function TipificacionSanguinea() {
               placeholder="Nombre del operador"
               required
             />
-          </div>
+          </FormField>
 
           <div className="tipificacion-actions">
             <button type="submit" disabled={guardando}>
@@ -289,49 +346,59 @@ export default function TipificacionSanguinea() {
               {consultando ? "Consultando..." : "Consultar historial"}
             </button>
           </div>
-        </form>
+          </form>
+        </FormSection>
       </section>
 
       {historialConsultado && (
         <section className="tipificacion-card tipificacion-historial">
-          <h2>Historial de la donación #{donacionId}</h2>
+          <h2>Historial de la donación #{seleccionada?.id ?? "—"}</h2>
 
-          {historial.length === 0 ? (
-            <p>No hay tipificaciones registradas para esta donación.</p>
-          ) : (
-            <div className="tipificacion-tabla-contenedor">
-              <table className="tipificacion-tabla">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Grupo ABO</th>
-                    <th>Factor RhD</th>
-                    <th>Operador</th>
-                    <th>Fecha y hora</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {historial.map((item) => (
-                    <tr key={item.id}>
-                      <td>{item.id}</td>
-                      <td>{item.grupoABO}</td>
-                      <td>
-                        {item.factorRhD === "POSITIVO"
-                          ? "Positivo (+)"
-                          : "Negativo (-)"}
-                      </td>
-                      <td>{item.operador}</td>
-                      <td>
-                        {new Date(item.fechaHora).toLocaleString("es-AR")}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <DataTable
+            rows={historial}
+            columns={columnasHistorial}
+            rowKey={(item) => item.id}
+            searchText={(item) =>
+              `${item.id} ${item.grupoABO} ${item.factorRhD} ${item.operador} ${new Date(item.fechaHora).toLocaleString("es-AR")}`
+            }
+            searchPlaceholder="Buscar en el historial…"
+            filters={[
+              {
+                id: "grupo",
+                label: "Grupo",
+                value: filtroGrupo,
+                options: [
+                  { value: "", label: "Todos los grupos" },
+                  { value: "A", label: "A" },
+                  { value: "B", label: "B" },
+                  { value: "AB", label: "AB" },
+                  { value: "O", label: "O" },
+                ],
+                onChange: setFiltroGrupo,
+              },
+              {
+                id: "factor",
+                label: "Factor",
+                value: filtroFactor,
+                options: [
+                  { value: "", label: "Todos los factores" },
+                  { value: "POSITIVO", label: "Positivo" },
+                  { value: "NEGATIVO", label: "Negativo" },
+                ],
+                onChange: setFiltroFactor,
+              },
+            ]}
+            filterRow={(item) =>
+              (!filtroGrupo || item.grupoABO === filtroGrupo) &&
+              (!filtroFactor || item.factorRhD === filtroFactor)
+            }
+            loading={consultando}
+            emptyTitle="Sin resultados"
+            emptyDescription="No hay tipificaciones registradas para esta donación."
+            caption={`Historial de la donación #${seleccionada?.id ?? "—"}`}
+          />
         </section>
       )}
-    </main>
+    </div>
   );
 }

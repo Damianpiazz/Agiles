@@ -1,8 +1,15 @@
 import { useState } from "react";
+import { Banner } from "../components/Banner";
+import { DonacionesTable } from "../components/DonacionesTable";
+import { FormField, FormGrid, FormSection } from "../components/FormField";
+import { PageHeader } from "../components/PageHeader";
+import { StatusBadge } from "../components/StatusBadge";
+import { useDonaciones } from "../hooks/useDatos";
+import type { DonacionResumen } from "../types/donacion";
 import "../styles/CalificacionBiologica.css";
 
 const API_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:3000"
+  import.meta.env.VITE_API_URL || "http://localhost:3001"
 ).replace(/\/+$/, "");
 
 type Resultado = {
@@ -31,7 +38,12 @@ notificacionDonante: string | null;
 };
 
 export default function CalificacionBiologica() {
-const [donacionId, setDonacionId] = useState("");
+const {
+  datos: donaciones,
+  cargando: cargandoLista,
+  error: errorLista,
+} = useDonaciones();
+const [seleccionada, setSeleccionada] = useState<DonacionResumen | null>(null);
 const [operador, setOperador] = useState("");
 const [resultado, setResultado] = useState<Resultado | null>(null);
 const [resultadoAnticuerpo, setResultadoAnticuerpo] = useState<ResultadoAnticuerpoIrregular | null>(null);
@@ -51,15 +63,15 @@ setError("");
 setResultado(null);
 setResultadoAnticuerpo(null);
 
-const id = Number(donacionId);
-
-if (!Number.isInteger(id) || id <= 0) {
-  setError("Ingresá un ID de donación válido.");
+if (!seleccionada) {
+  setError("Seleccioná una donación de la tabla antes de iniciar la calificación.");
+  document.getElementById("donacionesCalificacion")?.scrollIntoView({ behavior: "smooth" });
   return;
 }
 
 if (!operador.trim()) {
   setError("Ingresá el nombre del operador.");
+  document.getElementById("operador")?.focus();
   return;
 }
 
@@ -74,7 +86,7 @@ try {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        donacionId: id,
+        donacionId: seleccionada.id,
         operador: operador.trim(),
       }),
     }
@@ -107,15 +119,16 @@ async function registrarAnticuerposIrregulares(
   e.preventDefault();
   setError("");
 
-  const id = Number(donacionId);
-
-  if (!Number.isInteger(id) || id <= 0) {
-    setError("Ingresá un ID de donación válido para registrar el resultado.");
+  if (!seleccionada) {
+    setError("Seleccioná una donación antes de registrar el resultado.");
     return;
   }
 
+  const id = seleccionada.id;
+
   if (!operador.trim()) {
     setError("Ingresá el nombre del operador antes de registrar el resultado.");
+    document.getElementById("operador")?.focus();
     return;
   }
 
@@ -158,50 +171,69 @@ async function registrarAnticuerposIrregulares(
   }
 }
 
-return (
-<main className="calificacion-container">
-<h1>Calificación biológica</h1>
+function seleccionar(donacion: DonacionResumen) {
+  setSeleccionada(donacion);
+  setResultado(null);
+  setResultadoAnticuerpo(null);
+  setError("");
+}
 
-  <p>
-    Iniciá la calificación biológica de una donación previamente registrada.
-  </p>
+return (
+<div className="calificacion-container">
+  <PageHeader
+    title="Calificación biológica"
+    description="Elegí una donación de la tabla para iniciar su calificación y registrar el resultado inmune."
+  />
+
+  {error && <Banner tone="error">{error}</Banner>}
+
+  <section id="donacionesCalificacion" className="calificacion-tabla" aria-labelledby="donacionesCalificacionTitulo">
+    <h2 id="donacionesCalificacionTitulo">Donaciones registradas</h2>
+    <DonacionesTable
+      rows={donaciones}
+      loading={cargandoLista}
+      error={errorLista}
+      selectedId={seleccionada?.id ?? null}
+      onSeleccionar={seleccionar}
+      actionLabel="Calificar"
+    />
+  </section>
+
+  <section className="calificacion-seleccion" aria-live="polite">
+    <h2>Donación seleccionada</h2>
+    {seleccionada ? (
+      <p>
+        <strong>Donación #{seleccionada.id}</strong> · {seleccionada.donante.apellido},{" "}
+        {seleccionada.donante.nombre} (DNI {seleccionada.donante.dni}) ·{" "}
+        {new Date(seleccionada.fechaHora).toLocaleString("es-AR")}
+      </p>
+    ) : (
+      <p>Seleccioná una donación de la tabla para continuar.</p>
+    )}
+  </section>
 
   <form
     onSubmit={iniciarCalificacion}
     className="calificacion-form"
   >
-    <label htmlFor="donacionId">ID de la donación</label>
-    <input
-      id="donacionId"
-      type="number"
-      min="1"
-      step="1"
-      value={donacionId}
-      onChange={(e) => setDonacionId(e.target.value)}
-      required
-    />
-
-    <label htmlFor="operador">Operador</label>
-    <input
-      id="operador"
-      type="text"
-      maxLength={120}
-      value={operador}
-      onChange={(e) => setOperador(e.target.value)}
-      placeholder="Nombre del operador"
-      required
-    />
+    <FormGrid columns={2}>
+      <FormField id="operador" label="Operador" required>
+        <input
+          id="operador"
+          type="text"
+          maxLength={120}
+          value={operador}
+          onChange={(e) => setOperador(e.target.value)}
+          placeholder="Nombre del operador"
+          required
+        />
+      </FormField>
+    </FormGrid>
 
     <button type="submit" disabled={cargando}>
       {cargando ? "Procesando..." : "Iniciar calificación"}
     </button>
   </form>
-
-  {error && (
-    <p className="calificacion-error" role="alert">
-      {error}
-    </p>
-  )}
 
   {resultado && (
     <section
@@ -226,7 +258,10 @@ return (
 
       <p>
         <strong>Estado:</strong>{" "}
-        {resultado.calificacion.estado}
+        <StatusBadge
+          estado={resultado.calificacion.estado}
+          etiqueta={resultado.calificacion.estado}
+        />
       </p>
 
       <p>
@@ -248,34 +283,40 @@ return (
       onSubmit={registrarAnticuerposIrregulares}
       className="calificacion-form"
     >
-      <h2>Resultado inmune / detección de anticuerpos irregulares</h2>
-      <p>Registrar la respuesta del estudio inmunohematológico para decidir manejo especial previo a la liberación.</p>
-
-      <label htmlFor="resultadoIrregular">Resultado</label>
-      <select
-        id="resultadoIrregular"
-        value={resultadoIrregular}
-        onChange={(e) =>
-          setResultadoIrregular(e.target.value as "POSITIVO" | "NEGATIVO")
-        }
+      <FormSection
+        title="Resultado inmune / detección de anticuerpos irregulares"
+        description="Registrar la respuesta del estudio inmunohematológico para decidir manejo especial previo a la liberación."
       >
-        <option value="NEGATIVO">Negativo</option>
-        <option value="POSITIVO">Positivo</option>
-      </select>
+        <FormGrid columns={2}>
+          <FormField id="resultadoIrregular" label="Resultado">
+            <select
+              id="resultadoIrregular"
+              value={resultadoIrregular}
+              onChange={(e) =>
+                setResultadoIrregular(e.target.value as "POSITIVO" | "NEGATIVO")
+              }
+            >
+              <option value="NEGATIVO">Negativo</option>
+              <option value="POSITIVO">Positivo</option>
+            </select>
+          </FormField>
 
-      <label htmlFor="observacionAnticuerpo">Observación operatoria</label>
-      <textarea
-        id="observacionAnticuerpo"
-        value={observacion}
-        onChange={(e) => setObservacion(e.target.value)}
-        rows={4}
-        maxLength={500}
-        placeholder="Ej.: unidad con reacción inmune; requiere manejo especial antes de la liberación."
-      />
+          <FormField id="observacionAnticuerpo" label="Observación operatoria" optional>
+            <textarea
+              id="observacionAnticuerpo"
+              value={observacion}
+              onChange={(e) => setObservacion(e.target.value)}
+              rows={4}
+              maxLength={500}
+              placeholder="Ej.: unidad con reacción inmune; requiere manejo especial antes de la liberación."
+            />
+          </FormField>
+        </FormGrid>
 
-      <button type="submit" disabled={cargando}>
-        {cargando ? "Procesando..." : "Guardar resultado"}
-      </button>
+        <button type="submit" disabled={cargando}>
+          {cargando ? "Procesando..." : "Guardar resultado"}
+        </button>
+      </FormSection>
     </form>
   )}
 
@@ -291,7 +332,11 @@ return (
       </h2>
 
       <p>
-        <strong>Resultado:</strong> {resultadoAnticuerpo.resultado}
+        <strong>Resultado:</strong>{" "}
+        <StatusBadge
+          estado={resultadoAnticuerpo.resultado}
+          etiqueta={resultadoAnticuerpo.resultado}
+        />
       </p>
       <p>
         <strong>Unidad:</strong> {resultadoAnticuerpo.etiquetaComponente}
@@ -326,7 +371,7 @@ return (
       )}
     </section>
   )}
-</main>
+</div>
 
 );
 }

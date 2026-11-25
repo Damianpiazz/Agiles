@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 import {
   create,
   buscarPorId,
-  EntrevistaPendienteNoEncontradaError,
   DonanteNoEncontradoError,
   type DonacionDb,
 } from "./donacion.service";
@@ -62,9 +61,13 @@ describe("donacion.service create", () => {
 
     expect(db.donante.findUnique).toHaveBeenCalledWith({ where: { id: 1 } });
     expect(db.entrevistaPreDonacion.findFirst).toHaveBeenCalledWith({
-      where: { donanteId: 1 },
+      where: {
+        donanteId: 1,
+        resultadoAdmision: "ADMITIDO",
+        donacionId: null,
+      },
       orderBy: { createdAt: "desc" },
-      select: { id: true, donacionId: true, resultadoAdmision: true },
+      select: { id: true },
     });
     expect(db.donacion.create).toHaveBeenCalledWith({
       data: {
@@ -200,16 +203,34 @@ describe("donacion.service create", () => {
     expect(db.donacion.create).not.toHaveBeenCalled();
   });
 
-  it("no crea la donación si no hay entrevista admitida pendiente", async () => {
+  it("crea la donación sin entrevista previa", async () => {
     const db = fakeDb();
     db.donante.findUnique.mockResolvedValue({ id: 1 });
     db.entrevistaPreDonacion.findFirst.mockResolvedValue(null);
+    db.donacion.create.mockResolvedValue({ id: 14 });
 
-    await expect(
-      create({ donanteId: 1, operador: "Ana" } as never, db),
-    ).rejects.toBeInstanceOf(EntrevistaPendienteNoEncontradaError);
+    const resultado = await create(
+      { donanteId: 1, operador: "Ana" } as never,
+      db,
+    );
 
-    expect(db.donacion.create).not.toHaveBeenCalled();
+    expect(db.donacion.create).toHaveBeenCalled();
+    expect(db.entrevistaPreDonacion.updateMany).not.toHaveBeenCalled();
+    expect(resultado).toEqual({ id: 14 });
+  });
+
+  it("no vincula la entrevista si otra donación ya la tomó", async () => {
+    const db = fakeDb();
+    db.donante.findUnique.mockResolvedValue({ id: 1 });
+    db.entrevistaPreDonacion.updateMany.mockResolvedValue({ count: 0 });
+    db.donacion.create.mockResolvedValue({ id: 15 });
+
+    const resultado = await create(
+      { donanteId: 1, operador: "Ana" } as never,
+      db,
+    );
+
+    expect(resultado).toEqual({ id: 15 });
   });
 });
 

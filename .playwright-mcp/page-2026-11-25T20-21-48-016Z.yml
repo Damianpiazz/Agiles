@@ -1,0 +1,103 @@
+- generic [ref=f76e3]:
+  - link "Saltar al contenido principal" [ref=f76e4] [cursor=pointer]:
+    - /url: "#contenido-principal"
+  - complementary "Navegación principal" [ref=f76e5]:
+    - generic [ref=f76e6]:
+      - generic [aria-hidden] [ref=f76e7]:
+        - generic [ref=f76e8]: F
+        - generic [ref=f76e9]: +
+      - generic [ref=f76e10]:
+        - heading "FLORHEMA" [level=1] [ref=f76e11]
+        - paragraph [ref=f76e12]: Sistema de Gestión de Hemoterapia
+    - navigation "Módulos del sistema" [ref=f76e13]:
+      - generic [ref=f76e14]:
+        - paragraph [ref=f76e15]: Inicio
+        - button "Resumen" [ref=f76e16] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e17]: ◫
+        - button "Buscar donante" [ref=f76e19] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e20]: ⌕
+        - button "Alta de donante" [ref=f76e22] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e23]: ＋
+      - generic [ref=f76e25]:
+        - paragraph [ref=f76e26]: Donación y calificación
+        - button "Entrevista pre-donación" [ref=f76e27] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e28]: ▤
+        - button "Registrar donación" [ref=f76e30] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e31]: ♥
+        - button "Calificación biológica" [ref=f76e33] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e34]: ✓
+        - button "Tipificación sanguínea" [ref=f76e36] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e37]: ⊕
+        - button "Tamizaje de infecciones" [ref=f76e39] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e40]: ◉
+        - button "Consultar resultados" [ref=f76e42] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e43]: ⌕
+      - generic [ref=f76e45]:
+        - paragraph [ref=f76e46]: Pacientes y transfusión
+        - button "Alta de paciente" [ref=f76e47] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e48]: ＋
+        - button "Buscar paciente" [ref=f76e50] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e51]: ⌕
+        - button "Solicitudes de transfusión" [ref=f76e53] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e54]: ▤
+        - button "Estudios pretransfusionales" [active] [ref=f76e56] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e57]: ◈
+        - button "Seleccionar componente" [ref=f76e59] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e60]: ⚕
+        - button "Emitir sangre" [ref=f76e62] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e63]: ↗
+      - generic [ref=f76e65]:
+        - paragraph [ref=f76e66]: Inventario
+        - button "Recepción de unidades" [ref=f76e67] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e68]: ＋
+        - button "Liberar unidad" [ref=f76e70] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e71]: ✓
+        - button "Dar de baja unidad" [ref=f76e73] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e74]: ⊘
+    - generic [ref=f76e76]:
+      - paragraph [ref=f76e77]:
+        - generic [ref=f76e79]: Servicio de Hemoterapia
+      - button "Colapsar menú lateral" [ref=f76e200] [cursor=pointer]:
+        - generic [aria-hidden] [ref=f76e201]: «
+        - generic [ref=f76e202]: Colapsar menú
+  - generic [ref=f76e80]:
+    - banner [ref=f76e81]:
+      - navigation "Ruta de navegación" [ref=f76e83]:
+        - generic [ref=f76e84]: Inicio
+        - generic [aria-hidden] [ref=f76e85]: /
+        - generic [ref=f76e86]: Pacientes y transfusión
+        - generic [aria-hidden] [ref=f76e87]: /
+        - strong [ref=f76e88]: Estudios pretransfusionales
+      - generic [ref=f76e203]:
+        - generic [ref=f76e204]: FLORHEMA
+        - generic [ref=f76e205]: Servicio de Hemoterapia
+    - main [ref=f76e89]:
+      - generic [ref=f76e206]:
+        - generic [ref=f76e208]:
+          - heading "Estudios pretransfusionales" [level=1] [ref=f76e209]
+          - paragraph [ref=f76e210]: Registrá resultados, evaluá pruebas de compatibilidad y consultá su trazabilidad.
+        - list "Progreso del formulario" [ref=f76e211]:
+          - listitem [ref=f76e212]:
+            - generic [aria-hidden] [ref=f76e213]: "1"
+            - generic [ref=f76e214]: Seleccionar solicitud
+          - listitem [ref=f76e215]:
+            - generic [aria-hidden] [ref=f76e216]: "2"
+            - generic [ref=f76e217]: Registrar estudio
+          - listitem [ref=f76e218]:
+            - generic [aria-hidden] [ref=f76e219]: "3"
+            - generic [ref=f76e220]: Historial y trazabilidad
+        - group "Seleccionar solicitud" [ref=f76e221]:
+          - paragraph [ref=f76e223]: Elegí la solicitud sobre la que vas a registrar los estudios.
+          - generic [ref=f76e224]:
+            - generic [ref=f76e225]: Solicitud de transfusión*
+            - combobox "Solicitud de transfusión" [ref=f76e226]:
+              - option "Seleccioná una solicitud"
+              - option "#2 - Marcos Gómez - DNI 28444555"
+              - option "#1 - Lucía Fernández - DNI 30111222" [selected]
+          - generic [ref=f76e229]:
+            - strong [ref=f76e230]: "Solicitud #1"
+            - generic [ref=f76e231]: "Paciente: Lucía Fernández · DNI 30111222"
+            - generic [ref=f76e232]:
+              - text: "Grupo: A+ · Estado:"
+              - generic [ref=f76e233]: Aprobada
+          - 'button "Siguiente: registrar estudio" [ref=f76e228] [cursor=pointer]'

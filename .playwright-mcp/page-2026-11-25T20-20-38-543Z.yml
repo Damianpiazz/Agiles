@@ -1,0 +1,172 @@
+- generic [ref=f76e3]:
+  - link "Saltar al contenido principal" [ref=f76e4] [cursor=pointer]:
+    - /url: "#contenido-principal"
+  - complementary "Navegación principal" [ref=f76e5]:
+    - generic [ref=f76e6]:
+      - generic [aria-hidden] [ref=f76e7]:
+        - generic [ref=f76e8]: F
+        - generic [ref=f76e9]: +
+      - generic [ref=f76e10]:
+        - heading "FLORHEMA" [level=1] [ref=f76e11]
+        - paragraph [ref=f76e12]: Sistema de Gestión de Hemoterapia
+    - navigation "Módulos del sistema" [ref=f76e13]:
+      - generic [ref=f76e14]:
+        - paragraph [ref=f76e15]: Inicio
+        - button "Resumen" [ref=f76e16] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e17]: ◫
+        - button "Buscar donante" [ref=f76e19] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e20]: ⌕
+        - button "Alta de donante" [ref=f76e22] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e23]: ＋
+      - generic [ref=f76e25]:
+        - paragraph [ref=f76e26]: Donación y calificación
+        - button "Entrevista pre-donación" [ref=f76e27] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e28]: ▤
+        - button "Registrar donación" [ref=f76e30] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e31]: ♥
+        - button "Calificación biológica" [ref=f76e33] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e34]: ✓
+        - button "Tipificación sanguínea" [ref=f76e36] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e37]: ⊕
+        - button "Tamizaje de infecciones" [ref=f76e39] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e40]: ◉
+        - button "Consultar resultados" [ref=f76e42] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e43]: ⌕
+      - generic [ref=f76e45]:
+        - paragraph [ref=f76e46]: Pacientes y transfusión
+        - button "Alta de paciente" [ref=f76e47] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e48]: ＋
+        - button "Buscar paciente" [ref=f76e50] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e51]: ⌕
+        - button "Solicitudes de transfusión" [ref=f76e53] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e54]: ▤
+        - button "Estudios pretransfusionales" [ref=f76e56] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e57]: ◈
+        - button "Seleccionar componente" [ref=f76e59] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e60]: ⚕
+        - button "Emitir sangre" [ref=f76e62] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e63]: ↗
+      - generic [ref=f76e65]:
+        - paragraph [ref=f76e66]: Inventario
+        - button "Recepción de unidades" [ref=f76e67] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e68]: ＋
+        - button "Liberar unidad" [ref=f76e70] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e71]: ✓
+        - button "Dar de baja unidad" [ref=f76e73] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e74]: ⊘
+    - paragraph [ref=f76e77]:
+      - generic [ref=f76e79]: Servicio de Hemoterapia
+  - generic [ref=f76e80]:
+    - banner [ref=f76e81]:
+      - button "Abrir menú lateral" [ref=f76e82] [cursor=pointer]: ☰
+      - navigation "Ruta de navegación" [ref=f76e83]:
+        - generic [ref=f76e84]: Inicio
+        - generic [aria-hidden] [ref=f76e85]: /
+        - generic [ref=f76e86]: Inicio
+        - generic [aria-hidden] [ref=f76e87]: /
+        - strong [ref=f76e88]: Resumen
+    - main [ref=f76e89]:
+      - generic [ref=f76e90]:
+        - generic [ref=f76e92]:
+          - paragraph [ref=f76e93]: Resumen operativo
+          - heading "Bienvenido a Florhema" [level=1] [ref=f76e94]
+          - paragraph [ref=f76e95]: Estado de los módulos disponibles y accesos a las operaciones más frecuentes.
+        - region "Indicadores del sistema" [ref=f76e96]:
+          - article [ref=f76e97]:
+            - generic [ref=f76e98]: Pacientes registrados
+            - strong [ref=f76e99]: "60"
+            - generic [ref=f76e100]: Fichas disponibles para transfusión
+          - article [ref=f76e101]:
+            - generic [ref=f76e102]: Unidades en inventario
+            - strong [ref=f76e103]: "60"
+            - generic [ref=f76e104]: Registros devueltos por el inventario
+          - article [ref=f76e105]:
+            - generic [ref=f76e106]: Solicitudes de transfusión
+            - strong [ref=f76e107]: "60"
+            - generic [ref=f76e108]: Registros devueltos por el sistema
+          - article [ref=f76e109]:
+            - generic [ref=f76e110]: Conectividad de la API
+            - strong [ref=f76e111]: Activa
+            - generic [ref=f76e112]: Servicio de Hemoterapia
+        - generic [ref=f76e113]:
+          - generic [ref=f76e114]:
+            - generic [ref=f76e115]:
+              - heading "Accesos rápidos" [level=2] [ref=f76e116]
+              - paragraph [ref=f76e117]: Operaciones frecuentes, sin salir del resumen.
+            - generic [ref=f76e118]:
+              - button "Buscar donante Localizar ficha y donaciones" [ref=f76e119] [cursor=pointer]:
+                - strong [ref=f76e120]: Buscar donante
+                - generic [ref=f76e121]: Localizar ficha y donaciones
+                - generic [aria-hidden] [ref=f76e122]: →
+              - button "Alta de donante Registrar un nuevo donante" [ref=f76e123] [cursor=pointer]:
+                - strong [ref=f76e124]: Alta de donante
+                - generic [ref=f76e125]: Registrar un nuevo donante
+                - generic [aria-hidden] [ref=f76e126]: →
+              - button "Registrar donación Entrevista y donación" [ref=f76e127] [cursor=pointer]:
+                - strong [ref=f76e128]: Registrar donación
+                - generic [ref=f76e129]: Entrevista y donación
+                - generic [aria-hidden] [ref=f76e130]: →
+              - button "Recepción de unidades Ingresar hemocomponentes" [ref=f76e131] [cursor=pointer]:
+                - strong [ref=f76e132]: Recepción de unidades
+                - generic [ref=f76e133]: Ingresar hemocomponentes
+                - generic [aria-hidden] [ref=f76e134]: →
+              - button "Nueva solicitud Solicitar transfusión" [ref=f76e135] [cursor=pointer]:
+                - strong [ref=f76e136]: Nueva solicitud
+                - generic [ref=f76e137]: Solicitar transfusión
+                - generic [aria-hidden] [ref=f76e138]: →
+              - button "Emitir sangre Preparar y emitir unidades" [ref=f76e139] [cursor=pointer]:
+                - strong [ref=f76e140]: Emitir sangre
+                - generic [ref=f76e141]: Preparar y emitir unidades
+                - generic [aria-hidden] [ref=f76e142]: →
+          - generic [ref=f76e143]:
+            - generic [ref=f76e144]:
+              - heading "Estado de los módulos" [level=2] [ref=f76e145]
+              - paragraph [ref=f76e146]: Información obtenida de los servicios reales.
+            - list [ref=f76e147]:
+              - listitem [ref=f76e148]:
+                - button "Pacientes y receptores 60 registros disponibles" [ref=f76e149] [cursor=pointer]:
+                  - generic [ref=f76e151]: Pacientes y receptores
+                  - generic [ref=f76e152]: 60 registros disponibles
+              - listitem [ref=f76e153]:
+                - button "Inventario de hemocomponentes 60 unidades registradas" [ref=f76e154] [cursor=pointer]:
+                  - generic [ref=f76e156]: Inventario de hemocomponentes
+                  - generic [ref=f76e157]: 60 unidades registradas
+              - listitem [ref=f76e158]:
+                - button "Solicitudes de transfusión 60 solicitudes registradas" [ref=f76e159] [cursor=pointer]:
+                  - generic [ref=f76e161]: Solicitudes de transfusión
+                  - generic [ref=f76e162]: 60 solicitudes registradas
+              - listitem [ref=f76e163]:
+                - button "Catálogos de calificación 18 antígenos · 7 determinaciones" [ref=f76e164] [cursor=pointer]:
+                  - generic [ref=f76e166]: Catálogos de calificación
+                  - generic [ref=f76e167]: 18 antígenos · 7 determinaciones
+        - generic [ref=f76e168]:
+          - generic [ref=f76e169]:
+            - heading "Altas de pacientes recientes" [level=2] [ref=f76e170]
+            - paragraph [ref=f76e171]: Últimos registros disponibles, ordenados por fecha de alta.
+          - table [ref=f76e173]:
+            - rowgroup [ref=f76e174]:
+              - row [ref=f76e175]:
+                - columnheader "Paciente" [ref=f76e176]
+                - columnheader "DNI" [ref=f76e177]
+                - columnheader "Fecha de alta" [ref=f76e178]
+            - rowgroup [ref=f76e179]:
+              - row [ref=f76e180]:
+                - cell "Mercado Canales, Iván" [ref=f76e181]
+                - cell "72961773" [ref=f76e182]
+                - cell "17/11/26" [ref=f76e183]
+              - row [ref=f76e184]:
+                - cell "Acuña Olmos, Lola" [ref=f76e185]
+                - cell "74126370" [ref=f76e186]
+                - cell "17/11/26" [ref=f76e187]
+              - row [ref=f76e188]:
+                - cell "Viera Jáquez, Estela" [ref=f76e189]
+                - cell "93734332" [ref=f76e190]
+                - cell "17/11/26" [ref=f76e191]
+              - row [ref=f76e192]:
+                - cell "Perea Chávez, Ricardo" [ref=f76e193]
+                - cell "74725125" [ref=f76e194]
+                - cell "17/11/26" [ref=f76e195]
+              - row [ref=f76e196]:
+                - cell "Arreola Osorio, Raquel" [ref=f76e197]
+                - cell "60966497" [ref=f76e198]
+                - cell "17/11/26" [ref=f76e199]

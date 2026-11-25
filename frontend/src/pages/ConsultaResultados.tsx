@@ -1,10 +1,18 @@
 
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { Banner } from "../components/Banner";
+import { DonantesTable } from "../components/DonantesTable";
+import { FormField, FormGrid } from "../components/FormField";
+import { PageHeader } from "../components/PageHeader";
+import { EmptyState, LoadingState } from "../components/States";
+import { StatusBadge } from "../components/StatusBadge";
+import { useDonantesActivos } from "../hooks/useDatos";
+import type { Donante } from "../types/donante";
 import "../styles/ConsultaResultados.css";
 
 const API_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:3000"
+  import.meta.env.VITE_API_URL || "http://localhost:3001"
 ).replace(/\/+$/, "");
 
 type Resultado = {
@@ -67,7 +75,7 @@ type Donacion = {
   }[];
 };
 
-type Donante = {
+type DonanteResultados = {
   id: number;
   nombre: string;
   apellido: string;
@@ -81,17 +89,21 @@ type Banner = {
 } | null;
 
 export default function ConsultaResultados() {
+  const {
+    datos: donantes,
+    cargando: cargandoDonantes,
+    error: errorDonantes,
+  } = useDonantesActivos();
   const [dni, setDni] = useState("");
-  const [donante, setDonante] = useState<Donante | null>(null);
+  const [donante, setDonante] = useState<DonanteResultados | null>(null);
   const [banner, setBanner] = useState<Banner>(null);
   const [consultando, setConsultando] = useState(false);
 
-  async function consultar(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function consultarPorDni(valor: string) {
     setBanner(null);
     setDonante(null);
 
-    if (!/^\d{7,8}$/.test(dni.trim())) {
+    if (!/^\d{7,8}$/.test(valor.trim())) {
       setBanner({
         tipo: "error",
         texto: "Ingresá un DNI válido de 7 u 8 dígitos.",
@@ -99,11 +111,12 @@ export default function ConsultaResultados() {
       return;
     }
 
+    setDni(valor.trim());
     setConsultando(true);
 
     try {
       const respuesta = await fetch(
-        `${API_URL}/api/consultas-resultados/donante/${encodeURIComponent(dni.trim())}`,
+        `${API_URL}/api/consultas-resultados/donante/${encodeURIComponent(valor.trim())}`,
       );
 
       const datos = await respuesta.json().catch(() => null);
@@ -114,7 +127,7 @@ export default function ConsultaResultados() {
         );
       }
 
-      setDonante(datos as Donante);
+      setDonante(datos as DonanteResultados);
       setBanner({
         tipo: "ok",
         texto: "Resultados consultados correctamente.",
@@ -132,51 +145,67 @@ export default function ConsultaResultados() {
     }
   }
 
+  async function consultar(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    await consultarPorDni(dni);
+  }
+
   function fecha(valor: string) {
     return new Date(valor).toLocaleString("es-AR");
   }
 
   return (
-    <main className="consulta-container">
-      <header className="consulta-header">
-        <h1>Consultar resultados de calificación</h1>
-        <p>
-          Consultá los resultados de calificación biológica y el estado
-          de las donaciones de un donante.
-        </p>
-      </header>
+    <div className="consulta-container">
+      <PageHeader
+        title="Consultar resultados de calificación"
+        description="Consultá los resultados de calificación biológica y el estado de las donaciones de un donante."
+      />
 
-      {banner && (
-        <div
-          className={`consulta-banner consulta-banner-${banner.tipo}`}
-          role="status"
-        >
-          {banner.texto}
-        </div>
-      )}
+      {banner ? <Banner tone={banner.tipo}>{banner.texto}</Banner> : null}
 
       <section className="consulta-card">
         <h2>Buscar donante</h2>
         <form onSubmit={consultar} className="consulta-form">
-          <div className="consulta-field">
-            <label htmlFor="consultaDni">DNI del donante</label>
-            <input
-              id="consultaDni"
-              type="text"
-              inputMode="numeric"
-              maxLength={8}
-              value={dni}
-              onChange={(e) => setDni(e.target.value.replace(/\D/g, ""))}
-              placeholder="Ingresá el DNI"
-              required
-            />
-          </div>
+          <FormGrid columns={2}>
+            <FormField id="consultaDni" label="DNI del donante" hint="7 u 8 dígitos">
+              <input
+                id="consultaDni"
+                type="text"
+                inputMode="numeric"
+                maxLength={8}
+                value={dni}
+                onChange={(e) => setDni(e.target.value.replace(/\D/g, ""))}
+                placeholder="Ingresá el DNI"
+                required
+              />
+            </FormField>
+          </FormGrid>
 
-          <button type="submit" disabled={consultando}>
-            {consultando ? "Consultando..." : "Consultar resultados"}
-          </button>
+          <div className="ui-step-actions">
+            <button type="submit" disabled={consultando}>
+              {consultando ? "Consultando…" : "Consultar resultados"}
+            </button>
+          </div>
         </form>
       </section>
+
+      <section className="consulta-card" aria-labelledby="donantesResultadosTitulo">
+        <h2 id="donantesResultadosTitulo">Donantes registrados</h2>
+        <DonantesTable
+          rows={donantes}
+          loading={cargandoDonantes}
+          onVerDetalle={(item: Donante) => void consultarPorDni(item.dni)}
+        />
+        {errorDonantes ? <Banner tone="error">{errorDonantes}</Banner> : null}
+      </section>
+
+      {consultando ? <LoadingState label="Consultando resultados…" /> : null}
+      {!consultando && !donante ? (
+        <EmptyState
+          title="Todavía no hay resultados"
+          description="Buscá un donante por DNI o seleccioná uno de la tabla para ver sus resultados de calificación."
+        />
+      ) : null}
 
       {donante && (
         <>
@@ -206,9 +235,7 @@ export default function ConsultaResultados() {
               <section className="consulta-card" key={donacion.id}>
                 <div className="consulta-donacion-header">
                   <h2>Donación #{donacion.id}</h2>
-                  <span className="consulta-estado">
-                    {donacion.estado}
-                  </span>
+                  <StatusBadge estado={donacion.estado} />
                 </div>
 
                 <p>
@@ -219,7 +246,11 @@ export default function ConsultaResultados() {
                 </p>
                 <p>
                   <strong>Calificación biológica:</strong>{" "}
-                  {donacion.calificacionBiologica?.estado || "Sin iniciar"}
+                  {donacion.calificacionBiologica ? (
+                    <StatusBadge estado={donacion.calificacionBiologica.estado} />
+                  ) : (
+                    "Sin iniciar"
+                  )}
                 </p>
 
                 <div className="consulta-seccion">
@@ -321,7 +352,7 @@ export default function ConsultaResultados() {
                 <div className="consulta-seccion">
                   <h3>Estado de la unidad</h3>
                   <p>
-                    <strong>Estado:</strong> {donacion.estadoUnidad}
+                    <strong>Estado:</strong> <StatusBadge estado={donacion.estadoUnidad} />
                   </p>
                   {donacion.estadoUnidad === "BLOQUEADA" && (
                     <p className="consulta-bloqueo">
@@ -342,6 +373,6 @@ export default function ConsultaResultados() {
           )}
         </>
       )}
-    </main>
+    </div>
   );
 }

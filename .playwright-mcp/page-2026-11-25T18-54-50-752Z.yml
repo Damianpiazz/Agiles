@@ -1,0 +1,81 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - generic [aria-hidden] [ref=e6]:
+        - generic [ref=e7]: F
+        - generic [ref=e8]: +
+      - generic [ref=e9]:
+        - heading "FLORHEMA" [level=1] [ref=e10]
+        - paragraph [ref=e11]: Sistema de Gestión de Hemoterapia
+    - generic [ref=e12]: Servicio de Hemoterapia
+  - navigation "Navegación principal" [ref=e15]:
+    - button "Buscar donante" [ref=e16] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e17]: ⌕
+      - text: Buscar donante
+    - button "Alta de donante" [ref=e18] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e19]: ＋
+      - text: Alta de donante
+    - button "Alta de paciente" [ref=e20] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e21]: ＋
+      - text: Alta de paciente
+    - button "Buscar paciente" [ref=e22] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e23]: ⌕
+      - text: Buscar paciente
+    - button "Registrar donación" [ref=e24] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e25]: ♥
+      - text: Registrar donación
+    - button "Calificación biológica" [ref=e26] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e27]: ✓
+      - text: Calificación biológica
+    - button "Tipificación sanguínea" [ref=e28] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e29]: ⊕
+      - text: Tipificación sanguínea
+    - button "Tamizaje de infecciones" [ref=e30] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e31]: ◉
+      - text: Tamizaje de infecciones
+    - button "Solicitudes de transfusión" [ref=e32] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e33]: ▤
+      - text: Solicitudes de transfusión
+    - button "Estudios pretransfusionales" [ref=e34] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e35]: ◈
+      - text: Estudios pretransfusionales
+    - button "Seleccionar componente" [ref=e36] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e37]: ⚕
+      - text: Seleccionar componente
+    - button "Emitir sangre" [ref=e38] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e39]: ↗
+      - text: Emitir sangre
+    - button "Liberar unidad" [ref=e40] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e41]: ✓
+      - text: Liberar unidad
+    - button "Consultar resultados" [ref=e42] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e43]: ⌕
+      - text: Consultar resultados
+    - button "Recepción de unidades" [ref=e44] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e45]: ＋
+      - text: Recepción de unidades
+    - button "Dar de baja unidad" [ref=e46] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e47]: ⊘
+      - text: Dar de baja unidad
+  - main [ref=e48]:
+    - main [ref=e49]:
+      - generic [ref=e50]:
+        - heading "Buscar donante" [level=1] [ref=e51]
+        - paragraph [ref=e52]: Buscá un donante por DNI o por nombre y apellido.
+      - generic [ref=e53]:
+        - group "Criterios de búsqueda" [ref=e54]:
+          - generic [ref=e56]:
+            - generic [ref=e57]:
+              - generic [ref=e58]: DNI
+              - textbox "DNI" [ref=e59]
+            - generic [ref=e60]: o
+            - generic [ref=e61]:
+              - generic [ref=e62]: Nombre
+              - textbox "Nombre" [ref=e63]
+            - generic [ref=e64]:
+              - generic [ref=e65]: Apellido
+              - textbox "Apellido" [ref=e66]
+        - button "Buscar" [ref=e68] [cursor=pointer]
+  - contentinfo [ref=e69]:
+    - generic [ref=e70]: FLORHEMA
+    - generic [ref=e71]: Gestión de Hemoterapia

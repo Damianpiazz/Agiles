@@ -29,6 +29,16 @@ export async function create(req: Request, res: Response) {
   }
 }
 
+export async function listar(_req: Request, res: Response) {
+  try {
+    const pacientes = await pacienteService.listar();
+    return res.status(200).json(pacientes);
+  } catch (error) {
+    console.error("Error al listar pacientes:", error);
+    return res.status(500).json({ error: "Error interno" });
+  }
+}
+
 export async function search(req: Request, res: Response) {
   const parsed = buscarPacienteSchema.safeParse(req.query);
 

@@ -15,6 +15,7 @@ export type DonacionDb = {
   donante: { findUnique(args: { where: { id: number } }): Promise<unknown> };
   donacion: {
     create(args: { data: unknown }): Promise<unknown>;
+    findMany(args: unknown): Promise<unknown>;
     findUnique(args: { where: { id: number } }): Promise<unknown>;
   };
   entrevistaPreDonacion: {
@@ -41,19 +42,17 @@ export async function create(datos: CrearDonacionInput, db: DonacionDb = prisma)
   }
 
   return db.$transaction(async (tx) => {
+    // La entrevista pre-donación ya no es un requisito: solo se vincula,
+    // si existe, una admitida que todavía no esté asociada a otra donación.
     const entrevista = await tx.entrevistaPreDonacion.findFirst({
-      where: { donanteId: datos.donanteId },
+      where: {
+        donanteId: datos.donanteId,
+        resultadoAdmision: "ADMITIDO",
+        donacionId: null,
+      },
       orderBy: { createdAt: "desc" },
-      select: { id: true, donacionId: true, resultadoAdmision: true },
+      select: { id: true },
     });
-
-    if (
-      !entrevista ||
-      entrevista.resultadoAdmision !== "ADMITIDO" ||
-      entrevista.donacionId !== null
-    ) {
-      throw new EntrevistaPendienteNoEncontradaError();
-    }
 
     const donacion = await tx.donacion.create({
       data: {
@@ -70,16 +69,47 @@ export async function create(datos: CrearDonacionInput, db: DonacionDb = prisma)
       },
     }) as { id: number };
 
+    if (!entrevista) {
+      return donacion;
+    }
+
     const vinculacion = await tx.entrevistaPreDonacion.updateMany({
       where: { id: entrevista.id, donacionId: null },
       data: { donacionId: donacion.id },
     });
 
     if (vinculacion.count !== 1) {
-      throw new EntrevistaPendienteNoEncontradaError();
+      return donacion;
     }
 
     return { ...donacion, entrevistaId: entrevista.id };
+  });
+}
+
+/** Listado de donaciones con el donante asociado para tablas de calificación. */
+export async function listar(db: DonacionDb = prisma) {
+  return db.donacion.findMany({
+    orderBy: { fechaHora: "desc" },
+    select: {
+      id: true,
+      fechaHora: true,
+      estado: true,
+      estadoUnidad: true,
+      operador: true,
+      donante: {
+        select: {
+          id: true,
+          nombre: true,
+          apellido: true,
+          dni: true,
+        },
+      },
+      calificacionBiologica: { select: { estado: true } },
+      tipificacionesSanguineas: {
+        select: { grupoABO: true, factorRhD: true },
+      },
+      anticuerpoIrregular: { select: { resultado: true } },
+    },
   });
 }
 

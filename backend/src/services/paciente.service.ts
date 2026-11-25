@@ -26,6 +26,17 @@ export async function create(datos: CrearPacienteInput) {
   }
 }
 
+export async function listar() {
+  return prisma.paciente.findMany({
+    include: {
+      _count: {
+        select: { solicitudesTransfusion: true },
+      },
+    },
+    orderBy: [{ apellido: "asc" }, { nombre: "asc" }],
+  });
+}
+
 export async function buscar(filtros: BuscarPacienteInput) {
   return prisma.paciente.findMany({
     where: {

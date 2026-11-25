@@ -1,27 +1,35 @@
-
 .app-shell {
+  --sidebar-width: 252px;
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   min-height: 100vh;
+  background: var(--color-background);
+}
+
+.app-shell.is-collapsed {
+  --sidebar-width: 76px;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
   display: flex;
   flex-direction: column;
+  width: var(--sidebar-width);
+  height: 100vh;
+  overflow: hidden;
+  color: #f7e9ec;
+  background: #70182d;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Encabezado institucional */
-.app-header {
+.sidebar-brand {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 22px clamp(18px, 4vw, 56px);
-  color: #fff;
-  background: linear-gradient(120deg, #70182d 0%, #922a42 65%, #a63b51 100%);
-  box-shadow: 0 3px 12px rgba(73, 15, 30, 0.16);
-}
-
-.app-brand {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-width: 0;
+  gap: var(--space-3);
+  min-height: 72px;
+  padding: var(--space-4) var(--space-4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .app-logo {
@@ -30,234 +38,294 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
+  width: 38px;
+  height: 38px;
   color: #7d1d33;
   background: #fff;
-  border-radius: 14px;
-  font-size: 29px;
+  border-radius: var(--radius-md);
+  font-size: 23px;
   font-weight: 800;
-  box-shadow: 0 3px 9px rgba(35, 5, 13, 0.12);
 }
 
 .app-logo-dot {
   position: absolute;
-  right: -5px;
-  bottom: -4px;
+  right: -4px;
+  bottom: -3px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 19px;
-  height: 19px;
+  width: 16px;
+  height: 16px;
   color: #fff;
   background: #bf5269;
-  border: 2px solid #7d1d33;
+  border: 2px solid #70182d;
   border-radius: 50%;
-  font-size: 14px;
+  font-size: 11px;
   line-height: 1;
+}
+
+.app-brand-text {
+  min-width: 0;
+  overflow: hidden;
 }
 
 .app-brand-text h1 {
   margin: 0;
   color: #fff;
-  font-size: clamp(22px, 2.4vw, 29px);
+  font-size: 17px;
   font-weight: 800;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
+  white-space: nowrap;
 }
 
-.app-brand-text p {
-  margin: 4px 0 0;
-  color: #f5dfe5;
-  font-size: 13px;
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-2) var(--space-6);
+  scrollbar-width: thin;
 }
 
-.app-header-info {
+.sidebar-group + .sidebar-group {
+  margin-top: var(--space-5);
+}
+
+.sidebar-group-title {
+  margin: 0 var(--space-3) var(--space-2);
+  color: #d6a9b4;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sidebar-nav button {
   display: flex;
   align-items: center;
-  gap: 9px;
-  color: #fff;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 40px;
+  margin-bottom: 2px;
+  padding: 8px var(--space-3);
+  color: #f0dde1;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
-}
-
-.app-status-dot {
-  width: 9px;
-  height: 9px;
-  flex-shrink: 0;
-  background: #8ce0ad;
-  border-radius: 50%;
-  box-shadow: 0 0 0 4px rgba(140, 224, 173, 0.15);
-}
-
-/* Navegación */
-.app-nav {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 13px clamp(12px, 3vw, 36px);
-  background: #fff;
-  border-bottom: 1px solid var(--color-border);
-  box-shadow: var(--shadow-nav);
-}
-
-.app-nav button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 43px;
-  padding: 10px 15px;
-  color: #55474b;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 9px;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.35;
-  text-align: center;
-  white-space: nowrap;
+  text-align: left;
   transition:
-    background-color 0.18s ease,
-    color 0.18s ease,
-    border-color 0.18s ease,
-    box-shadow 0.18s ease;
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.sidebar-nav button:hover:not(.activo) {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.sidebar-nav button.activo {
+  color: #70182d;
+  background: #fff;
+  font-weight: 700;
+}
+
+.sidebar-nav button:focus-visible {
+  outline: 2px solid #f0b7c3;
+  outline-offset: -2px;
 }
 
 .nav-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 17px;
-  font-size: 19px;
+  flex-shrink: 0;
+  width: 20px;
+  font-size: 16px;
   line-height: 1;
+  text-align: center;
 }
 
-.app-nav button:hover:not(.activo) {
-  color: var(--color-primary);
-  background: var(--color-primary-light);
-  border-color: #f0cbd3;
+.nav-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.app-nav button.activo {
-  color: #fff;
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  box-shadow: 0 3px 8px rgba(155, 28, 49, 0.17);
+.sidebar-footer {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.app-nav button.activo:hover {
-  background: var(--color-primary-hover);
-  border-color: var(--color-primary-hover);
+.collapse-button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 6px var(--space-2);
+  color: #edd2d8;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  font-size: 12px;
+  text-align: left;
 }
 
-.app-nav button:focus-visible {
-  outline: 3px solid rgba(155, 28, 49, 0.3);
-  outline-offset: 3px;
+.collapse-button:hover {
+  background: rgba(255, 255, 255, 0.14);
 }
 
-/* Área principal */
+.app-shell.is-collapsed .app-brand-text,
+.app-shell.is-collapsed .nav-label,
+.app-shell.is-collapsed .sidebar-group-title,
+.app-shell.is-collapsed .collapse-label {
+  display: none;
+}
+
+.app-shell.is-collapsed .sidebar-brand,
+.app-shell.is-collapsed .sidebar-nav button,
+.app-shell.is-collapsed .collapse-button {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.app-shell.is-collapsed .sidebar-group {
+  padding-top: var(--space-3);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.app-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.app-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 64px;
+  padding: 0 clamp(16px, 3vw, 36px);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.menu-button {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  color: var(--color-text);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 18px;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.breadcrumbs strong {
+  overflow: hidden;
+  color: var(--color-text);
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.breadcrumb-sep {
+  color: var(--color-border-strong);
+}
+
 .app-main {
   flex: 1;
   width: 100%;
   min-width: 0;
-  padding: 28px clamp(14px, 3vw, 38px) 36px;
+  max-width: 1440px;
+  padding: clamp(16px, 2.4vw, 32px) clamp(16px, 3vw, 36px) 48px;
   margin: 0 auto;
 }
 
-/* Pie de página */
-.app-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 16px clamp(18px, 4vw, 56px);
-  color: var(--color-muted);
-  background: #fff;
-  border-top: 1px solid var(--color-border);
-  font-size: 12px;
+.sidebar-backdrop {
+  display: none;
 }
 
-.app-footer span:first-child {
-  color: var(--color-primary);
-  font-weight: 800;
-  letter-spacing: 1px;
-}
+@media (max-width: 1100px) {
+  .app-shell,
+  .app-shell.is-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+  }
 
-/* Pantallas medianas */
-@media (max-width: 1000px) {
-  .app-nav {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 60;
+    width: 272px;
+    transform: translateX(-100%);
+    transition: transform var(--transition-fast);
+  }
+
+  .app-shell.is-collapsed .sidebar {
+    width: 272px;
+  }
+
+  .app-shell.is-collapsed .app-brand-text,
+  .app-shell.is-collapsed .nav-label,
+  .app-shell.is-collapsed .sidebar-group-title,
+  .app-shell.is-collapsed .collapse-label {
+    display: initial;
+  }
+
+  .app-shell.is-collapsed .sidebar-nav button,
+  .app-shell.is-collapsed .collapse-button {
     justify-content: flex-start;
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
   }
 
-  .app-nav button {
-    white-space: normal;
-  }
-}
-
-/* Celulares */
-@media (max-width: 600px) {
-  .app-header {
-    align-items: flex-start;
-    padding: 18px 16px;
+  .app-shell.sidebar-open .sidebar {
+    transform: translateX(0);
+    box-shadow: var(--shadow-overlay);
   }
 
-  .app-logo {
-    width: 42px;
-    height: 42px;
-    font-size: 25px;
+  .app-shell.sidebar-open .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: block;
+    background: rgba(29, 16, 20, 0.4);
+    border: 0;
   }
 
-  .app-brand {
-    gap: 11px;
+  .menu-button {
+    display: flex;
   }
 
-  .app-brand-text p {
-    max-width: 220px;
-    font-size: 12px;
-  }
-
-  .app-header-info {
+  .collapse-button {
     display: none;
   }
+}
 
-  .app-nav {
-    justify-content: stretch;
-    gap: 7px;
-    padding: 11px;
-  }
-
-  .app-nav button {
-    flex: 1 1 calc(50% - 7px);
-    min-width: 0;
-    min-height: 46px;
-    padding: 9px 7px;
-    gap: 5px;
+@media (max-width: 640px) {
+  .breadcrumbs {
     font-size: 12px;
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
-
-  .nav-icon {
-    font-size: 17px;
   }
 
   .app-main {
-    padding: 20px 12px 28px;
-  }
-
-  .app-footer {
-    padding: 14px 16px;
-    font-size: 11px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .app-nav button {
-    transition: none;
+    padding: 16px 12px 32px;
   }
 }

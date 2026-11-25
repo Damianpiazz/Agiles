@@ -191,6 +191,26 @@
   margin-top: 0.45rem;
 }
 
+.calificacion-tabla,
+.calificacion-seleccion {
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.calificacion-tabla h2,
+.calificacion-seleccion h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  color: var(--color-primary-dark, #70182d);
+}
+
+.calificacion-seleccion p {
+  margin: 0;
+}
+
 @media (max-width: 639px) {
   .calificacion-container {
     padding: 1.25rem 0.85rem 2rem;

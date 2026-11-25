@@ -3,5 +3,6 @@ import * as donacionController from "../controllers/donacion.controller";
 
 const router = Router();
 router.post("/", donacionController.create);
+router.get("/", donacionController.listar);
 router.get("/:id", donacionController.getById);
 export default router;

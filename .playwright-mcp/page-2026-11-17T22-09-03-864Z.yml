@@ -1,0 +1,16 @@
+- main [ref=f37e3]:
+  - region "Constantes" [ref=f37e4]:
+    - heading "Constantes" [level=1] [ref=f37e5]
+    - paragraph [ref=f37e6]: Servicio de Hemoterapia · Hospital de Las Flores
+    - generic [ref=f37e8]:
+      - generic [ref=f37e9]:
+        - generic [ref=f37e10]:
+          - generic [ref=f37e11]: Nombre y apellido *
+          - textbox "Nombre y apellido" [active] [ref=f37e12]:
+            - /placeholder: "Ej.: Facundo Pérez"
+        - generic [ref=f37e13]:
+          - generic [ref=f37e14]: Contraseña *
+          - textbox "Contraseña" [ref=f37e15]:
+            - /placeholder: Ingresá tu contraseña
+      - button "Ingresar" [ref=f37e17] [cursor=pointer]
+      - paragraph [ref=f37e18]: "Usuarios de desarrollo: admin, fperez y maternidad. Cada acción queda registrada para trazabilidad."

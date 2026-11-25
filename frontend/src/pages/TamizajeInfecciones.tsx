@@ -1,10 +1,18 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { Banner } from "../components/Banner";
+import { DataTable, type DataTableColumn } from "../components/DataTable";
+import { DonacionesTable } from "../components/DonacionesTable";
+import { FormField, FormGrid, FormSection } from "../components/FormField";
+import { PageHeader } from "../components/PageHeader";
+import { StatusBadge } from "../components/StatusBadge";
+import { useDonaciones } from "../hooks/useDatos";
+import type { DonacionResumen } from "../types/donacion";
 import type { DeterminacionSerologica } from "../types/estudio";
 import "../styles/TamizajeInfecciones.css";
 
 const API_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:3000"
+  import.meta.env.VITE_API_URL || "http://localhost:3001"
 ).replace(/\/+$/, "");
 
 type PruebaKey =
@@ -17,7 +25,7 @@ type PruebaKey =
   | "htlv";
 type EstadoResultado = "REACTIVO" | "NO_REACTIVO";
 type SeleccionResultado = EstadoResultado | "";
-type Banner = { tipo: "ok" | "error" | "alerta"; texto: string } | null;
+type BannerMensaje = { tipo: "ok" | "error" | "alerta"; texto: string } | null;
 type PruebaDefinicion = {
   clave: PruebaKey;
   etiqueta: string;
@@ -53,6 +61,79 @@ const PRUEBAS: PruebaDefinicion[] = [
   { clave: "htlv", etiqueta: "Anti-HTLV I/II", alias: ["anti-htlv i/ii"] },
 ];
 
+function etiquetaDonante(item: ResultadoTamizaje) {
+  const donante = item.donaciones[0]?.donacion?.donante;
+  return donante
+    ? `${donante.apellido}, ${donante.nombre} (${donante.dni})`
+    : "Donante asociado";
+}
+
+function etiquetaEstadoUnidad(item: ResultadoTamizaje) {
+  return item.donaciones[0]?.donacion?.estado === "RECHAZADA"
+    ? "Bloqueada para revisión"
+    : "En calificación";
+}
+
+// El backend guarda "Reactivo"/"No reactivo", pero pueden aparecer variantes en mayúsculas.
+function esReactivo(resultado: string) {
+  return resultado
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .replace(/[_\s]+/g, " ")
+    .trim() === "REACTIVO";
+}
+
+const columnasHistorial: DataTableColumn<ResultadoTamizaje>[] = [
+  {
+    id: "fecha",
+    header: "Fecha",
+    render: (item) => new Date(item.fecha).toLocaleDateString("es-AR"),
+    sortValue: (item) => item.fecha,
+  },
+  {
+    id: "donante",
+    header: "Donante",
+    render: (item) => etiquetaDonante(item),
+    sortValue: (item) => etiquetaDonante(item),
+  },
+  {
+    id: "pruebas",
+    header: "Pruebas",
+    render: (item) => (
+      <ul className="tamizaje-lista-resultados">
+        {item.resultados.map((resultado) => (
+          <li key={`${item.id}-${resultado.determinacionSerologica.nombre}`}>
+            {resultado.determinacionSerologica.nombre}: {resultado.resultado}
+          </li>
+        ))}
+      </ul>
+    ),
+    sortValue: (item) =>
+      item.resultados
+        .map(
+          (resultado) =>
+            `${resultado.determinacionSerologica.nombre}: ${resultado.resultado}`,
+        )
+        .join(" | "),
+  },
+  {
+    id: "estadoUnidad",
+    header: "Estado de la unidad",
+    render: (item) => (
+      <StatusBadge
+        estado={
+          item.donaciones[0]?.donacion?.estado === "RECHAZADA"
+            ? "BLOQUEADA"
+            : "EN_CALIFICACION"
+        }
+        etiqueta={etiquetaEstadoUnidad(item)}
+      />
+    ),
+    sortValue: (item) => etiquetaEstadoUnidad(item),
+  },
+];
+
 function fechaHoy() {
   const ahora = new Date();
   const local = new Date(ahora.getTime() - ahora.getTimezoneOffset() * 60_000);
@@ -75,7 +156,8 @@ function resultadosVacios(): Record<PruebaKey, SeleccionResultado> {
 }
 
 export default function TamizajeInfecciones() {
-  const [donacionId, setDonacionId] = useState("");
+  const { datos: donaciones, cargando } = useDonaciones();
+  const [seleccionada, setSeleccionada] = useState<DonacionResumen | null>(null);
   const [fecha, setFecha] = useState(fechaHoy);
   const [operador, setOperador] = useState("");
   const [determinaciones, setDeterminaciones] = useState<DeterminacionSerologica[]>([]);
@@ -83,8 +165,10 @@ export default function TamizajeInfecciones() {
   const [catalogosError, setCatalogosError] = useState("");
   const [resultados, setResultados] = useState(resultadosVacios);
   const [historial, setHistorial] = useState<ResultadoTamizaje[]>([]);
+  const [filtroResultado, setFiltroResultado] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState("");
   const [historialConsultado, setHistorialConsultado] = useState(false);
-  const [banner, setBanner] = useState<Banner>(null);
+  const [banner, setBanner] = useState<BannerMensaje>(null);
   const [consultando, setConsultando] = useState(false);
   const [guardando, setGuardando] = useState(false);
 
@@ -135,12 +219,23 @@ export default function TamizajeInfecciones() {
   }
 
   function obtenerIdDonacion() {
-    const id = Number(donacionId);
-    if (!Number.isInteger(id) || id <= 0 || !donacionId.trim()) {
-      setBanner({ tipo: "error", texto: "Ingresá un ID de donación válido." });
+    if (!seleccionada) {
+      setBanner({
+        tipo: "error",
+        texto: "Seleccioná una donación de la tabla antes de continuar.",
+      });
+      document.getElementById("donacionesTamizaje")?.scrollIntoView({ behavior: "smooth" });
       return null;
     }
-    return id;
+    return seleccionada.id;
+  }
+
+  function seleccionar(donacion: DonacionResumen) {
+    setSeleccionada(donacion);
+    setHistorial([]);
+    setHistorialConsultado(false);
+    setResultados(resultadosVacios());
+    setBanner(null);
   }
 
   async function consultarHistorial() {
@@ -192,13 +287,16 @@ export default function TamizajeInfecciones() {
     }
     if (!fecha || !operador.trim()) {
       setBanner({ tipo: "error", texto: "Completá la fecha y el nombre del operador." });
+      document.getElementById(!fecha ? "tamizajeFecha" : "tamizajeOperador")?.focus();
       return;
     }
-    if (PRUEBAS.some((prueba) => !resultados[prueba.clave])) {
+    const pruebaPendiente = PRUEBAS.find((prueba) => !resultados[prueba.clave]);
+    if (pruebaPendiente) {
       setBanner({
         tipo: "error",
         texto: "Seleccioná el resultado de las siete pruebas antes de guardar.",
       });
+      document.getElementById(`${pruebaPendiente.clave}-no-reactivo`)?.focus();
       return;
     }
 
@@ -265,156 +363,188 @@ export default function TamizajeInfecciones() {
   const pruebas = obtenerPruebas();
 
   return (
-    <main className="tamizaje-container">
-      <header className="tamizaje-header">
-        <h1>Tamizaje de infecciones transmisibles</h1>
-        <p>Registrá los resultados serológicos de una donación para evaluar si la unidad puede avanzar hacia su liberación.</p>
-      </header>
+    <div className="tamizaje-container">
+      <PageHeader
+        title="Tamizaje de infecciones transmisibles"
+        description="Registrá los resultados serológicos de una donación para evaluar si la unidad puede avanzar hacia su liberación."
+      />
 
       {banner && (
-        <div className={`tamizaje-banner tamizaje-banner-${banner.tipo}`} role="status">
+        <Banner tone={banner.tipo === "error" ? "error" : banner.tipo === "alerta" ? "aviso" : "ok"}>
           {banner.texto}
-        </div>
+        </Banner>
       )}
 
-      {catalogosError && <p className="tamizaje-catalogo-error" role="alert">{catalogosError}</p>}
+      {catalogosError && <Banner tone="error">{catalogosError}</Banner>}
       {catalogosCargados && !pruebas && (
-        <p className="tamizaje-catalogo-error" role="alert">
+        <Banner tone="error">
           El catálogo no tiene todas las pruebas de tamizaje requeridas. Actualizá el catálogo antes de registrar.
-        </p>
+        </Banner>
       )}
+
+      <section id="donacionesTamizaje" className="tamizaje-card" aria-labelledby="donacionesTamizajeTitulo">
+        <h2 id="donacionesTamizajeTitulo">Donaciones registradas</h2>
+        <DonacionesTable
+          rows={donaciones}
+          loading={cargando}
+          selectedId={seleccionada?.id ?? null}
+          onSeleccionar={seleccionar}
+          actionLabel="Tamizar"
+        />
+        <p className="tamizaje-seleccion" aria-live="polite">
+          {seleccionada ? (
+            <>
+              <strong>Donación #{seleccionada.id}</strong> · {seleccionada.donante.apellido},{" "}
+              {seleccionada.donante.nombre} (DNI {seleccionada.donante.dni})
+            </>
+          ) : (
+            "Seleccioná una donación de la tabla para continuar."
+          )}
+        </p>
+      </section>
 
       <section className="tamizaje-card">
-        <h2>Datos del tamizaje</h2>
-        <form className="tamizaje-form" onSubmit={registrar}>
-          <div className="tamizaje-grid">
-            <div className="tamizaje-field">
-              <label htmlFor="tamizajeDonacionId">ID de la donación / unidad</label>
-              <input
-                id="tamizajeDonacionId"
-                type="number"
-                min="1"
-                step="1"
-                value={donacionId}
-                onChange={(e) => setDonacionId(e.target.value)}
-                placeholder="Ej.: 1"
-                required
-              />
-            </div>
-            <div className="tamizaje-field">
-              <label htmlFor="tamizajeFecha">Fecha de determinación</label>
-              <input
-                id="tamizajeFecha"
-                type="date"
-                value={fecha}
-                onChange={(e) => setFecha(e.target.value)}
-                required
-              />
-            </div>
-            <div className="tamizaje-field">
-              <label htmlFor="tamizajeOperador">Operador</label>
-              <input
-                id="tamizajeOperador"
-                type="text"
-                maxLength={120}
-                value={operador}
-                onChange={(e) => setOperador(e.target.value)}
-                placeholder="Nombre del bioquímico o técnico"
-                required
-              />
-            </div>
-          </div>
+        <FormSection title="Datos del tamizaje">
+          <form className="tamizaje-form" onSubmit={registrar}>
+            <FormGrid columns={2}>
+              <FormField id="tamizajeFecha" label="Fecha de determinación" required>
+                <input
+                  id="tamizajeFecha"
+                  type="date"
+                  value={fecha}
+                  onChange={(e) => setFecha(e.target.value)}
+                  required
+                />
+              </FormField>
+              <FormField id="tamizajeOperador" label="Operador" required>
+                <input
+                  id="tamizajeOperador"
+                  type="text"
+                  maxLength={120}
+                  value={operador}
+                  onChange={(e) => setOperador(e.target.value)}
+                  placeholder="Nombre del bioquímico o técnico"
+                  required
+                />
+              </FormField>
+            </FormGrid>
 
-          <div className="tamizaje-pruebas">
-            <h3>Resultados de las pruebas</h3>
-            {PRUEBAS.map((prueba) => (
-              <div className="tamizaje-prueba" key={prueba.clave}>
-                <span>{prueba.etiqueta}</span>
-                <div className="tamizaje-opciones" role="group" aria-label={prueba.etiqueta}>
-                  <label>
-                    <input
-                      type="radio"
-                      name={prueba.clave}
-                      value="NO_REACTIVO"
-                      checked={resultados[prueba.clave] === "NO_REACTIVO"}
-                      onChange={() => setResultados((actual) => ({ ...actual, [prueba.clave]: "NO_REACTIVO" }))}
-                    />
-                    No reactivo
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name={prueba.clave}
-                      value="REACTIVO"
-                      checked={resultados[prueba.clave] === "REACTIVO"}
-                      onChange={() => setResultados((actual) => ({ ...actual, [prueba.clave]: "REACTIVO" }))}
-                    />
-                    Reactivo
-                  </label>
-                </div>
-              </div>
-            ))}
-          </div>
+            <FormSection title="Resultados de las pruebas">
+              <FormGrid columns={2}>
+                {PRUEBAS.map((prueba) => (
+                  <FormField
+                    key={prueba.clave}
+                    id={`${prueba.clave}-no-reactivo`}
+                    label={prueba.etiqueta}
+                    required
+                  >
+                    <div className="tamizaje-opciones" role="group" aria-label={prueba.etiqueta}>
+                      <label>
+                        <input
+                          id={`${prueba.clave}-no-reactivo`}
+                          type="radio"
+                          name={prueba.clave}
+                          value="NO_REACTIVO"
+                          checked={resultados[prueba.clave] === "NO_REACTIVO"}
+                          onChange={() => setResultados((actual) => ({ ...actual, [prueba.clave]: "NO_REACTIVO" }))}
+                        />
+                        No reactivo
+                      </label>
+                      <label>
+                        <input
+                          id={`${prueba.clave}-reactivo`}
+                          type="radio"
+                          name={prueba.clave}
+                          value="REACTIVO"
+                          checked={resultados[prueba.clave] === "REACTIVO"}
+                          onChange={() => setResultados((actual) => ({ ...actual, [prueba.clave]: "REACTIVO" }))}
+                        />
+                        Reactivo
+                      </label>
+                    </div>
+                  </FormField>
+                ))}
+              </FormGrid>
+            </FormSection>
 
-          <div className="tamizaje-actions">
-            <button type="submit" disabled={guardando || !pruebas}>
-              {guardando ? "Guardando..." : "Registrar tamizaje"}
-            </button>
-            <button
-              type="button"
-              className="tamizaje-button-secondary"
-              onClick={consultarHistorial}
-              disabled={consultando}
-            >
-              {consultando ? "Consultando..." : "Consultar historial"}
-            </button>
-          </div>
-        </form>
+            <div className="tamizaje-actions">
+              <button type="submit" disabled={guardando || !pruebas}>
+                {guardando ? "Guardando..." : "Registrar tamizaje"}
+              </button>
+              <button
+                type="button"
+                className="tamizaje-button-secondary"
+                onClick={consultarHistorial}
+                disabled={consultando}
+              >
+                {consultando ? "Consultando..." : "Consultar historial"}
+              </button>
+            </div>
+          </form>
+        </FormSection>
       </section>
 
       {historialConsultado && (
         <section className="tamizaje-card tamizaje-historial">
-          <h2>Historial de la donación #{donacionId}</h2>
-          {historial.length === 0 ? (
-            <p>No hay tamizajes registrados para esta donación.</p>
-          ) : (
-            <div className="tamizaje-tabla-contenedor">
-              <table className="tamizaje-tabla">
-                <thead>
-                  <tr>
-                    <th>Fecha</th>
-                    <th>Donante</th>
-                    <th>Pruebas</th>
-                    <th>Estado de la unidad</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {historial.map((item) => {
-                    const donante = item.donaciones[0]?.donacion?.donante;
-                    const bloqueada = item.donaciones[0]?.donacion?.estado === "RECHAZADA";
-                    return (
-                      <tr key={item.id}>
-                        <td>{new Date(item.fecha).toLocaleDateString("es-AR")}</td>
-                        <td>{donante ? `${donante.apellido}, ${donante.nombre} (${donante.dni})` : "Donante asociado"}</td>
-                        <td>
-                          <ul className="tamizaje-lista-resultados">
-                            {item.resultados.map((resultado) => (
-                              <li key={`${item.id}-${resultado.determinacionSerologica.nombre}`}>
-                                {resultado.determinacionSerologica.nombre}: {resultado.resultado}
-                              </li>
-                            ))}
-                          </ul>
-                        </td>
-                        <td>{bloqueada ? "Bloqueada para revisión" : "En calificación"}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <h2>Historial de la donación #{seleccionada?.id ?? "—"}</h2>
+          <DataTable
+            rows={historial}
+            columns={columnasHistorial}
+            rowKey={(item) => item.id}
+            searchText={(item) =>
+              `${new Date(item.fecha).toLocaleDateString("es-AR")} ${etiquetaDonante(item)} ${item.resultados
+                .map(
+                  (resultado) =>
+                    `${resultado.determinacionSerologica.nombre} ${resultado.resultado}`,
+                )
+                .join(" ")} ${etiquetaEstadoUnidad(item)}`
+            }
+            searchPlaceholder="Buscar en el historial…"
+            filters={[
+              {
+                id: "resultado",
+                label: "Resultado",
+                value: filtroResultado,
+                options: [
+                  { value: "", label: "Todos los resultados" },
+                  { value: "REACTIVO", label: "Reactivo" },
+                  { value: "NO_REACTIVO", label: "No reactivo" },
+                ],
+                onChange: setFiltroResultado,
+              },
+              {
+                id: "estado",
+                label: "Estado",
+                value: filtroEstado,
+                options: [
+                  { value: "", label: "Todos los estados" },
+                  { value: "BLOQUEADA", label: "Bloqueada para revisión" },
+                  { value: "EN_CALIFICACION", label: "En calificación" },
+                ],
+                onChange: setFiltroEstado,
+              },
+            ]}
+            filterRow={(item) => {
+              const hayReactivo = item.resultados.some((resultado) =>
+                esReactivo(resultado.resultado),
+              );
+              const porResultado =
+                !filtroResultado ||
+                (filtroResultado === "REACTIVO" ? hayReactivo : !hayReactivo);
+              const bloqueada =
+                item.donaciones[0]?.donacion?.estado === "RECHAZADA";
+              const porEstado =
+                !filtroEstado ||
+                (filtroEstado === "BLOQUEADA" ? bloqueada : !bloqueada);
+              return porResultado && porEstado;
+            }}
+            loading={consultando}
+            emptyTitle="Sin resultados"
+            emptyDescription="No hay tamizajes registrados para esta donación."
+            caption={`Historial de la donación #${seleccionada?.id ?? "—"}`}
+          />
         </section>
       )}
-    </main>
+    </div>
   );
 }

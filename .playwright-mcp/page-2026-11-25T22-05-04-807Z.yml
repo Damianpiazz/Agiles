@@ -1,0 +1,158 @@
+- generic [ref=f88e3]:
+  - link "Saltar al contenido principal" [ref=f88e4] [cursor=pointer]:
+    - /url: "#contenido-principal"
+  - complementary "Navegación principal" [ref=f88e5]:
+    - generic [ref=f88e6]:
+      - generic [aria-hidden] [ref=f88e7]:
+        - generic [ref=f88e8]: F
+        - generic [ref=f88e9]: +
+      - heading "FLORHEMA" [level=1] [ref=f88e11]
+    - navigation "Módulos del sistema" [ref=f88e12]:
+      - generic [ref=f88e13]:
+        - paragraph [ref=f88e14]: Inicio
+        - button "Resumen" [ref=f88e15] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e16]: ◫
+        - button "Buscar donante" [ref=f88e18] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e19]: ⌕
+        - button "Alta de donante" [ref=f88e21] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e22]: ＋
+      - generic [ref=f88e24]:
+        - paragraph [ref=f88e25]: Donación y calificación
+        - button "Registrar donación" [ref=f88e26] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e27]: ♥
+        - button "Calificación biológica" [ref=f88e29] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e30]: ✓
+        - button "Tipificación sanguínea" [ref=f88e32] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e33]: ⊕
+        - button "Tamizaje de infecciones" [ref=f88e35] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e36]: ◉
+        - button "Consultar resultados" [ref=f88e38] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e39]: ⌕
+      - generic [ref=f88e41]:
+        - paragraph [ref=f88e42]: Pacientes y transfusión
+        - button "Alta de paciente" [ref=f88e43] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e44]: ＋
+        - button "Buscar paciente" [ref=f88e46] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e47]: ⌕
+        - button "Historia integral de persona" [ref=f88e49] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e50]: ◷
+        - button "Solicitudes de transfusión" [ref=f88e52] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e53]: ▤
+        - button "Estudios pretransfusionales" [ref=f88e55] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e56]: ◈
+        - button "Seleccionar componente" [ref=f88e58] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e59]: ⚕
+        - button "Emitir sangre" [ref=f88e61] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e62]: ↗
+      - generic [ref=f88e64]:
+        - paragraph [ref=f88e65]: Inventario
+        - button "Recepción de unidades" [ref=f88e66] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e67]: ＋
+        - button "Liberar unidad" [ref=f88e69] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e70]: ✓
+        - button "Dar de baja unidad" [ref=f88e72] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f88e73]: ⊘
+    - button "Colapsar menú lateral" [ref=f88e76] [cursor=pointer]:
+      - generic [aria-hidden] [ref=f88e77]: «
+      - generic [ref=f88e78]: Colapsar menú
+  - generic [ref=f88e79]:
+    - banner [ref=f88e80]:
+      - navigation "Ruta de navegación" [ref=f88e81]:
+        - generic [ref=f88e82]: Inicio
+        - generic [aria-hidden] [ref=f88e83]: /
+        - generic [ref=f88e84]: Inicio
+        - generic [aria-hidden] [ref=f88e85]: /
+        - strong [ref=f88e86]: Resumen
+    - main [ref=f88e87]:
+      - generic [ref=f88e91]:
+        - generic [ref=f88e93]:
+          - paragraph [ref=f88e94]: Resumen operativo
+          - heading "Bienvenido a Florhema" [level=1] [ref=f88e95]
+          - paragraph [ref=f88e96]: Estado de los módulos disponibles y accesos a las operaciones más frecuentes.
+        - region "Indicadores del sistema" [ref=f88e97]:
+          - article [ref=f88e98]:
+            - generic [ref=f88e99]: Pacientes registrados
+            - strong [ref=f88e100]: "0"
+            - generic [ref=f88e101]: Fichas disponibles para transfusión
+          - article [ref=f88e102]:
+            - generic [ref=f88e103]: Unidades en inventario
+            - strong [ref=f88e104]: "0"
+            - generic [ref=f88e105]: Registros devueltos por el inventario
+          - article [ref=f88e106]:
+            - generic [ref=f88e107]: Solicitudes de transfusión
+            - strong [ref=f88e108]: "0"
+            - generic [ref=f88e109]: Registros devueltos por el sistema
+          - article [ref=f88e110]:
+            - generic [ref=f88e111]: Conectividad de la API
+            - strong [ref=f88e112]: Activa
+            - generic [ref=f88e113]: Servicio de Hemoterapia
+        - generic [ref=f88e114]:
+          - generic [ref=f88e115]:
+            - generic [ref=f88e116]:
+              - heading "Accesos rápidos" [level=2] [ref=f88e117]
+              - paragraph [ref=f88e118]: Operaciones frecuentes, sin salir del resumen.
+            - generic [ref=f88e119]:
+              - button "Buscar donante Localizar ficha y donaciones" [ref=f88e120] [cursor=pointer]:
+                - strong [ref=f88e121]: Buscar donante
+                - generic [ref=f88e122]: Localizar ficha y donaciones
+                - generic [aria-hidden] [ref=f88e123]: →
+              - button "Alta de donante Registrar un nuevo donante" [ref=f88e124] [cursor=pointer]:
+                - strong [ref=f88e125]: Alta de donante
+                - generic [ref=f88e126]: Registrar un nuevo donante
+                - generic [aria-hidden] [ref=f88e127]: →
+              - button "Registrar donación Donación directa" [ref=f88e128] [cursor=pointer]:
+                - strong [ref=f88e129]: Registrar donación
+                - generic [ref=f88e130]: Donación directa
+                - generic [aria-hidden] [ref=f88e131]: →
+              - button "Recepción de unidades Ingresar hemocomponentes" [ref=f88e132] [cursor=pointer]:
+                - strong [ref=f88e133]: Recepción de unidades
+                - generic [ref=f88e134]: Ingresar hemocomponentes
+                - generic [aria-hidden] [ref=f88e135]: →
+              - button "Nueva solicitud Solicitar transfusión" [ref=f88e136] [cursor=pointer]:
+                - strong [ref=f88e137]: Nueva solicitud
+                - generic [ref=f88e138]: Solicitar transfusión
+                - generic [aria-hidden] [ref=f88e139]: →
+              - button "Emitir sangre Preparar y emitir unidades" [ref=f88e140] [cursor=pointer]:
+                - strong [ref=f88e141]: Emitir sangre
+                - generic [ref=f88e142]: Preparar y emitir unidades
+                - generic [aria-hidden] [ref=f88e143]: →
+          - generic [ref=f88e144]:
+            - generic [ref=f88e145]:
+              - heading "Estado de los módulos" [level=2] [ref=f88e146]
+              - paragraph [ref=f88e147]: Información obtenida de los servicios reales.
+            - list [ref=f88e148]:
+              - listitem [ref=f88e149]:
+                - button "Pacientes y receptores 0 registros disponibles" [ref=f88e150] [cursor=pointer]:
+                  - generic [ref=f88e152]: Pacientes y receptores
+                  - generic [ref=f88e153]: 0 registros disponibles
+              - listitem [ref=f88e154]:
+                - button "Inventario de hemocomponentes 0 unidades registradas" [ref=f88e155] [cursor=pointer]:
+                  - generic [ref=f88e157]: Inventario de hemocomponentes
+                  - generic [ref=f88e158]: 0 unidades registradas
+              - listitem [ref=f88e159]:
+                - button "Solicitudes de transfusión 0 solicitudes registradas" [ref=f88e160] [cursor=pointer]:
+                  - generic [ref=f88e162]: Solicitudes de transfusión
+                  - generic [ref=f88e163]: 0 solicitudes registradas
+              - listitem [ref=f88e164]:
+                - button "Catálogos de calificación 0 antígenos · 0 determinaciones" [ref=f88e165] [cursor=pointer]:
+                  - generic [ref=f88e167]: Catálogos de calificación
+                  - generic [ref=f88e168]: 0 antígenos · 0 determinaciones
+        - generic [ref=f88e169]:
+          - generic [ref=f88e170]:
+            - heading "Altas de pacientes" [level=2] [ref=f88e171]
+            - paragraph [ref=f88e172]: Registros disponibles con búsqueda, filtros, orden y paginación.
+          - generic [ref=f88e173]:
+            - generic [ref=f88e174]:
+              - generic [ref=f88e175]:
+                - generic [aria-hidden] [ref=f88e176]: ⌕
+                - generic [ref=f88e177]: Buscar por paciente, DNI o fecha…
+                - searchbox "Buscar por paciente, DNI o fecha…" [ref=f88e178]
+              - generic [ref=f88e179]:
+                - generic [ref=f88e180]: Año de alta
+                - combobox "Año de alta" [ref=f88e181]:
+                  - option "Todos" [selected]
+            - status [ref=f88e182]: 0 registros
+            - generic [ref=f88e183]:
+              - generic [aria-hidden] [ref=f88e184]: ⌕
+              - paragraph [ref=f88e185]: No hay pacientes registrados
+              - paragraph [ref=f88e186]: Las altas de pacientes aparecerán aquí cuando se registren.

@@ -18,8 +18,8 @@ function fakeDb(): RecepcionUnidadDb & {
 } {
   return {
     unidadSangre: {
-      create: vi.fn(),
-      findMany: vi.fn(),
+      create: vi.fn<(...args: any[]) => Promise<any>>(),
+      findMany: vi.fn<(...args: any[]) => Promise<any>>(),
     },
   };
 }

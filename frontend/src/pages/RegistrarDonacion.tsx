@@ -1,15 +1,27 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { Banner } from "../components/Banner";
+import { FormField, FormGrid, FormSection } from "../components/FormField";
+import { FormSteps } from "../components/FormSteps";
+import { PageHeader } from "../components/PageHeader";
+import { SeleccionDonantesTable } from "../components/SeleccionDonantesTable";
+import { useDonantesActivos } from "../hooks/useDatos";
 import { donacionSchema } from "../schemas/donacion";
 import type { Donante } from "../types/donante";
 import "../styles/RegistrarDonacion.css";
 
 type Props = {
-  donanteInicial: Pick<Donante, "id" | "nombre" | "apellido" | "dni">;
+  donanteInicial?: Pick<Donante, "id" | "nombre" | "apellido" | "dni"> | null;
   onCargarEstudios?: (donacionId: number) => void;
 };
 
 type Banner = { tipo: "ok" | "error"; texto: string } | null;
+
+const PASOS = [
+  "Donante y responsable",
+  "Datos de extracción",
+  "Modalidad y cierre",
+] as const;
 
 /** Devuelve la fecha y hora actual en el formato que consume <input type="datetime-local">. */
 function ahoraLocal(): string {
@@ -22,6 +34,14 @@ export default function RegistrarDonacion({
   donanteInicial,
   onCargarEstudios,
 }: Props) {
+  const {
+    datos: donantes,
+    cargando: cargandoDonantes,
+    error: errorDonantes,
+  } = useDonantesActivos();
+  const [donanteId, setDonanteId] = useState<number | "">(
+    donanteInicial?.id ?? "",
+  );
   const [operador, setOperador] = useState("");
   const [fechaHora, setFechaHora] = useState(ahoraLocal());
   const [peso, setPeso] = useState("");
@@ -34,14 +54,40 @@ export default function RegistrarDonacion({
   const [banner, setBanner] = useState<Banner>(null);
   const [enviando, setEnviando] = useState(false);
   const [donacionCreada, setDonacionCreada] = useState<number | null>(null);
+  const [paso, setPaso] = useState(0);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const donanteSeleccionado =
+    donantes.find((item) => item.id === donanteId) ?? donanteInicial ?? null;
+
+  function seleccionarDonante(donante: Donante) {
+    setDonanteId(donante.id);
+    setBanner(null);
+  }
+
+  function siguiente(event: FormEvent) {
+    event.preventDefault();
+    setBanner(null);
+    if (paso < PASOS.length - 1) {
+      setPaso(paso + 1);
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setBanner(null);
     setDonacionCreada(null);
 
+    if (!donanteId) {
+      setBanner({ tipo: "error", texto: "Seleccioná un donante antes de registrar la donación." });
+      setPaso(0);
+      document.getElementById("donanteId")?.focus();
+      return;
+    }
+
     const parsed = donacionSchema.safeParse({
-      donanteId: donanteInicial.id,
+      donanteId,
       operador,
       peso,
       tensionArterial,
@@ -58,6 +104,8 @@ export default function RegistrarDonacion({
         tipo: "error",
         texto: parsed.error.issues[0]?.message ?? "Revisá los datos ingresados.",
       });
+      const campo = parsed.error.issues[0]?.path[0];
+      if (typeof campo === "string") document.getElementById(campo)?.focus();
       return;
     }
 
@@ -85,6 +133,7 @@ export default function RegistrarDonacion({
         setReposicion(false);
         setAutoExcluido(false);
         setObservaciones("");
+        setPaso(0);
         return;
       }
 
@@ -101,24 +150,16 @@ export default function RegistrarDonacion({
   }
 
   return (
-    <main className="donacion">
-      <header className="donacion-header">
-        <h1>Registrar donación</h1>
-        <p>
-          Asociá la extracción a un donante y dejá constancia del operador.
-        </p>
-      </header>
+    <div className="donacion">
+      <PageHeader
+        title="Registrar donación"
+        description="Asociá la extracción a un donante y dejá constancia del operador."
+      />
 
-      {banner && (
-        <div
-          className={`donacion-banner ${banner.tipo === "ok" ? "donacion-banner-ok" : "donacion-banner-error"}`}
-          role="status"
-        >
-          {banner.texto}
-        </div>
-      )}
+      {banner ? <Banner tone={banner.tipo}>{banner.texto}</Banner> : null}
+      {errorDonantes ? <Banner tone="error">{errorDonantes}</Banner> : null}
 
-      {donacionCreada !== null && onCargarEstudios && (
+      {donacionCreada !== null && onCargarEstudios ? (
         <div className="donacion-actions">
           <button
             type="button"
@@ -127,132 +168,153 @@ export default function RegistrarDonacion({
             Cargar PCI y Serología
           </button>
         </div>
-      )}
+      ) : null}
 
-      <fieldset>
-        <legend>Donante</legend>
-        <div className="donacion-donante">
-          <strong>
-            {donanteInicial.nombre} {donanteInicial.apellido}
-          </strong>
-          <p>DNI: {donanteInicial.dni}</p>
-        </div>
-      </fieldset>
+      <form ref={formRef} onSubmit={paso === PASOS.length - 1 ? onSubmit : siguiente} noValidate>
+        <FormSteps pasos={PASOS} actual={paso} />
 
-      <form onSubmit={onSubmit} noValidate>
-        <fieldset>
-          <legend>Datos de la donación</legend>
-
-          <div className="donacion-grid">
-            <div className="donacion-field">
-              <label htmlFor="operador">Operador</label>
-              <input
-                id="operador"
-                value={operador}
-                onChange={(e) => setOperador(e.target.value)}
-                aria-invalid={Boolean(banner && banner.tipo === "error" && !operador.trim())}
+        {paso === 0 ? (
+          <FormSection title="Donante y responsable" description="Buscá y seleccioná al donante en la tabla, y confirmá quién registra la extracción.">
+            <div id="donanteId" className="donacion-seleccion-donante" tabIndex={-1}>
+              {donanteSeleccionado ? (
+                <p className="donacion-seleccion-actual">
+                  Donante seleccionado:{" "}
+                  <strong>
+                    {donanteSeleccionado.apellido}, {donanteSeleccionado.nombre}
+                  </strong>{" "}
+                  · DNI {donanteSeleccionado.dni}
+                </p>
+              ) : null}
+              <SeleccionDonantesTable
+                rows={donantes}
+                loading={cargandoDonantes}
+                selectedId={donanteId}
+                onSelect={seleccionarDonante}
               />
             </div>
 
-            <div className="donacion-field">
-              <label htmlFor="fechaHora">Fecha y hora de la extracción</label>
-              <input
-                id="fechaHora"
-                type="datetime-local"
-                value={fechaHora}
-                onChange={(e) => setFechaHora(e.target.value)}
-              />
-            </div>
+            <FormGrid columns={2}>
+              <FormField id="operador" label="Operador" required>
+                <input
+                  id="operador"
+                  value={operador}
+                  onChange={(e) => setOperador(e.target.value)}
+                  aria-invalid={Boolean(banner && banner.tipo === "error" && !operador.trim())}
+                />
+              </FormField>
 
-            <div className="donacion-field">
-              <label htmlFor="peso">
-                Peso (kg) <span className="donacion-optional">(opcional)</span>
-              </label>
-              <input
-                id="peso"
-                value={peso}
-                onChange={(e) => setPeso(e.target.value)}
-                inputMode="decimal"
-              />
-            </div>
+              <FormField id="fechaHora" label="Fecha y hora de la extracción">
+                <input
+                  id="fechaHora"
+                  type="datetime-local"
+                  value={fechaHora}
+                  onChange={(e) => setFechaHora(e.target.value)}
+                />
+              </FormField>
+            </FormGrid>
+          </FormSection>
+        ) : null}
 
-            <div className="donacion-field">
-              <label htmlFor="tensionArterial">
-                Tensión arterial{" "}
-                <span className="donacion-optional">(opcional)</span>
-              </label>
-              <input
-                id="tensionArterial"
-                value={tensionArterial}
-                onChange={(e) => setTensionArterial(e.target.value)}
-                placeholder="120/80"
-              />
-            </div>
+        {paso === 1 ? (
+          <FormSection title="Datos de extracción" description="Valores registrados durante la donación.">
+            <FormGrid columns={3}>
+              <FormField id="peso" label="Peso (kg)" optional>
+                <input
+                  id="peso"
+                  value={peso}
+                  onChange={(e) => setPeso(e.target.value)}
+                  inputMode="decimal"
+                />
+              </FormField>
 
-            <div className="donacion-field">
-              <label htmlFor="hemoglobina">
-                Hemoglobina{" "}
-                <span className="donacion-optional">(opcional)</span>
-              </label>
-              <input
-                id="hemoglobina"
-                value={hemoglobina}
-                onChange={(e) => setHemoglobina(e.target.value)}
-                inputMode="decimal"
-              />
-            </div>
-          </div>
+              <FormField id="tensionArterial" label="Tensión arterial" optional>
+                <input
+                  id="tensionArterial"
+                  value={tensionArterial}
+                  onChange={(e) => setTensionArterial(e.target.value)}
+                  placeholder="120/80"
+                />
+              </FormField>
 
-          <div className="donacion-banderas">
-            <label className="donacion-bandera" htmlFor="voluntario">
-              <input
-                id="voluntario"
-                type="checkbox"
-                checked={voluntario}
-                onChange={(e) => setVoluntario(e.target.checked)}
-              />
-              Voluntario
-            </label>
+              <FormField id="hemoglobina" label="Hemoglobina" optional>
+                <input
+                  id="hemoglobina"
+                  value={hemoglobina}
+                  onChange={(e) => setHemoglobina(e.target.value)}
+                  inputMode="decimal"
+                />
+              </FormField>
+            </FormGrid>
+          </FormSection>
+        ) : null}
 
-            <label className="donacion-bandera" htmlFor="reposicion">
-              <input
-                id="reposicion"
-                type="checkbox"
-                checked={reposicion}
-                onChange={(e) => setReposicion(e.target.checked)}
-              />
-              Reposición
-            </label>
+        {paso === 2 ? (
+          <>
+            <FormSection title="Modalidad de la donación">
+              <div className="donacion-banderas">
+                <label className="donacion-bandera" htmlFor="voluntario">
+                  <input
+                    id="voluntario"
+                    type="checkbox"
+                    checked={voluntario}
+                    onChange={(e) => setVoluntario(e.target.checked)}
+                  />
+                  Voluntaria
+                </label>
 
-            <label className="donacion-bandera" htmlFor="autoExcluido">
-              <input
-                id="autoExcluido"
-                type="checkbox"
-                checked={autoExcluido}
-                onChange={(e) => setAutoExcluido(e.target.checked)}
-              />
-              Autoexcluido
-            </label>
-          </div>
+                <label className="donacion-bandera" htmlFor="reposicion">
+                  <input
+                    id="reposicion"
+                    type="checkbox"
+                    checked={reposicion}
+                    onChange={(e) => setReposicion(e.target.checked)}
+                  />
+                  Reposición
+                </label>
 
-          <div className="donacion-field">
-            <label htmlFor="observaciones">
-              Observaciones <span className="donacion-optional">(opcional)</span>
-            </label>
-            <input
-              id="observaciones"
-              value={observaciones}
-              onChange={(e) => setObservaciones(e.target.value)}
-            />
-          </div>
+                <label className="donacion-bandera" htmlFor="autoExcluido">
+                  <input
+                    id="autoExcluido"
+                    type="checkbox"
+                    checked={autoExcluido}
+                    onChange={(e) => setAutoExcluido(e.target.checked)}
+                  />
+                  Autoexcluido
+                </label>
+              </div>
+            </FormSection>
 
-          <div className="donacion-actions">
-            <button type="submit" disabled={enviando}>
-              {enviando ? "Registrando…" : "Registrar donación"}
+            <FormSection title="Observaciones">
+              <FormField id="observaciones" label="Observaciones" optional>
+                <input
+                  id="observaciones"
+                  value={observaciones}
+                  onChange={(e) => setObservaciones(e.target.value)}
+                />
+              </FormField>
+            </FormSection>
+          </>
+        ) : null}
+
+        <div className="ui-step-actions">
+          {paso > 0 ? (
+            <button
+              type="button"
+              className="ui-btn ui-btn-secondary"
+              onClick={() => setPaso(paso - 1)}
+            >
+              Anterior
             </button>
-          </div>
-        </fieldset>
+          ) : null}
+          <button type="submit" disabled={enviando}>
+            {enviando
+              ? "Registrando…"
+              : paso < PASOS.length - 1
+                ? "Siguiente"
+                : "Registrar donación"}
+          </button>
+        </div>
       </form>
-    </main>
+    </div>
   );
 }

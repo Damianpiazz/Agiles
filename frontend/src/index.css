@@ -1,4 +1,3 @@
-
 :root {
   font-family: "Segoe UI", Roboto, Arial, sans-serif;
   color: #292631;
@@ -8,15 +7,20 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  /* Identidad institucional: se conserva la paleta original */
   --color-primary: #9b1c31;
   --color-primary-hover: #7d1628;
   --color-primary-light: #f9e9ed;
+  --color-primary-soft: #f3d9df;
 
   --color-text: #292631;
+  --color-text-soft: #45404c;
   --color-muted: #706d78;
   --color-background: #f6f7f9;
   --color-surface: #ffffff;
+  --color-surface-alt: #f9fafb;
   --color-border: #e3e5e9;
+  --color-border-strong: #d3d6dd;
 
   --color-success: #18794e;
   --color-success-bg: #e8f6ee;
@@ -24,16 +28,34 @@
   --color-danger-bg: #fff0f0;
   --color-warning: #946200;
   --color-warning-bg: #fff6df;
+  --color-info: #1f5f9e;
+  --color-info-bg: #eaf2fb;
 
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
 
   --shadow-card: 0 3px 12px rgba(31, 35, 45, 0.05);
   --shadow-nav: 0 2px 8px rgba(31, 35, 45, 0.04);
+  --shadow-overlay: 0 18px 48px rgba(31, 35, 45, 0.18);
+
+  --focus-ring: 0 0 0 3px rgba(155, 28, 49, 0.18);
+  --transition-fast: 0.16s ease;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -83,11 +105,9 @@ textarea {
   max-width: 100%;
 }
 
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-button:focus-visible {
-  outline: 3px solid rgba(155, 28, 49, 0.22);
+:where(input, select, textarea):focus-visible,
+:where(button, a, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -113,13 +133,13 @@ h1 {
 
 h2 {
   margin-bottom: 10px;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 650;
 }
 
 h3 {
   margin-bottom: 8px;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 650;
 }
 
@@ -135,11 +155,37 @@ table {
 #root {
   width: 100%;
   min-height: 100vh;
-  margin: 0 auto;
   text-align: left;
 }
 
-/* Accesibilidad: respeta la preferencia de movimiento reducido */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: var(--space-4);
+  z-index: 1000;
+  padding: 10px 16px;
+  color: #fff;
+  background: var(--color-primary);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: var(--space-3);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

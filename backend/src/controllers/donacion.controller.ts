@@ -28,6 +28,16 @@ export async function create(req: Request, res: Response) {
   }
 }
 
+export async function listar(_req: Request, res: Response) {
+  try {
+    const donaciones = await donacionService.listar();
+    return res.status(200).json(donaciones);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Error interno" });
+  }
+}
+
 export async function getById(req: Request, res: Response) {
   const parsed = idDonacionSchema.safeParse(req.params.id);
 

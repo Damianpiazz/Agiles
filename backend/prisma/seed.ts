@@ -72,6 +72,14 @@ function enDias(cantidad: number): Date {
  * Datos de demostración para HU-017 (selección/preparación de componentes):
  * solicitudes de transfusión aprobadas y unidades de sangre en inventario.
  */
+async function pacienteIdPorDni(dni: string): Promise<number | undefined> {
+  const paciente = await prisma.paciente.findUnique({
+    where: { dni },
+    select: { id: true },
+  });
+  return paciente?.id;
+}
+
 async function seedSolicitudesYUnidades() {
   const solicitudesExistentes = await prisma.solicitudTransfusion.count();
 
@@ -79,6 +87,7 @@ async function seedSolicitudesYUnidades() {
     await prisma.solicitudTransfusion.createMany({
       data: [
         {
+          pacienteId: await pacienteIdPorDni("30111222"),
           dniPaciente: "30111222",
           nombrePaciente: "Lucía Fernández",
           grupoABO: "A",
@@ -90,6 +99,7 @@ async function seedSolicitudesYUnidades() {
           observaciones: "Cirugía programada",
         },
         {
+          pacienteId: await pacienteIdPorDni("28444555"),
           dniPaciente: "28444555",
           nombrePaciente: "Marcos Gómez",
           grupoABO: "O",
@@ -101,6 +111,7 @@ async function seedSolicitudesYUnidades() {
           observaciones: "Anemia crónica",
         },
         {
+          pacienteId: await pacienteIdPorDni("35999888"),
           dniPaciente: "35999888",
           nombrePaciente: "Ana Sosa",
           grupoABO: "B",

@@ -82,6 +82,34 @@ export async function search(req: Request, res: Response) {
   }
 }
 
+export async function listar(_req: Request, res: Response) {
+  try {
+    const donantes = await donanteService.listarActivos();
+    return res.status(200).json(donantes);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Error interno" });
+  }
+}
+
+export async function darDeBaja(req: Request, res: Response) {
+  const parsed = idDonanteSchema.safeParse(req.params.id);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "ID de donante inválido" });
+  }
+
+  try {
+    const donante = await donanteService.darDeBaja(parsed.data);
+    return res.status(200).json(donante);
+  } catch (e) {
+    if (e instanceof donanteService.DonanteNoEncontradoError) {
+      return res.status(404).json({ error: e.message });
+    }
+    console.error(e);
+    return res.status(500).json({ error: "Error interno" });
+  }
+}
+
 export async function getById(req: Request, res: Response) {
   const parsed = idDonanteSchema.safeParse(req.params.id);
 

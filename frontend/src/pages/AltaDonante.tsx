@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { z } from "zod";
+import { Banner } from "../components/Banner";
+import { PageHeader } from "../components/PageHeader";
 import { donanteSchema, type DonanteForm } from "../schemas/donante";
 import "../styles/AltaDonante.css";
 
@@ -28,6 +30,7 @@ export default function AltaDonante() {
   const [errores, setErrores] = useState<Errores>({});
   const [banner, setBanner] = useState<Banner>(null);
   const [enviando, setEnviando] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const hoy = new Date().toISOString().slice(0, 10);
 
@@ -40,6 +43,14 @@ export default function AltaDonante() {
     return errores[campo]?.[0];
   }
 
+  function focoPrimerError() {
+    requestAnimationFrame(() => {
+      formRef.current
+        ?.querySelector<HTMLElement>('[aria-invalid="true"]')
+        ?.focus();
+    });
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setBanner(null);
@@ -48,6 +59,7 @@ export default function AltaDonante() {
     if (!parsed.success) {
       setErrores(z.flattenError(parsed.error).fieldErrors as Errores);
       setBanner({ tipo: "error", texto: "Revisá los campos marcados." });
+      focoPrimerError();
       return;
     }
 
@@ -70,6 +82,7 @@ export default function AltaDonante() {
       if (res.status === 400 && data.campos) {
         setErrores(data.campos as Errores);
         setBanner({ tipo: "error", texto: "Revisá los campos marcados." });
+        focoPrimerError();
         return;
       }
       if (res.status === 409) {
@@ -85,22 +98,15 @@ export default function AltaDonante() {
   }
 
   return (
-    <main className="alta">
-      <header className="alta-header">
-        <h1>Alta de donante</h1>
-        <p>Registrá los datos filiatorios y de contacto del donante.</p>
-      </header>
+    <div className="alta">
+      <PageHeader
+        title="Alta de donante"
+        description="Registrá los datos filiatorios y de contacto del donante."
+      />
 
-      {banner && (
-        <div
-          className={`alta-banner ${banner.tipo === "ok" ? "alta-banner-ok" : "alta-banner-error"}`}
-          role="status"
-        >
-          {banner.texto}
-        </div>
-      )}
+      {banner ? <Banner tone={banner.tipo}>{banner.texto}</Banner> : null}
 
-      <form onSubmit={onSubmit} noValidate>
+      <form ref={formRef} onSubmit={onSubmit} noValidate>
         <fieldset>
           <legend>Datos filiatorios</legend>
           <div className="alta-grid">
@@ -271,6 +277,6 @@ export default function AltaDonante() {
           </button>
         </div>
       </form>
-    </main>
+    </div>
   );
 }

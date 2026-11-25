@@ -19,7 +19,7 @@ type Banner =
   | null;
 
 const API_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:3000"
+  import.meta.env.VITE_API_URL || "http://localhost:3001"
 ).replace(/\/+$/, "");
 
 const formInicial: FormState = {
@@ -128,7 +128,7 @@ export default function AltaPaciente() {
   }
 
   return (
-    <main className="alta">
+    <div className="alta">
       <header className="alta-header">
         <h1>Alta de paciente</h1>
         <p>Registrá los datos de identificación del paciente o receptor.</p>
@@ -233,6 +233,6 @@ export default function AltaPaciente() {
           </button>
         </div>
       </form>
-    </main>
+    </div>
   );
 }

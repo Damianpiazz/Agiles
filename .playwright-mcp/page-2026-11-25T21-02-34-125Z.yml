@@ -1,0 +1,110 @@
+- generic [ref=f78e3]:
+  - link "Saltar al contenido principal" [ref=f78e4] [cursor=pointer]:
+    - /url: "#contenido-principal"
+  - complementary "Navegación principal" [ref=f78e5]:
+    - generic [ref=f78e6]:
+      - generic [aria-hidden] [ref=f78e7]:
+        - generic [ref=f78e8]: F
+        - generic [ref=f78e9]: +
+      - generic [ref=f78e10]:
+        - heading "FLORHEMA" [level=1] [ref=f78e11]
+        - paragraph [ref=f78e12]: Sistema de Gestión de Hemoterapia
+    - navigation "Módulos del sistema" [ref=f78e13]:
+      - generic [ref=f78e14]:
+        - paragraph [ref=f78e15]: Inicio
+        - button "Resumen" [ref=f78e16] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e17]: ◫
+        - button "Buscar donante" [ref=f78e19] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e20]: ⌕
+        - button "Alta de donante" [ref=f78e22] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e23]: ＋
+      - generic [ref=f78e25]:
+        - paragraph [ref=f78e26]: Donación y calificación
+        - button "Registrar donación" [ref=f78e27] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e28]: ♥
+        - button "Calificación biológica" [ref=f78e30] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e31]: ✓
+        - button "Tipificación sanguínea" [ref=f78e33] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e34]: ⊕
+        - button "Tamizaje de infecciones" [ref=f78e36] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e37]: ◉
+        - button "Consultar resultados" [ref=f78e39] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e40]: ⌕
+      - generic [ref=f78e42]:
+        - paragraph [ref=f78e43]: Pacientes y transfusión
+        - button "Alta de paciente" [ref=f78e44] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e45]: ＋
+        - button "Buscar paciente" [ref=f78e47] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e48]: ⌕
+        - button "Solicitudes de transfusión" [ref=f78e50] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e51]: ▤
+        - button "Estudios pretransfusionales" [ref=f78e53] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e54]: ◈
+        - button "Seleccionar componente" [ref=f78e56] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e57]: ⚕
+        - button "Emitir sangre" [ref=f78e59] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e60]: ↗
+      - generic [ref=f78e62]:
+        - paragraph [ref=f78e63]: Inventario
+        - button "Recepción de unidades" [ref=f78e64] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e65]: ＋
+        - button "Liberar unidad" [ref=f78e67] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e68]: ✓
+        - button "Dar de baja unidad" [ref=f78e70] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e71]: ⊘
+    - generic [ref=f78e73]:
+      - paragraph [ref=f78e74]:
+        - generic [ref=f78e76]: Servicio de Hemoterapia
+      - button "Colapsar menú lateral" [ref=f78e77] [cursor=pointer]:
+        - generic [aria-hidden] [ref=f78e78]: «
+        - generic [ref=f78e79]: Colapsar menú
+  - generic [ref=f78e80]:
+    - banner [ref=f78e81]:
+      - navigation "Ruta de navegación" [ref=f78e82]:
+        - generic [ref=f78e83]: Inicio
+        - generic [aria-hidden] [ref=f78e84]: /
+        - generic [ref=f78e85]: Donación y calificación
+        - generic [aria-hidden] [ref=f78e86]: /
+        - strong [ref=f78e87]: Registrar donación
+      - generic [ref=f78e88]:
+        - generic [ref=f78e89]: FLORHEMA
+        - generic [ref=f78e90]: Servicio de Hemoterapia
+    - main [ref=f78e91]:
+      - generic [ref=f78e1318]:
+        - generic [ref=f78e1320]:
+          - heading "Registrar donación" [level=1] [ref=f78e1321]
+          - paragraph [ref=f78e1322]: Asociá la extracción a un donante y dejá constancia del operador.
+        - alert [ref=f78e1381]:
+          - generic [aria-hidden] [ref=f78e1382]: "!"
+          - generic [ref=f78e1383]: Error interno
+        - group "Donante" [ref=f78e1323]:
+          - paragraph [ref=f78e1325]: Elegí el donante en el primer paso. No hace falta una entrevista previa para registrar la donación.
+        - generic [ref=f78e1326]:
+          - list "Progreso del formulario" [ref=f78e1327]:
+            - listitem [ref=f78e1328]:
+              - generic [aria-hidden] [ref=f78e1329]: ✓
+              - generic [ref=f78e1330]: Donante y responsable
+            - listitem [ref=f78e1331]:
+              - generic [aria-hidden] [ref=f78e1332]: ✓
+              - generic [ref=f78e1333]: Datos de extracción
+            - listitem [ref=f78e1334]:
+              - generic [aria-hidden] [ref=f78e1335]: "3"
+              - generic [ref=f78e1336]: Modalidad y cierre
+          - group "Modalidad de la donación" [ref=f78e1366]:
+            - generic [ref=f78e1368]:
+              - generic [ref=f78e1369] [cursor=pointer]:
+                - checkbox "Voluntaria" [ref=f78e1370]
+                - text: Voluntaria
+              - generic [ref=f78e1371] [cursor=pointer]:
+                - checkbox "Reposición" [ref=f78e1372]
+                - text: Reposición
+              - generic [ref=f78e1373] [cursor=pointer]:
+                - checkbox "Autoexcluido" [ref=f78e1374]
+                - text: Autoexcluido
+          - group "Observaciones" [ref=f78e1375]:
+            - generic [ref=f78e1377]:
+              - generic [ref=f78e1378]: ObservacionesOpcional
+              - textbox "ObservacionesOpcional" [ref=f78e1379]
+          - generic [ref=f78e1350]:
+            - button "Anterior" [ref=f78e1365] [cursor=pointer]
+            - button "Registrar donación" [ref=f78e1380] [cursor=pointer]

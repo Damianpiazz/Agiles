@@ -1,10 +1,25 @@
 
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { Banner } from "../components/Banner";
+import { DataTable, type DataTableColumn } from "../components/DataTable";
+import { FormField, FormGrid, FormSection } from "../components/FormField";
+import { FormSteps } from "../components/FormSteps";
+import { PageHeader } from "../components/PageHeader";
+import { LoadingState } from "../components/States";
+import { StatusBadge } from "../components/StatusBadge";
+import { useEstudiosGlobales } from "../hooks/useDatos";
+import type { EstudioGlobal } from "../types/datosGlobales";
 import "../styles/EstudiosPretransfusionales.css";
 
+const PASOS = [
+  "Seleccionar solicitud",
+  "Registrar estudio",
+  "Historial y trazabilidad",
+] as const;
+
 const API_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:3000"
+  import.meta.env.VITE_API_URL || "http://localhost:3001"
 ).replace(/\/+$/, "");
 
 type TipoEstudio =
@@ -92,6 +107,196 @@ function fechaArgentina(valor: string) {
   }).format(new Date(valor));
 }
 
+function grupoReceptor(solicitud: Solicitud) {
+  return `${solicitud.grupoABO}${solicitud.factorRhD === "POSITIVO" ? "+" : "-"}`;
+}
+
+function opcionesFiltro(
+  valores: (string | null | undefined)[],
+  todo = "Todos",
+  etiquetas: Record<string, string> = {},
+) {
+  return [
+    { value: "", label: todo },
+    ...Array.from(
+      new Set(valores.filter((valor): valor is string => Boolean(valor))),
+    )
+      .sort((a, b) => a.localeCompare(b, "es-AR"))
+      .map((valor) => ({ value: valor, label: etiquetas[valor] ?? valor })),
+  ];
+}
+
+const ETIQUETAS_ESTADO_SOLICITUD: Record<string, string> = {
+  PENDIENTE: "Pendiente",
+  APROBADA: "Aprobada",
+  CANCELADA: "Cancelada",
+};
+
+const ETIQUETAS_COMPATIBILIDAD: Record<string, string> = {
+  COMPATIBLE: "Compatible",
+  INCOMPATIBLE: "Incompatible",
+};
+
+const columnasSolicitudesPretrans: DataTableColumn<Solicitud>[] = [
+  {
+    id: "id",
+    header: "Solicitud",
+    render: (solicitud) => <strong>#{solicitud.id}</strong>,
+    sortValue: (solicitud) => solicitud.id,
+  },
+  {
+    id: "paciente",
+    header: "Paciente",
+    render: (solicitud) => solicitud.nombrePaciente,
+    sortValue: (solicitud) => solicitud.nombrePaciente,
+  },
+  {
+    id: "dni",
+    header: "DNI",
+    render: (solicitud) => solicitud.dniPaciente,
+    sortValue: (solicitud) => solicitud.dniPaciente,
+  },
+  {
+    id: "receptor",
+    header: "Receptor",
+    render: (solicitud) => grupoReceptor(solicitud),
+    sortValue: (solicitud) =>
+      `${solicitud.grupoABO}${solicitud.factorRhD}`,
+  },
+  {
+    id: "componente",
+    header: "Componente",
+    render: (solicitud) => solicitud.tipoHemocomponente,
+    sortValue: (solicitud) => solicitud.tipoHemocomponente,
+  },
+  {
+    id: "estado",
+    header: "Estado",
+    render: (solicitud) => <StatusBadge estado={solicitud.estado} />,
+    sortValue: (solicitud) => solicitud.estado,
+  },
+];
+
+const columnasEstudiosGlobales: DataTableColumn<EstudioGlobal>[] = [
+  {
+    id: "solicitud",
+    header: "Solicitud",
+    render: (estudio) => <strong>#{estudio.solicitudId}</strong>,
+    sortValue: (estudio) => estudio.solicitudId,
+  },
+  {
+    id: "paciente",
+    header: "Paciente",
+    render: (estudio) =>
+      estudio.solicitud?.nombrePaciente ?? "Sin paciente asociado",
+    sortValue: (estudio) => estudio.solicitud?.nombrePaciente ?? "",
+  },
+  {
+    id: "estudio",
+    header: "Estudio",
+    render: (estudio) => (
+      <strong>
+        {ETIQUETAS[estudio.tipo as TipoEstudio] ?? estudio.tipo}
+      </strong>
+    ),
+    sortValue: (estudio) =>
+      ETIQUETAS[estudio.tipo as TipoEstudio] ?? estudio.tipo,
+  },
+  {
+    id: "fecha",
+    header: "Fecha y hora",
+    render: (estudio) => fechaArgentina(estudio.fechaHora),
+    sortValue: (estudio) => estudio.fechaHora,
+  },
+  {
+    id: "resultado",
+    header: "Resultado",
+    render: (estudio) => estudio.resultado,
+    sortValue: (estudio) => estudio.resultado,
+  },
+  {
+    id: "compatibilidad",
+    header: "Compatibilidad",
+    render: (estudio) =>
+      estudio.compatibilidad ? (
+        <StatusBadge estado={estudio.compatibilidad} />
+      ) : (
+        "—"
+      ),
+    sortValue: (estudio) => estudio.compatibilidad ?? "",
+  },
+  {
+    id: "operador",
+    header: "Operador",
+    render: (estudio) => estudio.operador,
+    sortValue: (estudio) => estudio.operador,
+  },
+];
+
+const columnasEstudio: DataTableColumn<Estudio>[] = [
+  {
+    id: "estudio",
+    header: "Estudio",
+    render: (estudio) => <strong>{ETIQUETAS[estudio.tipo]}</strong>,
+    sortValue: (estudio) => ETIQUETAS[estudio.tipo],
+  },
+  {
+    id: "fecha",
+    header: "Fecha y hora",
+    render: (estudio) => fechaArgentina(estudio.fechaHora),
+    sortValue: (estudio) => estudio.fechaHora,
+  },
+  {
+    id: "resultado",
+    header: "Resultado",
+    render: (estudio) => estudio.resultado,
+    sortValue: (estudio) => estudio.resultado,
+  },
+  {
+    id: "unidad",
+    header: "Unidad",
+    render: (estudio) => estudio.unidadSangre?.numeroUnidad ?? "—",
+    sortValue: (estudio) => estudio.unidadSangre?.numeroUnidad ?? "",
+  },
+  {
+    id: "compatibilidad",
+    header: "Compatibilidad",
+    render: (estudio) =>
+      estudio.compatibilidad ? (
+        <StatusBadge
+          estado={estudio.compatibilidad}
+          etiqueta={
+            estudio.compatibilidad === "COMPATIBLE"
+              ? "Compatible"
+              : "Incompatible"
+          }
+        />
+      ) : (
+        "—"
+      ),
+    sortValue: (estudio) => estudio.compatibilidad ?? "",
+  },
+  {
+    id: "operador",
+    header: "Operador",
+    render: (estudio) => estudio.operador,
+    sortValue: (estudio) => estudio.operador,
+  },
+  {
+    id: "observaciones",
+    header: "Observaciones",
+    render: (estudio) => estudio.observaciones ?? "—",
+    sortValue: (estudio) => estudio.observaciones ?? "",
+  },
+  {
+    id: "alerta",
+    header: "Alerta",
+    render: (estudio) =>
+      estudio.alerta ? <span role="alert">{estudio.alerta}</span> : "—",
+    sortValue: (estudio) => estudio.alerta ?? "",
+  },
+];
+
 export default function EstudiosPretransfusionales() {
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [unidades, setUnidades] = useState<Unidad[]>([]);
@@ -103,6 +308,27 @@ export default function EstudiosPretransfusionales() {
   const [cargando, setCargando] = useState(true);
   const [cargandoHistorial, setCargandoHistorial] = useState(false);
   const [enviando, setEnviando] = useState(false);
+  const [paso, setPaso] = useState(0);
+  const [filtroTipoGlobal, setFiltroTipoGlobal] = useState("");
+  const [filtroCompatibilidadGlobal, setFiltroCompatibilidadGlobal] =
+    useState("");
+  const [filtroUnidadGlobal, setFiltroUnidadGlobal] = useState("");
+  const [filtroEstadoSolicitudes, setFiltroEstadoSolicitudes] =
+    useState("");
+  const [filtroComponenteSolicitudes, setFiltroComponenteSolicitudes] =
+    useState("");
+  const [filtroGrupoSolicitudes, setFiltroGrupoSolicitudes] =
+    useState("");
+  const [filtroTipoHistorial, setFiltroTipoHistorial] = useState("");
+  const [filtroCompatibilidadHistorial, setFiltroCompatibilidadHistorial] =
+    useState("");
+  const [filtroUnidadHistorial, setFiltroUnidadHistorial] = useState("");
+  const {
+    datos: estudiosGlobales,
+    cargando: cargandoEstudiosGlobales,
+    error: errorEstudiosGlobales,
+    recargar: recargarEstudiosGlobales,
+  } = useEstudiosGlobales();
 
   const solicitudSeleccionada = solicitudes.find(
     (solicitud) => String(solicitud.id) === solicitudId,
@@ -123,6 +349,129 @@ export default function EstudiosPretransfusionales() {
       (unidad.solicitudId === null ||
         unidad.solicitudId === solicitudSeleccionada?.id),
   );
+
+  const filtrosSolicitudes = [
+    {
+      id: "estadoSolicitudes",
+      label: "Estado",
+      value: filtroEstadoSolicitudes,
+      options: opcionesFiltro(
+        solicitudesActivas.map((solicitud) => solicitud.estado),
+        "Todos",
+        ETIQUETAS_ESTADO_SOLICITUD,
+      ),
+      onChange: setFiltroEstadoSolicitudes,
+    },
+    {
+      id: "componenteSolicitudes",
+      label: "Componente",
+      value: filtroComponenteSolicitudes,
+      options: opcionesFiltro(
+        solicitudesActivas.map(
+          (solicitud) => solicitud.tipoHemocomponente,
+        ),
+      ),
+      onChange: setFiltroComponenteSolicitudes,
+    },
+    {
+      id: "grupoSolicitudes",
+      label: "Receptor",
+      value: filtroGrupoSolicitudes,
+      options: opcionesFiltro(
+        solicitudesActivas.map((solicitud) =>
+          grupoReceptor(solicitud),
+        ),
+      ),
+      onChange: setFiltroGrupoSolicitudes,
+    },
+  ];
+
+  const filtrosHistorial = [
+    {
+      id: "tipoHistorial",
+      label: "Estudio",
+      value: filtroTipoHistorial,
+      options: [
+        { value: "", label: "Todos" },
+        ...Object.entries(ETIQUETAS)
+          .filter(([valor]) =>
+            estudios.some((estudio) => estudio.tipo === valor),
+          )
+          .map(([valor, etiqueta]) => ({
+            value: valor,
+            label: etiqueta,
+          })),
+      ],
+      onChange: setFiltroTipoHistorial,
+    },
+    {
+      id: "compatibilidadHistorial",
+      label: "Compatibilidad",
+      value: filtroCompatibilidadHistorial,
+      options: opcionesFiltro(
+        estudios.map((estudio) => estudio.compatibilidad),
+        "Todas",
+        ETIQUETAS_COMPATIBILIDAD,
+      ),
+      onChange: setFiltroCompatibilidadHistorial,
+    },
+    {
+      id: "unidadHistorial",
+      label: "Unidad",
+      value: filtroUnidadHistorial,
+      options: opcionesFiltro(
+        estudios.map((estudio) => estudio.unidadSangre?.numeroUnidad),
+      ),
+      onChange: setFiltroUnidadHistorial,
+    },
+  ];
+
+  const filtrosGlobales = [
+    {
+      id: "tipoGlobal",
+      label: "Estudio",
+      value: filtroTipoGlobal,
+      options: [
+        { value: "", label: "Todos" },
+        ...Object.entries(ETIQUETAS)
+          .filter(([valor]) =>
+            estudiosGlobales.some((estudio) => estudio.tipo === valor),
+          )
+          .map(([valor, etiqueta]) => ({
+            value: valor,
+            label: etiqueta,
+          })),
+      ],
+      onChange: setFiltroTipoGlobal,
+    },
+    {
+      id: "compatibilidadGlobal",
+      label: "Compatibilidad",
+      value: filtroCompatibilidadGlobal,
+      options: [
+        ...opcionesFiltro(
+          estudiosGlobales.map((estudio) => estudio.compatibilidad),
+          "Todas",
+          ETIQUETAS_COMPATIBILIDAD,
+        ),
+        ...(estudiosGlobales.some((estudio) => !estudio.compatibilidad)
+          ? [{ value: "SIN_COMPATIBILIDAD", label: "Sin compatibilidad" }]
+          : []),
+      ],
+      onChange: setFiltroCompatibilidadGlobal,
+    },
+    {
+      id: "unidadGlobal",
+      label: "Unidad",
+      value: filtroUnidadGlobal,
+      options: opcionesFiltro(
+        estudiosGlobales.map(
+          (estudio) => estudio.unidadSangre?.numeroUnidad,
+        ),
+      ),
+      onChange: setFiltroUnidadGlobal,
+    },
+  ];
 
   // Cargar solicitudes e inventario.
   useEffect(() => {
@@ -213,6 +562,7 @@ export default function EstudiosPretransfusionales() {
 
   function cambiarSolicitud(id: string) {
     setSolicitudId(id);
+    setPaso(0);
     setBanner(null);
     setForm((actual) => ({
       ...formularioInicial,
@@ -224,11 +574,19 @@ export default function EstudiosPretransfusionales() {
     evento.preventDefault();
     setBanner(null);
 
+    function enfocarPrimerError() {
+      requestAnimationFrame(() => {
+        document.querySelector<HTMLElement>("form [aria-invalid='true']")?.focus();
+      });
+    }
+
     if (!solicitudSeleccionada) {
       setBanner({
         tipo: "error",
         texto: "Seleccioná una solicitud de transfusión.",
       });
+      setPaso(0);
+      document.getElementById("pretrans-solicitud")?.focus();
       return;
     }
 
@@ -237,6 +595,7 @@ export default function EstudiosPretransfusionales() {
         tipo: "error",
         texto: "Completá el tipo de estudio, resultado y operador.",
       });
+      enfocarPrimerError();
       return;
     }
 
@@ -248,6 +607,7 @@ export default function EstudiosPretransfusionales() {
         tipo: "error",
         texto: "La prueba cruzada requiere una unidad y su compatibilidad.",
       });
+      enfocarPrimerError();
       return;
     }
 
@@ -346,39 +706,40 @@ export default function EstudiosPretransfusionales() {
 
   return (
     <section className="pretrans">
-      <header className="pretrans-header">
-        <h1>Estudios pretransfusionales</h1>
-        <p>
-          Registrá resultados, evaluá pruebas de compatibilidad
-          y consultá su trazabilidad.
-        </p>
-      </header>
+      <PageHeader
+        title="Estudios pretransfusionales"
+        description="Registrá resultados, evaluá pruebas de compatibilidad y consultá su trazabilidad."
+      />
 
-      {banner && (
-        <div
-          className={`pretrans-banner pretrans-${banner.tipo}`}
-          role={banner.tipo === "alerta" ? "alert" : "status"}
-        >
+      {banner ? (
+        <Banner tone={banner.tipo === "alerta" ? "aviso" : banner.tipo}>
           {banner.texto}
-        </div>
-      )}
+        </Banner>
+      ) : null}
 
-      <section className="pretrans-panel">
-        <h2>1. Seleccionar solicitud</h2>
+      <FormSteps pasos={PASOS} actual={paso} />
 
+      {paso === 0 && (
+      <FormSection title="Seleccionar solicitud" description="Elegí la solicitud sobre la que vas a registrar los estudios.">
         {cargando ? (
-          <p>Cargando solicitudes...</p>
+          <LoadingState label="Cargando solicitudes…" />
         ) : (
-          <div className="pretrans-campo">
-            <label htmlFor="pretrans-solicitud">
-              Solicitud de transfusión
-            </label>
-
+          <FormField
+            id="pretrans-solicitud"
+            label="Solicitud de transfusión"
+            required
+            hint={
+              solicitudesActivas.length === 0
+                ? "No hay solicitudes activas con paciente asociado."
+                : undefined
+            }
+          >
             <select
               id="pretrans-solicitud"
               value={solicitudId}
               onChange={(e) => cambiarSolicitud(e.target.value)}
               disabled={enviando}
+              aria-invalid={Boolean(banner?.tipo === "error") && !solicitudId}
             >
               <option value="">Seleccioná una solicitud</option>
 
@@ -390,14 +751,33 @@ export default function EstudiosPretransfusionales() {
                 </option>
               ))}
             </select>
-
-            {solicitudesActivas.length === 0 && (
-              <p className="pretrans-ayuda">
-                No hay solicitudes activas con paciente asociado.
-              </p>
-            )}
-          </div>
+          </FormField>
         )}
+
+        <DataTable
+          rows={solicitudesActivas}
+          columns={columnasSolicitudesPretrans}
+          rowKey={(solicitud) => solicitud.id}
+          searchText={(solicitud) =>
+            `${solicitud.id} ${solicitud.nombrePaciente} ${solicitud.dniPaciente} ${solicitud.tipoHemocomponente} ${solicitud.estado}`
+          }
+          searchPlaceholder="Buscar por solicitud, paciente, DNI o componente…"
+          filters={filtrosSolicitudes}
+          filterRow={(solicitud) =>
+            (!filtroEstadoSolicitudes ||
+              solicitud.estado === filtroEstadoSolicitudes) &&
+            (!filtroComponenteSolicitudes ||
+              solicitud.tipoHemocomponente ===
+                filtroComponenteSolicitudes) &&
+            (!filtroGrupoSolicitudes ||
+              grupoReceptor(solicitud) === filtroGrupoSolicitudes)
+          }
+          loading={cargando}
+          emptyTitle="No hay solicitudes activas con paciente asociado"
+          emptyDescription="Las solicitudes registradas aparecerán aquí para seleccionarlas."
+          caption="Solicitudes activas disponibles para registrar estudios."
+          onRowClick={(solicitud) => cambiarSolicitud(String(solicitud.id))}
+        />
 
         {solicitudSeleccionada && (
           <div className="pretrans-resumen">
@@ -415,24 +795,34 @@ export default function EstudiosPretransfusionales() {
                 ? "+"
                 : "-"}
               {" · Estado: "}
-              {solicitudSeleccionada.estado}
+              <StatusBadge estado={solicitudSeleccionada.estado} />
             </span>
           </div>
         )}
-      </section>
 
-      {solicitudSeleccionada && (
+        <div className="ui-step-actions">
+          <button
+            type="button"
+            className="ui-btn ui-btn-primary"
+            disabled={!solicitudSeleccionada}
+            onClick={() => {
+              setPaso(1);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          >
+            Siguiente: registrar estudio
+          </button>
+        </div>
+      </FormSection>
+      )}
+
+      {paso === 1 && solicitudSeleccionada && (
         <>
-          <section className="pretrans-panel">
-            <h2>2. Registrar estudio</h2>
+          <FormSection title="Registrar estudio" description="El resultado debe provenir del estudio realizado.">
 
-            <form onSubmit={guardarEstudio}>
-              <div className="pretrans-grid">
-                <div className="pretrans-campo">
-                  <label htmlFor="pretrans-tipo">
-                    Tipo de estudio *
-                  </label>
-
+            <form onSubmit={guardarEstudio} noValidate>
+              <FormGrid columns={2}>
+                <FormField id="pretrans-tipo" label="Tipo de estudio" required>
                   <select
                     id="pretrans-tipo"
                     required
@@ -445,6 +835,7 @@ export default function EstudiosPretransfusionales() {
                         compatibilidad: "",
                       })
                     }
+                    aria-invalid={Boolean(banner?.tipo === "error") && !form.tipo}
                   >
                     <option value="">Seleccioná un estudio</option>
                     <option value="TIPIFICACION_ABO_RHD">
@@ -457,13 +848,9 @@ export default function EstudiosPretransfusionales() {
                       Prueba cruzada
                     </option>
                   </select>
-                </div>
+                </FormField>
 
-                <div className="pretrans-campo">
-                  <label htmlFor="pretrans-resultado">
-                    Resultado del estudio *
-                  </label>
-
+                <FormField id="pretrans-resultado" label="Resultado del estudio" required>
                   <input
                     id="pretrans-resultado"
                     required
@@ -476,16 +863,22 @@ export default function EstudiosPretransfusionales() {
                         resultado: e.target.value,
                       })
                     }
+                    aria-invalid={Boolean(banner?.tipo === "error") && !form.resultado.trim()}
                   />
-                </div>
+                </FormField>
 
                 {form.tipo === "PRUEBA_CRUZADA" && (
                   <>
-                    <div className="pretrans-campo">
-                      <label htmlFor="pretrans-unidad">
-                        Unidad de sangre *
-                      </label>
-
+                    <FormField
+                      id="pretrans-unidad"
+                      label="Unidad de sangre"
+                      required
+                      hint={
+                        unidadesElegibles.length === 0
+                          ? "No hay unidades elegibles del tipo solicitado. Podés registrarlas desde Recepción de unidades."
+                          : undefined
+                      }
+                    >
                       <select
                         id="pretrans-unidad"
                         required
@@ -496,6 +889,7 @@ export default function EstudiosPretransfusionales() {
                             unidadSangreId: e.target.value,
                           })
                         }
+                        aria-invalid={Boolean(banner?.tipo === "error") && !form.unidadSangreId}
                       >
                         <option value="">
                           Seleccioná una unidad
@@ -512,20 +906,9 @@ export default function EstudiosPretransfusionales() {
                           </option>
                         ))}
                       </select>
+                    </FormField>
 
-                      {unidadesElegibles.length === 0 && (
-                        <p className="pretrans-ayuda">
-                          No hay unidades elegibles del tipo solicitado.
-                          Podés registrarlas desde Recepción de unidades.
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="pretrans-campo">
-                      <label htmlFor="pretrans-compatibilidad">
-                        Compatibilidad *
-                      </label>
-
+                    <FormField id="pretrans-compatibilidad" label="Compatibilidad" required>
                       <select
                         id="pretrans-compatibilidad"
                         required
@@ -537,6 +920,7 @@ export default function EstudiosPretransfusionales() {
                               e.target.value as Compatibilidad | "",
                           })
                         }
+                        aria-invalid={Boolean(banner?.tipo === "error") && !form.compatibilidad}
                       >
                         <option value="">Seleccioná</option>
                         <option value="COMPATIBLE">
@@ -546,15 +930,11 @@ export default function EstudiosPretransfusionales() {
                           Incompatible
                         </option>
                       </select>
-                    </div>
+                    </FormField>
                   </>
                 )}
 
-                <div className="pretrans-campo">
-                  <label htmlFor="pretrans-operador">
-                    Operador *
-                  </label>
-
+                <FormField id="pretrans-operador" label="Operador" required>
                   <input
                     id="pretrans-operador"
                     required
@@ -567,14 +947,11 @@ export default function EstudiosPretransfusionales() {
                       })
                     }
                     placeholder="Nombre del operador"
+                    aria-invalid={Boolean(banner?.tipo === "error") && !form.operador.trim()}
                   />
-                </div>
+                </FormField>
 
-                <div className="pretrans-campo pretrans-ancho">
-                  <label htmlFor="pretrans-observaciones">
-                    Observaciones
-                  </label>
-
+                <FormField id="pretrans-observaciones" label="Observaciones" optional className="pretrans-ancho">
                   <textarea
                     id="pretrans-observaciones"
                     rows={3}
@@ -587,8 +964,8 @@ export default function EstudiosPretransfusionales() {
                       })
                     }
                   />
-                </div>
-              </div>
+                </FormField>
+              </FormGrid>
 
               <p className="pretrans-ayuda">
                 El resultado informado debe provenir del estudio
@@ -596,86 +973,135 @@ export default function EstudiosPretransfusionales() {
                 la compatibilidad clínica ni autoriza transfusiones.
               </p>
 
-              <button
-                className="pretrans-boton"
-                type="submit"
-                disabled={enviando}
-              >
-                {enviando
-                  ? "Guardando..."
-                  : "Registrar estudio"}
-              </button>
+              <div className="ui-step-actions">
+                <button
+                  type="button"
+                  className="ui-btn ui-btn-secondary"
+                  onClick={() => {
+                    setPaso(0);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                >
+                  Anterior
+                </button>
+                <button
+                  type="button"
+                  className="ui-btn ui-btn-secondary"
+                  onClick={() => {
+                    setPaso(2);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                >
+                  Siguiente: historial
+                </button>
+                <button
+                  className="ui-btn ui-btn-primary"
+                  type="submit"
+                  disabled={enviando}
+                >
+                  {enviando
+                    ? "Guardando..."
+                    : "Registrar estudio"}
+                </button>
+              </div>
             </form>
-          </section>
-
-          <section className="pretrans-panel">
-            <h2>3. Historial de estudios</h2>
-
-            {cargandoHistorial ? (
-              <p>Cargando historial...</p>
-            ) : estudios.length === 0 ? (
-              <p>
-                Todavía no hay estudios registrados para esta solicitud.
-              </p>
-            ) : (
-              <ol className="pretrans-historial">
-                {estudios.map((estudio) => (
-                  <li key={estudio.id}>
-                    <div className="pretrans-historial-cabecera">
-                      <strong>
-                        {ETIQUETAS[estudio.tipo]}
-                      </strong>
-                      <span>
-                        {fechaArgentina(estudio.fechaHora)}
-                      </span>
-                    </div>
-
-                    <p>
-                      <strong>Resultado:</strong>{" "}
-                      {estudio.resultado}
-                    </p>
-
-                    {estudio.unidadSangre && (
-                      <p>
-                        <strong>Unidad:</strong>{" "}
-                        {estudio.unidadSangre.numeroUnidad}
-                      </p>
-                    )}
-
-                    {estudio.compatibilidad && (
-                      <p>
-                        <strong>Compatibilidad:</strong>{" "}
-                        {estudio.compatibilidad}
-                      </p>
-                    )}
-
-                    <p>
-                      <strong>Operador:</strong>{" "}
-                      {estudio.operador}
-                    </p>
-
-                    {estudio.observaciones && (
-                      <p>
-                        <strong>Observaciones:</strong>{" "}
-                        {estudio.observaciones}
-                      </p>
-                    )}
-
-                    {estudio.alerta && (
-                      <div
-                        className="pretrans-alerta"
-                        role="alert"
-                      >
-                        {estudio.alerta}
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ol>
-            )}
-          </section>
+          </FormSection>
         </>
       )}
+
+      {paso === 2 && solicitudSeleccionada && (
+        <FormSection
+          title="Historial de estudios"
+          description="Trazabilidad de los estudios registrados para la solicitud."
+        >
+          {cargandoHistorial ? (
+            <LoadingState label="Cargando historial…" />
+          ) : (
+            <DataTable
+              rows={estudios}
+              columns={columnasEstudio}
+              rowKey={(estudio) => estudio.id}
+              searchText={(estudio) =>
+                `${ETIQUETAS[estudio.tipo]} ${estudio.resultado} ${estudio.operador} ${estudio.unidadSangre?.numeroUnidad ?? ""} ${estudio.observaciones ?? ""}`
+              }
+              searchPlaceholder="Buscar en el historial…"
+              filters={filtrosHistorial}
+              filterRow={(estudio) =>
+                (!filtroTipoHistorial ||
+                  estudio.tipo === filtroTipoHistorial) &&
+                (!filtroCompatibilidadHistorial ||
+                  estudio.compatibilidad ===
+                    filtroCompatibilidadHistorial) &&
+                (!filtroUnidadHistorial ||
+                  estudio.unidadSangre?.numeroUnidad ===
+                    filtroUnidadHistorial)
+              }
+              emptyTitle="Sin estudios registrados"
+              emptyDescription="Todavía no hay estudios registrados para esta solicitud."
+              caption="Estudios pretransfusionales registrados para la solicitud."
+            />
+          )}
+
+          <div className="ui-step-actions">
+            <button
+              type="button"
+              className="ui-btn ui-btn-secondary"
+              onClick={() => {
+                setPaso(1);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            >
+              Anterior
+            </button>
+          </div>
+        </FormSection>
+      )}
+
+      <FormSection
+        title="Todos los estudios registrados"
+        description="Consulta global de estudios pretransfusionales con búsqueda, filtros, orden y paginación."
+      >
+        {errorEstudiosGlobales ? (
+          <Banner tone="error">
+            {errorEstudiosGlobales}{" "}
+            <button
+              type="button"
+              className="ui-btn ui-btn-small ui-btn-secondary"
+              onClick={() => void recargarEstudiosGlobales()}
+            >
+              Reintentar
+            </button>
+          </Banner>
+        ) : null}
+
+        <DataTable
+          rows={estudiosGlobales}
+          columns={columnasEstudiosGlobales}
+          rowKey={(estudio) => estudio.id}
+          searchText={(estudio) =>
+            `${estudio.solicitudId} ${estudio.solicitud?.nombrePaciente ?? ""} ${estudio.solicitud?.dniPaciente ?? ""} ${ETIQUETAS[estudio.tipo as TipoEstudio] ?? estudio.tipo} ${estudio.resultado} ${estudio.operador}`
+          }
+          searchPlaceholder="Buscar por solicitud, paciente, estudio, resultado u operador…"
+          filters={filtrosGlobales}
+          filterRow={(estudio) => {
+            const porTipo =
+              !filtroTipoGlobal || estudio.tipo === filtroTipoGlobal;
+            const porCompatibilidad =
+              !filtroCompatibilidadGlobal ||
+              (filtroCompatibilidadGlobal === "SIN_COMPATIBILIDAD"
+                ? !estudio.compatibilidad
+                : estudio.compatibilidad === filtroCompatibilidadGlobal);
+            const porUnidad =
+              !filtroUnidadGlobal ||
+              estudio.unidadSangre?.numeroUnidad === filtroUnidadGlobal;
+            return porTipo && porCompatibilidad && porUnidad;
+          }}
+          loading={cargandoEstudiosGlobales}
+          emptyTitle="No hay estudios pretransfusionales registrados"
+          emptyDescription="Los estudios registrados desde las solicitudes aparecerán en este listado."
+          caption="Estudios pretransfusionales registrados en el sistema."
+        />
+      </FormSection>
     </section>
   );
 }

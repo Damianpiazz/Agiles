@@ -98,24 +98,48 @@ export async function actualizar(id: number, datos: ActualizarDonanteInput) {
 
 export async function buscar(filtros: BuscarDonanteInput) {
   return prisma.donante.findMany({
-    where: filtros.dni
-      ? {
-          dni: filtros.dni,
-        }
-      : {
-          nombre: {
-            contains: filtros.nombre,
-            mode: "insensitive",
-          },
-          apellido: {
-            contains: filtros.apellido,
-            mode: "insensitive",
-          },
-        },
+    where: {
+      activo: true,
+      ...(filtros.dni
+        ? { dni: filtros.dni }
+        : {
+            nombre: {
+              contains: filtros.nombre,
+              mode: "insensitive",
+            },
+            apellido: {
+              contains: filtros.apellido,
+              mode: "insensitive",
+            },
+          }),
+    },
     orderBy: {
       apellido: "asc",
     },
   });
+}
+
+/** Listado completo de donantes activos para tablas con filtros y paginación. */
+export async function listarActivos() {
+  return prisma.donante.findMany({
+    where: { activo: true },
+    orderBy: [{ apellido: "asc" }, { nombre: "asc" }],
+  });
+}
+
+/** Baja temporal: mantiene el historial y excluye al donante de las búsquedas. */
+export async function darDeBaja(id: number) {
+  try {
+    return await prisma.donante.update({
+      where: { id },
+      data: { activo: false },
+    });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
+      throw new DonanteNoEncontradoError();
+    }
+    throw e;
+  }
 }
 
 export async function buscarPorId(id: number) {

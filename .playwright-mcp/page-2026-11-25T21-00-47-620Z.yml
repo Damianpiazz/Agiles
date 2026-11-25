@@ -1,0 +1,364 @@
+- generic [ref=f78e3]:
+  - link "Saltar al contenido principal" [ref=f78e4] [cursor=pointer]:
+    - /url: "#contenido-principal"
+  - complementary "Navegación principal" [ref=f78e5]:
+    - generic [ref=f78e6]:
+      - generic [aria-hidden] [ref=f78e7]:
+        - generic [ref=f78e8]: F
+        - generic [ref=f78e9]: +
+      - generic [ref=f78e10]:
+        - heading "FLORHEMA" [level=1] [ref=f78e11]
+        - paragraph [ref=f78e12]: Sistema de Gestión de Hemoterapia
+    - navigation "Módulos del sistema" [ref=f78e13]:
+      - generic [ref=f78e14]:
+        - paragraph [ref=f78e15]: Inicio
+        - button "Resumen" [ref=f78e16] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e17]: ◫
+        - button "Buscar donante" [ref=f78e19] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e20]: ⌕
+        - button "Alta de donante" [ref=f78e22] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e23]: ＋
+      - generic [ref=f78e25]:
+        - paragraph [ref=f78e26]: Donación y calificación
+        - button "Registrar donación" [ref=f78e27] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e28]: ♥
+        - button "Calificación biológica" [ref=f78e30] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e31]: ✓
+        - button "Tipificación sanguínea" [ref=f78e33] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e34]: ⊕
+        - button "Tamizaje de infecciones" [active] [ref=f78e36] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e37]: ◉
+        - button "Consultar resultados" [ref=f78e39] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e40]: ⌕
+      - generic [ref=f78e42]:
+        - paragraph [ref=f78e43]: Pacientes y transfusión
+        - button "Alta de paciente" [ref=f78e44] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e45]: ＋
+        - button "Buscar paciente" [ref=f78e47] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e48]: ⌕
+        - button "Solicitudes de transfusión" [ref=f78e50] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e51]: ▤
+        - button "Estudios pretransfusionales" [ref=f78e53] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e54]: ◈
+        - button "Seleccionar componente" [ref=f78e56] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e57]: ⚕
+        - button "Emitir sangre" [ref=f78e59] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e60]: ↗
+      - generic [ref=f78e62]:
+        - paragraph [ref=f78e63]: Inventario
+        - button "Recepción de unidades" [ref=f78e64] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e65]: ＋
+        - button "Liberar unidad" [ref=f78e67] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e68]: ✓
+        - button "Dar de baja unidad" [ref=f78e70] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e71]: ⊘
+    - generic [ref=f78e73]:
+      - paragraph [ref=f78e74]:
+        - generic [ref=f78e76]: Servicio de Hemoterapia
+      - button "Colapsar menú lateral" [ref=f78e77] [cursor=pointer]:
+        - generic [aria-hidden] [ref=f78e78]: «
+        - generic [ref=f78e79]: Colapsar menú
+  - generic [ref=f78e80]:
+    - banner [ref=f78e81]:
+      - navigation "Ruta de navegación" [ref=f78e82]:
+        - generic [ref=f78e83]: Inicio
+        - generic [aria-hidden] [ref=f78e84]: /
+        - generic [ref=f78e85]: Donación y calificación
+        - generic [aria-hidden] [ref=f78e86]: /
+        - strong [ref=f78e87]: Tamizaje de infecciones
+      - generic [ref=f78e88]:
+        - generic [ref=f78e89]: FLORHEMA
+        - generic [ref=f78e90]: Servicio de Hemoterapia
+    - main [ref=f78e91]:
+      - generic [ref=f78e598]:
+        - generic [ref=f78e600]:
+          - heading "Tamizaje de infecciones transmisibles" [level=1] [ref=f78e601]
+          - paragraph [ref=f78e602]: Registrá los resultados serológicos de una donación para evaluar si la unidad puede avanzar hacia su liberación.
+        - region "Donaciones registradas" [ref=f78e603]:
+          - heading "Donaciones registradas" [level=2] [ref=f78e604]
+          - generic [ref=f78e606]:
+            - generic [ref=f78e607]:
+              - generic [ref=f78e608]:
+                - generic [aria-hidden] [ref=f78e609]: ⌕
+                - generic [ref=f78e610]: Buscar donación por donante, DNI, ID u operador…
+                - searchbox "Buscar donación por donante, DNI, ID u operador…" [ref=f78e611]
+              - generic [ref=f78e612]:
+                - generic [ref=f78e613]: Estado de la donación
+                - combobox "Estado de la donación" [ref=f78e614]:
+                  - option "Todos" [selected]
+                  - option "Registrada"
+                  - option "En calificación"
+                  - option "Calificada"
+                  - option "Rechazada"
+              - generic [ref=f78e615]:
+                - generic [ref=f78e616]: Estado de la unidad
+                - combobox "Estado de la unidad" [ref=f78e617]:
+                  - option "Todos" [selected]
+                  - option "Pendiente"
+                  - option "Liberada"
+                  - option "Bloqueada"
+              - generic [ref=f78e618]:
+                - generic [ref=f78e619]: Estudios
+                - combobox "Estudios" [ref=f78e620]:
+                  - option "Todas" [selected]
+                  - option "Sin calificación"
+                  - option "Con calificación"
+                  - option "Sin tipificación"
+            - status [ref=f78e621]: 60 registros · mostrando 1–10
+            - region "Donaciones registradas en el sistema" [ref=f78e622]:
+              - table "Donaciones registradas en el sistema" [ref=f78e623]:
+                - caption [ref=f78e624]: Donaciones registradas en el sistema
+                - rowgroup [ref=f78e625]:
+                  - row [ref=f78e626]:
+                    - columnheader "ID" [ref=f78e627]:
+                      - button "ID" [ref=f78e628] [cursor=pointer]: ID ↕
+                    - columnheader "Donante" [ref=f78e629]:
+                      - button "Donante" [ref=f78e630] [cursor=pointer]: Donante ↕
+                    - columnheader "DNI" [ref=f78e631]:
+                      - button "DNI" [ref=f78e632] [cursor=pointer]: DNI ↕
+                    - columnheader "Fecha y hora" [ref=f78e633]:
+                      - button "Fecha y hora" [ref=f78e634] [cursor=pointer]: Fecha y hora ↕
+                    - columnheader "Estado" [ref=f78e635]:
+                      - button "Estado" [ref=f78e636] [cursor=pointer]: Estado ↕
+                    - columnheader "Unidad" [ref=f78e637]:
+                      - button "Unidad" [ref=f78e638] [cursor=pointer]: Unidad ↕
+                    - columnheader "Operador" [ref=f78e639]:
+                      - button "Operador" [ref=f78e640] [cursor=pointer]: Operador ↕
+                    - columnheader "Calificación" [ref=f78e641]:
+                      - button "Calificación" [ref=f78e642] [cursor=pointer]: Calificación ↕
+                    - columnheader "Tipificación" [ref=f78e643]:
+                      - button "Tipificación" [ref=f78e644] [cursor=pointer]: Tipificación ↕
+                    - columnheader "Anticuerpos" [ref=f78e645]:
+                      - button "Anticuerpos" [ref=f78e646] [cursor=pointer]: Anticuerpos ↕
+                    - columnheader "Acciones" [ref=f78e647]
+                - rowgroup [ref=f78e648]:
+                  - row [ref=f78e649] [cursor=pointer]:
+                    - cell "3" [ref=f78e650]
+                    - cell [ref=f78e651]:
+                      - strong [ref=f78e652]: Archuleta Lerma, David
+                    - cell "55049324" [ref=f78e653]
+                    - cell "13/11/26, 9:10 p. m." [ref=f78e654]
+                    - cell "Registrada" [ref=f78e655]
+                    - cell "Pendiente" [ref=f78e657]
+                    - cell "Seeder" [ref=f78e659]
+                    - cell "Sin iniciar" [ref=f78e660]
+                    - cell "—" [ref=f78e661]
+                    - cell "Sin registrar" [ref=f78e662]
+                    - cell [ref=f78e663]:
+                      - button "Tamizar" [ref=f78e665]
+                  - row [ref=f78e666] [cursor=pointer]:
+                    - cell "1" [ref=f78e667]
+                    - cell [ref=f78e668]:
+                      - strong [ref=f78e669]: Ramírez, Carlos
+                    - cell "27123456" [ref=f78e670]
+                    - cell "1/10/26, 9:00 a. m." [ref=f78e671]
+                    - cell "Registrada" [ref=f78e672]
+                    - cell "Pendiente" [ref=f78e674]
+                    - cell "Seeder" [ref=f78e676]
+                    - cell "Sin iniciar" [ref=f78e677]
+                    - cell "—" [ref=f78e678]
+                    - cell "Sin registrar" [ref=f78e679]
+                    - cell [ref=f78e680]:
+                      - button "Tamizar" [ref=f78e682]
+                  - row [ref=f78e683] [cursor=pointer]:
+                    - cell "4" [ref=f78e684]
+                    - cell [ref=f78e685]:
+                      - strong [ref=f78e686]: Archuleta Lerma, David
+                    - cell "55049324" [ref=f78e687]
+                    - cell "6/9/26, 6:32 p. m." [ref=f78e688]
+                    - cell "En calificación" [ref=f78e689]
+                    - cell "Pendiente" [ref=f78e691]
+                    - cell "msosa" [ref=f78e693]
+                    - cell "Sin iniciar" [ref=f78e694]
+                    - cell "—" [ref=f78e695]
+                    - cell "Sin registrar" [ref=f78e696]
+                    - cell [ref=f78e697]:
+                      - button "Tamizar" [ref=f78e699]
+                  - row [ref=f78e700] [cursor=pointer]:
+                    - cell "23" [ref=f78e701]
+                    - cell [ref=f78e702]:
+                      - strong [ref=f78e703]: Acosta Naranjo, Roser
+                    - cell "87661052" [ref=f78e704]
+                    - cell "19/8/26, 9:13 p. m." [ref=f78e705]
+                    - cell "Calificada" [ref=f78e706]
+                    - cell "Pendiente" [ref=f78e708]
+                    - cell "Seeder" [ref=f78e710]
+                    - cell "Sin iniciar" [ref=f78e711]
+                    - cell "—" [ref=f78e712]
+                    - cell "Sin registrar" [ref=f78e713]
+                    - cell [ref=f78e714]:
+                      - button "Tamizar" [ref=f78e716]
+                  - row [ref=f78e717] [cursor=pointer]:
+                    - cell "6" [ref=f78e718]
+                    - cell [ref=f78e719]:
+                      - strong [ref=f78e720]: Amador Matos, Nicolás
+                    - cell "40025474" [ref=f78e721]
+                    - cell "13/8/26, 2:54 a. m." [ref=f78e722]
+                    - cell "Registrada" [ref=f78e723]
+                    - cell "Pendiente" [ref=f78e725]
+                    - cell "jramirez" [ref=f78e727]
+                    - cell "Sin iniciar" [ref=f78e728]
+                    - cell "—" [ref=f78e729]
+                    - cell "Sin registrar" [ref=f78e730]
+                    - cell [ref=f78e731]:
+                      - button "Tamizar" [ref=f78e733]
+                  - row [ref=f78e734] [cursor=pointer]:
+                    - cell "46" [ref=f78e735]
+                    - cell [ref=f78e736]:
+                      - strong [ref=f78e737]: Fierro Bueno, Carolina
+                    - cell "78361606" [ref=f78e738]
+                    - cell "7/8/26, 5:12 a. m." [ref=f78e739]
+                    - cell "Registrada" [ref=f78e740]
+                    - cell "Pendiente" [ref=f78e742]
+                    - cell "fperez" [ref=f78e744]
+                    - cell "Sin iniciar" [ref=f78e745]
+                    - cell "—" [ref=f78e746]
+                    - cell "Sin registrar" [ref=f78e747]
+                    - cell [ref=f78e748]:
+                      - button "Tamizar" [ref=f78e750]
+                  - row [ref=f78e751] [cursor=pointer]:
+                    - cell "37" [ref=f78e752]
+                    - cell [ref=f78e753]:
+                      - strong [ref=f78e754]: Benítez, Sofía
+                    - cell "31222333" [ref=f78e755]
+                    - cell "1/7/26, 8:57 p. m." [ref=f78e756]
+                    - cell "No apta / rechazada" [ref=f78e757]
+                    - cell "Pendiente" [ref=f78e759]
+                    - cell "msosa" [ref=f78e761]
+                    - cell "Sin iniciar" [ref=f78e762]
+                    - cell "—" [ref=f78e763]
+                    - cell "Sin registrar" [ref=f78e764]
+                    - cell [ref=f78e765]:
+                      - button "Tamizar" [ref=f78e767]
+                  - row [ref=f78e768] [cursor=pointer]:
+                    - cell "30" [ref=f78e769]
+                    - cell [ref=f78e770]:
+                      - strong [ref=f78e771]: Villegas Riojas, Germán
+                    - cell "43172007" [ref=f78e772]
+                    - cell "12/6/26, 7:50 p. m." [ref=f78e773]
+                    - cell "No apta / rechazada" [ref=f78e774]
+                    - cell "Pendiente" [ref=f78e776]
+                    - cell "maternidad" [ref=f78e778]
+                    - cell "Sin iniciar" [ref=f78e779]
+                    - cell "—" [ref=f78e780]
+                    - cell "Sin registrar" [ref=f78e781]
+                    - cell [ref=f78e782]:
+                      - button "Tamizar" [ref=f78e784]
+                  - row [ref=f78e785] [cursor=pointer]:
+                    - cell "9" [ref=f78e786]
+                    - cell [ref=f78e787]:
+                      - strong [ref=f78e788]: Samaniego Sedillo, Mariana
+                    - cell "99222665" [ref=f78e789]
+                    - cell "26/5/26, 7:13 a. m." [ref=f78e790]
+                    - cell "En calificación" [ref=f78e791]
+                    - cell "Pendiente" [ref=f78e793]
+                    - cell "Seeder" [ref=f78e795]
+                    - cell "Sin iniciar" [ref=f78e796]
+                    - cell "—" [ref=f78e797]
+                    - cell "Sin registrar" [ref=f78e798]
+                    - cell [ref=f78e799]:
+                      - button "Tamizar" [ref=f78e801]
+                  - row [ref=f78e802] [cursor=pointer]:
+                    - cell "8" [ref=f78e803]
+                    - cell [ref=f78e804]:
+                      - strong [ref=f78e805]: Olivárez Mayorga, Alicia
+                    - cell "80919170" [ref=f78e806]
+                    - cell "22/5/26, 8:51 a. m." [ref=f78e807]
+                    - cell "Registrada" [ref=f78e808]
+                    - cell "Pendiente" [ref=f78e810]
+                    - cell "maternidad" [ref=f78e812]
+                    - cell "Sin iniciar" [ref=f78e813]
+                    - cell "—" [ref=f78e814]
+                    - cell "Sin registrar" [ref=f78e815]
+                    - cell [ref=f78e816]:
+                      - button "Tamizar" [ref=f78e818]
+            - generic [ref=f78e819]:
+              - generic [ref=f78e820]:
+                - generic [ref=f78e821]: Registros por página
+                - combobox "Registros por página" [ref=f78e822]:
+                  - option "10" [selected]
+                  - option "25"
+                  - option "50"
+              - generic [ref=f78e823]:
+                - button "Página anterior" [disabled] [ref=f78e824]: ← Anterior
+                - generic [ref=f78e825]: Página 1 de 6
+                - button "Página siguiente" [ref=f78e826] [cursor=pointer]: Siguiente →
+          - paragraph [ref=f78e827]: Seleccioná una donación de la tabla para continuar.
+        - group "Datos del tamizaje" [ref=f78e829]:
+          - generic [ref=f78e831]:
+            - generic [ref=f78e832]:
+              - generic [ref=f78e833]:
+                - generic [ref=f78e834]: Fecha de determinación*
+                - textbox "Fecha de determinación" [ref=f78e835]: 2026-11-25
+              - generic [ref=f78e836]:
+                - generic [ref=f78e837]: Operador*
+                - textbox "Operador" [ref=f78e838]:
+                  - /placeholder: Nombre del bioquímico o técnico
+            - group "Resultados de las pruebas" [ref=f78e839]:
+              - generic [ref=f78e841]:
+                - generic [ref=f78e842]:
+                  - generic [ref=f78e843]: Anti-T. cruzi (Chagas)*
+                  - group "Anti-T. cruzi (Chagas)" [ref=f78e844]:
+                    - generic [ref=f78e845] [cursor=pointer]:
+                      - radio "Anti-T. cruzi (Chagas) No reactivo" [ref=f78e846]
+                      - text: No reactivo
+                    - generic [ref=f78e847] [cursor=pointer]:
+                      - radio "Reactivo" [ref=f78e848]
+                      - text: Reactivo
+                - generic [ref=f78e849]:
+                  - generic [ref=f78e850]: HBsAg*
+                  - group "HBsAg" [ref=f78e851]:
+                    - generic [ref=f78e852] [cursor=pointer]:
+                      - radio "HBsAg No reactivo" [ref=f78e853]
+                      - text: No reactivo
+                    - generic [ref=f78e854] [cursor=pointer]:
+                      - radio "Reactivo" [ref=f78e855]
+                      - text: Reactivo
+                - generic [ref=f78e856]:
+                  - generic [ref=f78e857]: Anti-core HB (Anti-HBc)*
+                  - group "Anti-core HB (Anti-HBc)" [ref=f78e858]:
+                    - generic [ref=f78e859] [cursor=pointer]:
+                      - radio "Anti-core HB (Anti-HBc) No reactivo" [ref=f78e860]
+                      - text: No reactivo
+                    - generic [ref=f78e861] [cursor=pointer]:
+                      - radio "Reactivo" [ref=f78e862]
+                      - text: Reactivo
+                - generic [ref=f78e863]:
+                  - generic [ref=f78e864]: Anti-HCV*
+                  - group "Anti-HCV" [ref=f78e865]:
+                    - generic [ref=f78e866] [cursor=pointer]:
+                      - radio "Anti-HCV No reactivo" [ref=f78e867]
+                      - text: No reactivo
+                    - generic [ref=f78e868] [cursor=pointer]:
+                      - radio "Reactivo" [ref=f78e869]
+                      - text: Reactivo
+                - generic [ref=f78e870]:
+                  - generic [ref=f78e871]: Anti-VIH 1/2*
+                  - group "Anti-VIH 1/2" [ref=f78e872]:
+                    - generic [ref=f78e873] [cursor=pointer]:
+                      - radio "Anti-VIH 1/2 No reactivo" [ref=f78e874]
+                      - text: No reactivo
+                    - generic [ref=f78e875] [cursor=pointer]:
+                      - radio "Reactivo" [ref=f78e876]
+                      - text: Reactivo
+                - generic [ref=f78e877]:
+                  - generic [ref=f78e878]: Anti-Treponema pallidum*
+                  - group "Anti-Treponema pallidum" [ref=f78e879]:
+                    - generic [ref=f78e880] [cursor=pointer]:
+                      - radio "Anti-Treponema pallidum No reactivo" [ref=f78e881]
+                      - text: No reactivo
+                    - generic [ref=f78e882] [cursor=pointer]:
+                      - radio "Reactivo" [ref=f78e883]
+                      - text: Reactivo
+                - generic [ref=f78e884]:
+                  - generic [ref=f78e885]: Anti-HTLV I/II*
+                  - group "Anti-HTLV I/II" [ref=f78e886]:
+                    - generic [ref=f78e887] [cursor=pointer]:
+                      - radio "Anti-HTLV I/II No reactivo" [ref=f78e888]
+                      - text: No reactivo
+                    - generic [ref=f78e889] [cursor=pointer]:
+                      - radio "Reactivo" [ref=f78e890]
+                      - text: Reactivo
+            - generic [ref=f78e891]:
+              - button "Registrar tamizaje" [ref=f78e892] [cursor=pointer]
+              - button "Consultar historial" [ref=f78e893] [cursor=pointer]

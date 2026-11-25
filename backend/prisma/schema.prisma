@@ -129,6 +129,7 @@ model Donante {
   email           String
   telefonoFijo    String?
   telefonoCelular String
+  activo          Boolean       @default(true)
   operadorModificacion String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt

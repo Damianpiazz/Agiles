@@ -1,0 +1,346 @@
+- generic [ref=f78e3]:
+  - link "Saltar al contenido principal" [ref=f78e4] [cursor=pointer]:
+    - /url: "#contenido-principal"
+  - complementary "Navegación principal" [ref=f78e5]:
+    - generic [ref=f78e6]:
+      - generic [aria-hidden] [ref=f78e7]:
+        - generic [ref=f78e8]: F
+        - generic [ref=f78e9]: +
+      - generic [ref=f78e10]:
+        - heading "FLORHEMA" [level=1] [ref=f78e11]
+        - paragraph [ref=f78e12]: Sistema de Gestión de Hemoterapia
+    - navigation "Módulos del sistema" [ref=f78e13]:
+      - generic [ref=f78e14]:
+        - paragraph [ref=f78e15]: Inicio
+        - button "Resumen" [ref=f78e16] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e17]: ◫
+        - button "Buscar donante" [ref=f78e19] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e20]: ⌕
+        - button "Alta de donante" [ref=f78e22] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e23]: ＋
+      - generic [ref=f78e25]:
+        - paragraph [ref=f78e26]: Donación y calificación
+        - button "Registrar donación" [ref=f78e27] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e28]: ♥
+        - button "Calificación biológica" [ref=f78e30] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e31]: ✓
+        - button "Tipificación sanguínea" [ref=f78e33] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e34]: ⊕
+        - button "Tamizaje de infecciones" [ref=f78e36] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e37]: ◉
+        - button "Consultar resultados" [active] [ref=f78e39] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e40]: ⌕
+      - generic [ref=f78e42]:
+        - paragraph [ref=f78e43]: Pacientes y transfusión
+        - button "Alta de paciente" [ref=f78e44] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e45]: ＋
+        - button "Buscar paciente" [ref=f78e47] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e48]: ⌕
+        - button "Solicitudes de transfusión" [ref=f78e50] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e51]: ▤
+        - button "Estudios pretransfusionales" [ref=f78e53] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e54]: ◈
+        - button "Seleccionar componente" [ref=f78e56] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e57]: ⚕
+        - button "Emitir sangre" [ref=f78e59] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e60]: ↗
+      - generic [ref=f78e62]:
+        - paragraph [ref=f78e63]: Inventario
+        - button "Recepción de unidades" [ref=f78e64] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e65]: ＋
+        - button "Liberar unidad" [ref=f78e67] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e68]: ✓
+        - button "Dar de baja unidad" [ref=f78e70] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e71]: ⊘
+    - generic [ref=f78e73]:
+      - paragraph [ref=f78e74]:
+        - generic [ref=f78e76]: Servicio de Hemoterapia
+      - button "Colapsar menú lateral" [ref=f78e77] [cursor=pointer]:
+        - generic [aria-hidden] [ref=f78e78]: «
+        - generic [ref=f78e79]: Colapsar menú
+  - generic [ref=f78e80]:
+    - banner [ref=f78e81]:
+      - navigation "Ruta de navegación" [ref=f78e82]:
+        - generic [ref=f78e83]: Inicio
+        - generic [aria-hidden] [ref=f78e84]: /
+        - generic [ref=f78e85]: Donación y calificación
+        - generic [aria-hidden] [ref=f78e86]: /
+        - strong [ref=f78e87]: Consultar resultados
+      - generic [ref=f78e88]:
+        - generic [ref=f78e89]: FLORHEMA
+        - generic [ref=f78e90]: Servicio de Hemoterapia
+    - main [ref=f78e91]:
+      - generic [ref=f78e894]:
+        - generic [ref=f78e896]:
+          - heading "Consultar resultados de calificación" [level=1] [ref=f78e897]
+          - paragraph [ref=f78e898]: Consultá los resultados de calificación biológica y el estado de las donaciones de un donante.
+        - generic [ref=f78e899]:
+          - heading "Buscar donante" [level=2] [ref=f78e900]
+          - generic [ref=f78e901]:
+            - generic [ref=f78e903]:
+              - generic [ref=f78e904]: DNI del donante
+              - textbox "DNI del donante" [ref=f78e905]:
+                - /placeholder: Ingresá el DNI
+              - paragraph [ref=f78e906]: 7 u 8 dígitos
+            - button "Consultar resultados" [ref=f78e908] [cursor=pointer]
+        - region "Donantes registrados" [ref=f78e909]:
+          - heading "Donantes registrados" [level=2] [ref=f78e910]
+          - generic [ref=f78e911]:
+            - generic [ref=f78e912]:
+              - generic [ref=f78e913]:
+                - generic [aria-hidden] [ref=f78e914]: ⌕
+                - generic [ref=f78e915]: Buscar donante por DNI, nombre, apellido o contacto…
+                - searchbox "Buscar donante por DNI, nombre, apellido o contacto…" [ref=f78e916]
+              - generic [ref=f78e917]:
+                - generic [ref=f78e918]: Sexo biológico
+                - combobox "Sexo biológico" [ref=f78e919]:
+                  - option "Todos" [selected]
+                  - option "Femenino"
+                  - option "Masculino"
+              - generic [ref=f78e920]:
+                - generic [ref=f78e921]: Estado
+                - combobox "Estado" [ref=f78e922]:
+                  - option "Todos" [selected]
+                  - option "Activo"
+                  - option "Dado de baja"
+            - status [ref=f78e923]: 60 registros · mostrando 1–10
+            - region "Donantes registrados en el sistema" [ref=f78e924]:
+              - table "Donantes registrados en el sistema" [ref=f78e925]:
+                - caption [ref=f78e926]: Donantes registrados en el sistema
+                - rowgroup [ref=f78e927]:
+                  - row [ref=f78e928]:
+                    - columnheader "ID" [ref=f78e929]:
+                      - button "ID" [ref=f78e930] [cursor=pointer]: ID ↕
+                    - columnheader "Nombre" [ref=f78e931]:
+                      - button "Nombre" [ref=f78e932] [cursor=pointer]: Nombre ↕
+                    - columnheader "Apellido" [ref=f78e933]:
+                      - button "Apellido" [ref=f78e934] [cursor=pointer]: Apellido ↕
+                    - columnheader "DNI" [ref=f78e935]:
+                      - button "DNI" [ref=f78e936] [cursor=pointer]: DNI ↕
+                    - columnheader "Fecha de nacimiento" [ref=f78e937]:
+                      - button "Fecha de nacimiento" [ref=f78e938] [cursor=pointer]: Fecha de nacimiento ↕
+                    - columnheader "Lugar de nacimiento" [ref=f78e939]:
+                      - button "Lugar de nacimiento" [ref=f78e940] [cursor=pointer]: Lugar de nacimiento ↕
+                    - columnheader "Sexo biológico" [ref=f78e941]:
+                      - button "Sexo biológico" [ref=f78e942] [cursor=pointer]: Sexo biológico ↕
+                    - columnheader "Domicilio" [ref=f78e943]:
+                      - button "Domicilio" [ref=f78e944] [cursor=pointer]: Domicilio ↕
+                    - columnheader "Código postal" [ref=f78e945]:
+                      - button "Código postal" [ref=f78e946] [cursor=pointer]: Código postal ↕
+                    - columnheader "Email" [ref=f78e947]:
+                      - button "Email" [ref=f78e948] [cursor=pointer]: Email ↕
+                    - columnheader "Teléfono fijo" [ref=f78e949]:
+                      - button "Teléfono fijo" [ref=f78e950] [cursor=pointer]: Teléfono fijo ↕
+                    - columnheader "Teléfono celular" [ref=f78e951]:
+                      - button "Teléfono celular" [ref=f78e952] [cursor=pointer]: Teléfono celular ↕
+                    - columnheader "Estado" [ref=f78e953]:
+                      - button "Estado" [ref=f78e954] [cursor=pointer]: Estado ↕
+                    - columnheader "Última modificación" [ref=f78e955]:
+                      - button "Última modificación" [ref=f78e956] [cursor=pointer]: Última modificación ↕
+                    - columnheader "Acciones" [ref=f78e957]
+                - rowgroup [ref=f78e958]:
+                  - row [ref=f78e959] [cursor=pointer]:
+                    - cell "5" [ref=f78e960]
+                    - cell [ref=f78e961]:
+                      - strong [ref=f78e962]: Roser
+                    - cell [ref=f78e963]:
+                      - strong [ref=f78e964]: Acosta Naranjo
+                    - cell "87661052" [ref=f78e965]
+                    - cell "9/7/1983" [ref=f78e966]
+                    - cell "Barranqueras" [ref=f78e967]
+                    - cell "Femenino" [ref=f78e968]
+                    - cell "Independencia 7675" [ref=f78e969]
+                    - cell "3400" [ref=f78e970]
+                    - cell "roser_acostanaranjo52148@example.com" [ref=f78e971]
+                    - cell "362479365" [ref=f78e972]
+                    - cell "362497267" [ref=f78e973]
+                    - cell "Activo" [ref=f78e974]
+                    - cell "—" [ref=f78e976]
+                    - cell [ref=f78e977]:
+                      - button "Ver detalle" [ref=f78e979]
+                  - row [ref=f78e980] [cursor=pointer]:
+                    - cell "44" [ref=f78e981]
+                    - cell [ref=f78e982]:
+                      - strong [ref=f78e983]: Raquel
+                    - cell [ref=f78e984]:
+                      - strong [ref=f78e985]: Alvarado Salazar
+                    - cell "87627046" [ref=f78e986]
+                    - cell "4/12/2003" [ref=f78e987]
+                    - cell "Resistencia" [ref=f78e988]
+                    - cell "Masculino" [ref=f78e989]
+                    - cell "Mitre 443" [ref=f78e990]
+                    - cell "3400" [ref=f78e991]
+                    - cell "raquel_alvaradosalazar6323@example.com" [ref=f78e992]
+                    - cell "—" [ref=f78e993]
+                    - cell "362495614" [ref=f78e994]
+                    - cell "Activo" [ref=f78e995]
+                    - cell "—" [ref=f78e997]
+                    - cell [ref=f78e998]:
+                      - button "Ver detalle" [ref=f78e1000]
+                  - row [ref=f78e1001] [cursor=pointer]:
+                    - cell "39" [ref=f78e1002]
+                    - cell [ref=f78e1003]:
+                      - strong [ref=f78e1004]: Nicolás
+                    - cell [ref=f78e1005]:
+                      - strong [ref=f78e1006]: Amador Matos
+                    - cell "40025474" [ref=f78e1007]
+                    - cell "20/8/1975" [ref=f78e1008]
+                    - cell "Corrientes" [ref=f78e1009]
+                    - cell "Masculino" [ref=f78e1010]
+                    - cell "San Martín 1151" [ref=f78e1011]
+                    - cell "3400" [ref=f78e1012]
+                    - cell "nicolas.amadormatos8803@example.com" [ref=f78e1013]
+                    - cell "—" [ref=f78e1014]
+                    - cell "362458345" [ref=f78e1015]
+                    - cell "Activo" [ref=f78e1016]
+                    - cell "—" [ref=f78e1018]
+                    - cell [ref=f78e1019]:
+                      - button "Ver detalle" [ref=f78e1021]
+                  - row [ref=f78e1022] [cursor=pointer]:
+                    - cell "50" [ref=f78e1023]
+                    - cell [ref=f78e1024]:
+                      - strong [ref=f78e1025]: José Eduardo
+                    - cell [ref=f78e1026]:
+                      - strong [ref=f78e1027]: Amaya Delacrúz
+                    - cell "47432656" [ref=f78e1028]
+                    - cell "6/5/1958" [ref=f78e1029]
+                    - cell "Corrientes" [ref=f78e1030]
+                    - cell "Masculino" [ref=f78e1031]
+                    - cell "Alberdi 8715" [ref=f78e1032]
+                    - cell "3500" [ref=f78e1033]
+                    - cell "joseeduardo.amayadelacruz908191@example.com" [ref=f78e1034]
+                    - cell "362464839" [ref=f78e1035]
+                    - cell "362485488" [ref=f78e1036]
+                    - cell "Activo" [ref=f78e1037]
+                    - cell "—" [ref=f78e1039]
+                    - cell [ref=f78e1040]:
+                      - button "Ver detalle" [ref=f78e1042]
+                  - row [ref=f78e1043] [cursor=pointer]:
+                    - cell "33" [ref=f78e1044]
+                    - cell [ref=f78e1045]:
+                      - strong [ref=f78e1046]: María Teresa
+                    - cell [ref=f78e1047]:
+                      - strong [ref=f78e1048]: Amaya Quintana
+                    - cell "61166222" [ref=f78e1049]
+                    - cell "7/8/1963" [ref=f78e1050]
+                    - cell "Corrientes" [ref=f78e1051]
+                    - cell "Masculino" [ref=f78e1052]
+                    - cell "San Martín 8942" [ref=f78e1053]
+                    - cell "3500" [ref=f78e1054]
+                    - cell "mariateresa.amayaquintana209212@example.com" [ref=f78e1055]
+                    - cell "362494489" [ref=f78e1056]
+                    - cell "362455989" [ref=f78e1057]
+                    - cell "Activo" [ref=f78e1058]
+                    - cell "—" [ref=f78e1060]
+                    - cell [ref=f78e1061]:
+                      - button "Ver detalle" [ref=f78e1063]
+                  - row [ref=f78e1064] [cursor=pointer]:
+                    - cell "54" [ref=f78e1065]
+                    - cell [ref=f78e1066]:
+                      - strong [ref=f78e1067]: Antonio
+                    - cell [ref=f78e1068]:
+                      - strong [ref=f78e1069]: Aragón Moya
+                    - cell "51794009" [ref=f78e1070]
+                    - cell "11/7/2000" [ref=f78e1071]
+                    - cell "Corrientes" [ref=f78e1072]
+                    - cell "Femenino" [ref=f78e1073]
+                    - cell "Belgrano 848" [ref=f78e1074]
+                    - cell "3503" [ref=f78e1075]
+                    - cell "antonio.aragonmoya99265@example.com" [ref=f78e1076]
+                    - cell "362479044" [ref=f78e1077]
+                    - cell "362450737" [ref=f78e1078]
+                    - cell "Activo" [ref=f78e1079]
+                    - cell "—" [ref=f78e1081]
+                    - cell [ref=f78e1082]:
+                      - button "Ver detalle" [ref=f78e1084]
+                  - row [ref=f78e1085] [cursor=pointer]:
+                    - cell "43" [ref=f78e1086]
+                    - cell [ref=f78e1087]:
+                      - strong [ref=f78e1088]: David
+                    - cell [ref=f78e1089]:
+                      - strong [ref=f78e1090]: Archuleta Lerma
+                    - cell "55049324" [ref=f78e1091]
+                    - cell "25/10/1993" [ref=f78e1092]
+                    - cell "Resistencia" [ref=f78e1093]
+                    - cell "Femenino" [ref=f78e1094]
+                    - cell "Mitre 1097" [ref=f78e1095]
+                    - cell "3503" [ref=f78e1096]
+                    - cell "david.archuletalerma2033@example.com" [ref=f78e1097]
+                    - cell "362485546" [ref=f78e1098]
+                    - cell "362455964" [ref=f78e1099]
+                    - cell "Activo" [ref=f78e1100]
+                    - cell "—" [ref=f78e1102]
+                    - cell [ref=f78e1103]:
+                      - button "Ver detalle" [ref=f78e1105]
+                  - row [ref=f78e1106] [cursor=pointer]:
+                    - cell "11" [ref=f78e1107]
+                    - cell [ref=f78e1108]:
+                      - strong [ref=f78e1109]: Javier
+                    - cell [ref=f78e1110]:
+                      - strong [ref=f78e1111]: Argüello Saldaña
+                    - cell "72612658" [ref=f78e1112]
+                    - cell "7/1/1968" [ref=f78e1113]
+                    - cell "Corrientes" [ref=f78e1114]
+                    - cell "Masculino" [ref=f78e1115]
+                    - cell "Mitre 6128" [ref=f78e1116]
+                    - cell "3500" [ref=f78e1117]
+                    - cell "javier_arguellosaldana873149@example.com" [ref=f78e1118]
+                    - cell "—" [ref=f78e1119]
+                    - cell "362474282" [ref=f78e1120]
+                    - cell "Activo" [ref=f78e1121]
+                    - cell "—" [ref=f78e1123]
+                    - cell [ref=f78e1124]:
+                      - button "Ver detalle" [ref=f78e1126]
+                  - row [ref=f78e1127] [cursor=pointer]:
+                    - cell "35" [ref=f78e1128]
+                    - cell [ref=f78e1129]:
+                      - strong [ref=f78e1130]: Rubén
+                    - cell [ref=f78e1131]:
+                      - strong [ref=f78e1132]: Arriaga Mata
+                    - cell "66551220" [ref=f78e1133]
+                    - cell "7/7/1977" [ref=f78e1134]
+                    - cell "Resistencia" [ref=f78e1135]
+                    - cell "Femenino" [ref=f78e1136]
+                    - cell "Belgrano 3157" [ref=f78e1137]
+                    - cell "3400" [ref=f78e1138]
+                    - cell "ruben_arriagamata388@example.com" [ref=f78e1139]
+                    - cell "—" [ref=f78e1140]
+                    - cell "362490431" [ref=f78e1141]
+                    - cell "Activo" [ref=f78e1142]
+                    - cell "—" [ref=f78e1144]
+                    - cell [ref=f78e1145]:
+                      - button "Ver detalle" [ref=f78e1147]
+                  - row [ref=f78e1148] [cursor=pointer]:
+                    - cell "17" [ref=f78e1149]
+                    - cell [ref=f78e1150]:
+                      - strong [ref=f78e1151]: María Soledad
+                    - cell [ref=f78e1152]:
+                      - strong [ref=f78e1153]: Ballesteros Flores
+                    - cell "91728881" [ref=f78e1154]
+                    - cell "26/2/1997" [ref=f78e1155]
+                    - cell "Barranqueras" [ref=f78e1156]
+                    - cell "Masculino" [ref=f78e1157]
+                    - cell "Libertad 8708" [ref=f78e1158]
+                    - cell "3400" [ref=f78e1159]
+                    - cell "mariasoledad.ballesterosflores7314@example.com" [ref=f78e1160]
+                    - cell "—" [ref=f78e1161]
+                    - cell "362461769" [ref=f78e1162]
+                    - cell "Activo" [ref=f78e1163]
+                    - cell "—" [ref=f78e1165]
+                    - cell [ref=f78e1166]:
+                      - button "Ver detalle" [ref=f78e1168]
+            - generic [ref=f78e1169]:
+              - generic [ref=f78e1170]:
+                - generic [ref=f78e1171]: Registros por página
+                - combobox "Registros por página" [ref=f78e1172]:
+                  - option "10" [selected]
+                  - option "25"
+                  - option "50"
+              - generic [ref=f78e1173]:
+                - button "Página anterior" [disabled] [ref=f78e1174]: ← Anterior
+                - generic [ref=f78e1175]: Página 1 de 6
+                - button "Página siguiente" [ref=f78e1176] [cursor=pointer]: Siguiente →
+        - generic [ref=f78e1177]:
+          - generic [aria-hidden] [ref=f78e1178]: ⌕
+          - paragraph [ref=f78e1179]: Todavía no hay resultados
+          - paragraph [ref=f78e1180]: Buscá un donante por DNI o seleccioná uno de la tabla para ver sus resultados de calificación.

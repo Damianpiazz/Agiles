@@ -76,7 +76,7 @@ export class PruebaCruzadaIncompatibleError extends Error {
   }
 }
 
-type EmisionDb = {
+export type EmisionDb = {
   solicitudTransfusion: {
     findUnique(args: unknown): Promise<any>;
   };
@@ -312,6 +312,32 @@ export async function emitir(
       advertencias,
     };
   });
+}
+
+export async function listar(db: EmisionDb = dbPredeterminada) {
+  const emisiones = await db.emisionUnidad.findMany({
+    include: {
+      solicitud: {
+        select: {
+          id: true,
+          estado: true,
+          fechaHora: true,
+        },
+      },
+      unidadSangre: {
+        select: {
+          id: true,
+          estado: true,
+        },
+      },
+    },
+    orderBy: [{ fechaHora: "desc" }, { id: "desc" }],
+  });
+
+  return emisiones.map((emision) => ({
+    ...emision,
+    etiqueta: construirEtiqueta(emision),
+  }));
 }
 
 export async function listarPorUnidad(
