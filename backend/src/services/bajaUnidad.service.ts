@@ -15,6 +15,15 @@ export class UnidadYaDadaDeBajaError extends Error {
   }
 }
 
+export class MotivoBajaNoPermitidoParaUnidadEmitidaError extends Error {
+  constructor() {
+    super(
+      "Una unidad emitida solo puede darse de baja con motivo TRANSFUNDIDA o DESCARTADA.",
+    );
+    this.name = "MotivoBajaNoPermitidoParaUnidadEmitidaError";
+  }
+}
+
 export type BajaUnidadDb = {
   unidadSangre: {
     findUnique: (args: any) => Promise<any>;
@@ -42,6 +51,14 @@ export async function darDeBaja(
 
   if (unidad.estado === "DADA_DE_BAJA") {
     throw new UnidadYaDadaDeBajaError();
+  }
+
+  if (
+    unidad.estado === "EMITIDA" &&
+    datos.motivo !== "TRANSFUNDIDA" &&
+    datos.motivo !== "DESCARTADA"
+  ) {
+    throw new MotivoBajaNoPermitidoParaUnidadEmitidaError();
   }
 
   return db.unidadSangre.update({

@@ -81,7 +81,9 @@ export class SolicitudTransfusionSinPacienteError extends Error {
 
 export class SolicitudTransfusionConUnidadesError extends Error {
   constructor() {
-    super("La solicitud tiene unidades reservadas y no puede modificarse ni cancelarse.");
+    super(
+      "La solicitud tiene unidades reservadas o emitidas y no puede modificarse ni cancelarse.",
+    );
     this.name = "SolicitudTransfusionConUnidadesError";
   }
 }
@@ -217,7 +219,12 @@ export async function actualizar(
   return db.$transaction(async (tx) => {
     const actual = await tx.solicitudTransfusion.findUnique({
       where: { id },
-      include: { unidades: { where: { estado: "RESERVADA" }, select: { id: true } } },
+      include: {
+        unidades: {
+          where: { estado: { in: ["RESERVADA", "EMITIDA"] } },
+          select: { id: true },
+        },
+      },
     });
     if (!actual) throw new SolicitudTransfusionNoEncontradaError();
     if (actual.estado === "CANCELADA") throw new SolicitudTransfusionCanceladaError();
@@ -349,7 +356,12 @@ export async function cancelar(
   return db.$transaction(async (tx) => {
     const actual = await tx.solicitudTransfusion.findUnique({
       where: { id },
-      include: { unidades: { where: { estado: "RESERVADA" }, select: { id: true } } },
+      include: {
+        unidades: {
+          where: { estado: { in: ["RESERVADA", "EMITIDA"] } },
+          select: { id: true },
+        },
+      },
     });
     if (!actual) throw new SolicitudTransfusionNoEncontradaError();
     if (actual.estado === "CANCELADA") throw new SolicitudTransfusionCanceladaError();

@@ -24,7 +24,10 @@ export async function darDeBaja(req: Request, res: Response) {
     if (e instanceof bajaUnidadService.UnidadNoEncontradaError) {
       return res.status(404).json({ error: e.message });
     }
-    if (e instanceof bajaUnidadService.UnidadYaDadaDeBajaError) {
+    if (
+      e instanceof bajaUnidadService.UnidadYaDadaDeBajaError ||
+      e instanceof bajaUnidadService.MotivoBajaNoPermitidoParaUnidadEmitidaError
+    ) {
       return res.status(409).json({ error: e.message });
     }
     console.error(e);

@@ -208,6 +208,54 @@ describe("solicitudTransfusion.service actualizar", () => {
     expect(tx.solicitudTransfusion.update).not.toHaveBeenCalled();
   });
 
+  it("protege solicitudes con unidades emitidas al actualizar y al cancelar", async () => {
+    const { db: dbAct, tx: txAct } = fakeDb({
+      solicitud: baseSolicitud({
+        estado: "APROBADA",
+        unidades: [{ id: 9, estado: "EMITIDA" }],
+      }),
+    });
+
+    await expect(
+      actualizar(
+        20,
+        { ...campos, motivoModificacion: "Corrección" } as ActualizarSolicitudTransfusionInput,
+        dbAct,
+      ),
+    ).rejects.toThrow("tiene unidades reservadas o emitidas");
+    expect(txAct.solicitudTransfusion.findUnique).toHaveBeenCalledWith({
+      where: { id: 20 },
+      include: {
+        unidades: {
+          where: { estado: { in: ["RESERVADA", "EMITIDA"] } },
+          select: { id: true },
+        },
+      },
+    });
+    expect(txAct.solicitudTransfusion.update).not.toHaveBeenCalled();
+
+    const { db: dbCanc, tx: txCanc } = fakeDb({
+      solicitud: baseSolicitud({
+        estado: "APROBADA",
+        unidades: [{ id: 9, estado: "EMITIDA" }],
+      }),
+    });
+
+    await expect(
+      cancelar(20, { operador: "Ana", motivo: "Cancelación tardía" }, dbCanc),
+    ).rejects.toThrow("tiene unidades reservadas o emitidas");
+    expect(txCanc.solicitudTransfusion.findUnique).toHaveBeenCalledWith({
+      where: { id: 20 },
+      include: {
+        unidades: {
+          where: { estado: { in: ["RESERVADA", "EMITIDA"] } },
+          select: { id: true },
+        },
+      },
+    });
+    expect(txCanc.solicitudTransfusion.update).not.toHaveBeenCalled();
+  });
+
   it("al editar una solicitud aprobada la devuelve a pendiente, limpia datos de aprobación y registra APROBACION_REVOCADA", async () => {
     const aprobada = baseSolicitud({
       estado: "APROBADA",

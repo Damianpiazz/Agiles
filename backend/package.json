@@ -11,7 +11,9 @@
     "test:watch": "vitest",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:baja": "tsx prisma/seed-baja-unidad.ts",
-    "db:seed:baja:reset": "tsx prisma/seed-baja-unidad.ts --reset"
+    "db:seed:baja:reset": "tsx prisma/seed-baja-unidad.ts --reset",
+    "db:seed:emision": "tsx prisma/seed-emision.ts",
+    "db:seed:emision:reset": "tsx prisma/seed-emision.ts --reset"
   },
   "keywords": [],
   "author": "",

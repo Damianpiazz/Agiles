@@ -105,4 +105,22 @@ describe("bajaUnidad controller (S1, S4)", () => {
     expect(res.statusCode).toBe(409);
     expect(res.body.error).toBe("La unidad ya fue dada de baja.");
   });
+
+  it("responde 409 cuando el motivo no está permitido para una unidad emitida", async () => {
+    (svc.darDeBaja as any).mockRejectedValue(
+      new svc.MotivoBajaNoPermitidoParaUnidadEmitidaError(),
+    );
+    const res = mockRes();
+
+    await darDeBajaCtrl(
+      {
+        params: { id: "1" },
+        body: { motivo: "VENCIDA", operador: "Ana" },
+      } as any,
+      res,
+    );
+
+    expect(res.statusCode).toBe(409);
+    expect(res.body.error).toContain("TRANSFUNDIDA o DESCARTADA");
+  });
 });

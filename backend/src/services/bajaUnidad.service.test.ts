@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { darDeBajaUnidadSchema } from "../types/bajaUnidad.types";
 import {
   darDeBaja,
+  MotivoBajaNoPermitidoParaUnidadEmitidaError,
   UnidadNoEncontradaError,
   UnidadYaDadaDeBajaError,
   type BajaUnidadDb,
@@ -160,6 +161,31 @@ describe("bajaUnidad.service darDeBaja (CA1, CA2, CA3, CA5)", () => {
     await expect(
       darDeBaja(1, { motivo: "VENCIDA", operador: "Otro Operador" }, db),
     ).rejects.toBeInstanceOf(UnidadYaDadaDeBajaError);
+    expect(db.unidadSangre.update).not.toHaveBeenCalled();
+  });
+
+  it("permite dar de baja una unidad EMITIDA con motivo TRANSFUNDIDA o DESCARTADA", async () => {
+    for (const motivo of ["TRANSFUNDIDA", "DESCARTADA"] as const) {
+      const db = fakeBajaDb(unidadInventario({ estado: "EMITIDA" }));
+
+      const resultado = await darDeBaja(
+        1,
+        { motivo, operador: "Laura Gómez" },
+        db,
+      );
+
+      expect(resultado.estado).toBe("DADA_DE_BAJA");
+      expect(resultado.motivoBaja).toBe(motivo);
+      expect(db.unidadSangre.update).toHaveBeenCalledTimes(1);
+    }
+  });
+
+  it("rechaza dar de baja una unidad EMITIDA con motivo VENCIDA", async () => {
+    const db = fakeBajaDb(unidadInventario({ estado: "EMITIDA" }));
+
+    await expect(
+      darDeBaja(1, { motivo: "VENCIDA", operador: "Laura Gómez" }, db),
+    ).rejects.toBeInstanceOf(MotivoBajaNoPermitidoParaUnidadEmitidaError);
     expect(db.unidadSangre.update).not.toHaveBeenCalled();
   });
 });

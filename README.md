@@ -141,6 +141,9 @@ npm run dev
 | POST | `/api/inventario-unidades` | Registrar recepción de unidad de hemocomponente en inventario (HU-022) | 201 | 400, 409, 500 |
 | GET | `/api/inventario-unidades` | Listar unidades registradas en el inventario (HU-022) | 200 | 500 |
 | POST | `/api/solicitudes-transfusiones/:id/aprobar` | Aprobar una solicitud de transfusión pendiente registrando médico aprobador y opinión opcional (extensión HU-015). Para rechazar una solicitud inadecuada se utiliza la cancelación (`POST /api/solicitudes-transfusiones/:id/cancelar`, con motivo obligatorio) | 200 | 400, 404, 409, 500 |
+| POST | `/api/solicitudes-transfusiones/:solicitudId/unidades/:unidadId/emitir` | Emitir una unidad reservada para transfusión, registrar snapshot y generar etiqueta y advertencias (HU-018) | 201 | 400, 404, 409, 500 |
+| GET | `/api/inventario-unidades/:id/emisiones` | Consultar el historial de emisiones de una unidad con sus etiquetas (HU-018) | 200 | 400, 404, 500 |
+| GET | `/api/solicitudes-transfusiones/:solicitudId/emisiones` | Consultar las emisiones registradas para una solicitud de transfusión (HU-018) | 200 | 400, 404, 500 |
 
 La interfaz incluye los apartados **Alta de paciente** y **Buscar paciente**. La búsqueda permite consultar por DNI o por nombre y apellido, y muestra los datos identificatorios y la trazabilidad del alta.
 
@@ -263,3 +266,11 @@ Convenciones de rutas REST: sustantivos en plural (`/api/donantes`), el verbo lo
 - **Rechazo = cancelación:** no se introduce un estado `RECHAZADA`; rechazar una solicitud incompleta o inadecuada se resuelve cancelándola con motivo obligatorio (`POST /api/solicitudes-transfusiones/:id/cancelar`), quedando auditado.
 - **Revocación por edición:** editar una solicitud en estado `APROBADA` (sin unidades reservadas) la devuelve a `PENDIENTE`, limpia los datos de aprobación y registra `APROBACION_REVOCADA` en auditoría.
 - **Médico aprobador sin autenticación:** el campo `operador` se ingresa manualmente hasta la implementación de login y roles (HU-020 y HU-021).
+
+### HU-018 · Emitir sangre para transfusión
+
+- **Interpretación de "liberada" (CA3):** `UnidadSangre` no está vinculada a la liberación de donaciones (HU-013); en emisión se exige que la unidad esté `RESERVADA` para la solicitud aprobada con paciente, vigente, compatible ABO/Rh(D) y sin prueba cruzada `INCOMPATIBLE`.
+- **Prueba cruzada `INCOMPATIBLE` y carácter `EMERGENCIA`:** una prueba cruzada `INCOMPATIBLE` bloquea siempre la emisión (`409`), incluso en `EMERGENCIA`. Si no existe prueba cruzada registrada, se permite emitir con `compatibilidadCompleta = false`, devolviendo advertencia (y en `EMERGENCIA` la leyenda normativa de compatibilidad no completada en el rótulo).
+- **Destino final de unidades `EMITIDA`:** hasta que exista HU-019 (registro de transfusión), una unidad `EMITIDA` puede darse de baja únicamente con motivo `TRANSFUNDIDA` o `DESCARTADA`.
+- **Responsable sin autenticación:** el campo `responsable` se registra como texto libre hasta las HU-020 y HU-021.
+- **Datos de demo:** disponibles mediante `docker compose exec api npm run db:seed:emision` y restaurables con `docker compose exec api npm run db:seed:emision:reset`.

@@ -86,6 +86,7 @@ enum AntecedenteTransfusional {
 enum EstadoUnidadSangre {
   DISPONIBLE
   RESERVADA
+  EMITIDA
   BLOQUEADA
   VENCIDA
   DADA_DE_BAJA
@@ -395,6 +396,7 @@ model SolicitudTransfusion {
   unidades UnidadSangre[]
   auditoria SolicitudTransfusionAuditoria[]
   estudiosPretransfusionales EstudioPretransfusional[]
+  emisiones EmisionUnidad[]
 
   @@index([estado, fechaHora])
   @@index([pacienteId])
@@ -439,6 +441,7 @@ model UnidadSangre {
   updatedAt          DateTime              @updatedAt
 
   estudiosPretransfusionales EstudioPretransfusional[]
+  emisiones EmisionUnidad[]
 
   @@index([estado, fechaVencimiento])
   @@map("unidades_sangre")
@@ -482,4 +485,34 @@ model EstudioPretransfusional {
   @@index([solicitudId, fechaHora])
   @@index([unidadSangreId])
   @@map("estudios_pretransfusionales")
+}
+
+model EmisionUnidad {
+  id                      Int                                      @id @default(autoincrement())
+  unidadSangreId          Int
+  unidadSangre            UnidadSangre                             @relation(fields: [unidadSangreId], references: [id])
+  solicitudId             Int
+  solicitud               SolicitudTransfusion                     @relation(fields: [solicitudId], references: [id])
+  pacienteId              Int?
+  dniPaciente             String
+  nombrePaciente          String
+  grupoABOReceptor        GrupoSanguineoABO
+  factorRhDReceptor       FactorRhD
+  numeroUnidad            String
+  tipoHemocomponente      TipoHemocomponente
+  grupoABOUnidad          GrupoSanguineoABO
+  factorRhDUnidad         FactorRhD
+  fechaVencimientoUnidad  DateTime                                 @db.Date
+  caracter                CaracterTransfusion?
+  requisitosEspeciales    String?
+  resultadoCompatibilidad ResultadoCompatibilidadPretransfusional?
+  compatibilidadCompleta  Boolean
+  responsable             String
+  observaciones           String?
+  fechaHora               DateTime                                 @default(now())
+  createdAt               DateTime                                 @default(now())
+
+  @@index([unidadSangreId, fechaHora])
+  @@index([solicitudId])
+  @@map("emisiones_unidad")
 }

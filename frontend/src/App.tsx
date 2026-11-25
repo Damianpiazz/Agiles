@@ -18,6 +18,7 @@ import type { Donante } from "./types/donante";
 import ConsultaResultados from "./pages/ConsultaResultados";
 import GestionSolicitudesTransfusion from "./pages/GestionSolicitudesTransfusion";
 import EstudiosPretransfusionales from "./pages/EstudiosPretransfusionales";
+import EmitirSangre from "./pages/EmitirSangre";
 import "./App.css";
 
 type Vista =
@@ -32,6 +33,7 @@ type Vista =
   | "tipificacion"
   | "tamizaje"
   | "seleccionar"
+  | "emision"
   | "liberacion"
   | "recepcion"
   | "baja"
@@ -218,6 +220,16 @@ export default function App() {
 
         <button
           type="button"
+          className={vista === "emision" ? "activo" : ""}
+          aria-current={vista === "emision" ? "page" : undefined}
+          onClick={() => setVista("emision")}
+        >
+          <span className="nav-icon" aria-hidden="true">↗</span>
+          Emitir sangre
+        </button>
+
+        <button
+          type="button"
           className={vista === "liberacion" ? "activo" : ""}
           aria-current={vista === "liberacion" ? "page" : undefined}
           onClick={() => setVista("liberacion")}
@@ -299,6 +311,7 @@ export default function App() {
         {vista === "tipificacion" && <TipificacionSanguinea />}
         {vista === "tamizaje" && <TamizajeInfecciones />}
         {vista === "seleccionar" && <SeleccionarComponente />}
+        {vista === "emision" && <EmitirSangre />}
         {vista === "liberacion" && <LiberacionUnidad />}
         {vista === "recepcion" && <RecepcionUnidad />}
         {vista === "baja" && <DarDeBajaUnidad />}
