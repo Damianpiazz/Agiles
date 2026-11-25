@@ -115,6 +115,16 @@ export const cancelarSolicitudTransfusionSchema = z.object({
   motivo: requerido,
 });
 
+export const aprobarSolicitudTransfusionSchema = z.object({
+  operador: requerido.max(120, "El operador no puede superar los 120 caracteres"),
+  opinionMedica: z
+    .string()
+    .trim()
+    .max(1000, "La opinión médica no puede superar los 1000 caracteres")
+    .transform((valor) => (valor ? valor : undefined))
+    .optional(),
+});
+
 export const listarSolicitudesTransfusionSchema = z.object({
   estado: z.enum(["PENDIENTE", "APROBADA", "CANCELADA"]).optional(),
   pacienteId: z.coerce.number().int().positive().optional(),
@@ -128,4 +138,5 @@ export const idSolicitudTransfusionSchema = z.coerce
 export type CrearSolicitudTransfusionInput = z.infer<typeof crearSolicitudTransfusionSchema>;
 export type ActualizarSolicitudTransfusionInput = z.infer<typeof actualizarSolicitudTransfusionSchema>;
 export type CancelarSolicitudTransfusionInput = z.infer<typeof cancelarSolicitudTransfusionSchema>;
+export type AprobarSolicitudTransfusionInput = z.infer<typeof aprobarSolicitudTransfusionSchema>;
 export type ListarSolicitudesTransfusionInput = z.infer<typeof listarSolicitudesTransfusionSchema>;

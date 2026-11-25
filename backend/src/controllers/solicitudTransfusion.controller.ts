@@ -3,6 +3,7 @@ import { z } from "zod";
 import * as solicitudService from "../services/solicitudTransfusion.service";
 import {
   actualizarSolicitudTransfusionSchema,
+  aprobarSolicitudTransfusionSchema,
   cancelarSolicitudTransfusionSchema,
   crearSolicitudTransfusionSchema,
   idSolicitudTransfusionSchema,
@@ -18,7 +19,9 @@ function responderError(error: unknown, res: Response) {
   }
   if (
     error instanceof solicitudService.SolicitudTransfusionCanceladaError ||
-    error instanceof solicitudService.SolicitudTransfusionConUnidadesError
+    error instanceof solicitudService.SolicitudTransfusionConUnidadesError ||
+    error instanceof solicitudService.SolicitudTransfusionYaAprobadaError ||
+    error instanceof solicitudService.SolicitudTransfusionSinPacienteError
   ) {
     return res.status(409).json({ error: error.message });
   }
@@ -106,6 +109,23 @@ export async function cancelar(req: Request, res: Response) {
 
   try {
     return res.status(200).json(await solicitudService.cancelar(id.data, parsed.data));
+  } catch (error) {
+    return responderError(error, res);
+  }
+}
+
+export async function aprobar(req: Request, res: Response) {
+  const id = idSolicitudTransfusionSchema.safeParse(req.params.solicitudId);
+  const parsed = aprobarSolicitudTransfusionSchema.safeParse(req.body);
+  if (!id.success || !parsed.success) {
+    return res.status(400).json({
+      error: "Datos inválidos",
+      campos: parsed.success ? undefined : z.flattenError(parsed.error).fieldErrors,
+    });
+  }
+
+  try {
+    return res.status(200).json(await solicitudService.aprobar(id.data, parsed.data));
   } catch (error) {
     return responderError(error, res);
   }

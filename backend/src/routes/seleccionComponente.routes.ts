@@ -18,8 +18,9 @@ router.post(
   "/:solicitudId/unidades/:unidadId/reservar",
   seleccionComponenteController.reservarUnidad,
 );
+router.post("/:solicitudId/aprobar", solicitudTransfusionController.aprobar);
+router.post("/:solicitudId/cancelar", solicitudTransfusionController.cancelar);
 router.get("/:solicitudId", solicitudTransfusionController.buscarPorId);
 router.put("/:solicitudId", solicitudTransfusionController.actualizar);
-router.post("/:solicitudId/cancelar", solicitudTransfusionController.cancelar);
 
 export default router;

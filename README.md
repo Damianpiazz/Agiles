@@ -140,6 +140,7 @@ npm run dev
 | POST | `/api/donantes/:id/entrevistas` | Registrar entrevista, resultado de admisión y datos de diferimiento (HU-003, HU-004) | 201 | 400, 404, 500 |
 | POST | `/api/inventario-unidades` | Registrar recepción de unidad de hemocomponente en inventario (HU-022) | 201 | 400, 409, 500 |
 | GET | `/api/inventario-unidades` | Listar unidades registradas en el inventario (HU-022) | 200 | 500 |
+| POST | `/api/solicitudes-transfusiones/:id/aprobar` | Aprobar una solicitud de transfusión pendiente registrando médico aprobador y opinión opcional (extensión HU-015). Para rechazar una solicitud inadecuada se utiliza la cancelación (`POST /api/solicitudes-transfusiones/:id/cancelar`, con motivo obligatorio) | 200 | 400, 404, 409, 500 |
 
 La interfaz incluye los apartados **Alta de paciente** y **Buscar paciente**. La búsqueda permite consultar por DNI o por nombre y apellido, y muestra los datos identificatorios y la trazabilidad del alta.
 
@@ -256,3 +257,9 @@ Convenciones de rutas REST: sustantivos en plural (`/api/donantes`), el verbo lo
 
 - **API abierta y operador sin autenticación:** hoy `POST /api/inventario-unidades` y `GET /api/inventario-unidades` no validan sesión ni rol (el login y los permisos corresponden a las HU-020 y HU-021), y el campo `operador` se registra como texto libre ingresado en el formulario hasta que esté implementada la autenticación.
 - **Estado en la recepción:** las unidades recepcionadas se incorporan al inventario en estado `DISPONIBLE`. La liberación/bloqueo por calificación biológica corresponde a la HU-013 y la baja de unidades a la HU-023.
+
+### HU-015 · Aprobar solicitudes de transfusión
+
+- **Rechazo = cancelación:** no se introduce un estado `RECHAZADA`; rechazar una solicitud incompleta o inadecuada se resuelve cancelándola con motivo obligatorio (`POST /api/solicitudes-transfusiones/:id/cancelar`), quedando auditado.
+- **Revocación por edición:** editar una solicitud en estado `APROBADA` (sin unidades reservadas) la devuelve a `PENDIENTE`, limpia los datos de aprobación y registra `APROBACION_REVOCADA` en auditoría.
+- **Médico aprobador sin autenticación:** el campo `operador` se ingresa manualmente hasta la implementación de login y roles (HU-020 y HU-021).

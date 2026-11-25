@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import {
+  aprobarSolicitudTransfusionSchema,
   solicitudTransfusionFormSchema,
   type SolicitudTransfusionFormInput,
 } from "../schemas/solicitudTransfusion";
@@ -82,6 +83,9 @@ type Solicitud = {
   medicoPrescriptor: string | null;
   firmaAclarada: string | null;
   matriculaPrescriptor: string | null;
+  aprobadaPor: string | null;
+  fechaHoraAprobacion: string | null;
+  opinionMedica: string | null;
   auditoria?: Auditoria[];
 };
 
@@ -301,6 +305,11 @@ export default function GestionSolicitudesTransfusion() {
   const [pacienteBusqueda, setPacienteBusqueda] = useState({ dni: "" });
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [solicitudEditando, setSolicitudEditando] = useState<number | null>(null);
+  const [solicitudEditandoEstado, setSolicitudEditandoEstado] =
+    useState<Solicitud["estado"] | null>(null);
+  const [solicitudAprobando, setSolicitudAprobando] = useState<number | null>(null);
+  const [operadorAprobacion, setOperadorAprobacion] = useState("");
+  const [opinionAprobacion, setOpinionAprobacion] = useState("");
   const [solicitudCancelando, setSolicitudCancelando] = useState<number | null>(null);
   const [operadorCancelacion, setOperadorCancelacion] = useState("");
   const [motivoCancelacion, setMotivoCancelacion] = useState("");
@@ -399,6 +408,7 @@ export default function GestionSolicitudesTransfusion() {
 
   function agregarSolicitudPaciente(paciente: Paciente) {
     setSolicitudEditando(null);
+    setSolicitudEditandoEstado(null);
     setPacienteSeleccionado(paciente);
     setForm({ ...formularioInicial(), pacienteId: String(paciente.id) });
     setPacientes([]);
@@ -409,6 +419,7 @@ export default function GestionSolicitudesTransfusion() {
 
   function nuevaSolicitud() {
     setSolicitudEditando(null);
+    setSolicitudEditandoEstado(null);
     setForm(formularioInicial());
     setPacienteSeleccionado(null);
     setErroresCampos([]);
@@ -420,6 +431,7 @@ export default function GestionSolicitudesTransfusion() {
     if (solicitud.estado === "CANCELADA") return;
     const paciente = pacienteDeSolicitud(solicitud);
     setSolicitudEditando(solicitud.id);
+    setSolicitudEditandoEstado(solicitud.estado);
     setPacienteSeleccionado(paciente);
     setForm({
       ...formularioInicial(),
@@ -532,17 +544,71 @@ export default function GestionSolicitudesTransfusion() {
       setBanner({
         tipo: "ok",
         texto: solicitudEditando
-          ? `Solicitud #${datos.id} actualizada. Se registraron los cambios en auditoría.`
+          ? solicitudEditandoEstado === "APROBADA"
+            ? `Solicitud #${datos.id} actualizada. Volvió a estado Pendiente y deberá aprobarse de nuevo.`
+            : `Solicitud #${datos.id} actualizada. Se registraron los cambios en auditoría.`
           : `Solicitud #${datos.id} registrada con estado Pendiente.`,
       });
       setForm(formularioInicial());
       setPacienteSeleccionado(null);
       setSolicitudEditando(null);
+      setSolicitudEditandoEstado(null);
       setErroresCampos([]);
-      const lista = await fetch(`${API_URL}/api/solicitudes-transfusiones`);
+      const params = new URLSearchParams();
+      if (estadoFiltro) params.set("estado", estadoFiltro);
+      const lista = await fetch(`${API_URL}/api/solicitudes-transfusiones?${params}`);
       if (lista.ok) setSolicitudes((await lista.json()) as Solicitud[]);
     } catch (error) {
       setBanner({ tipo: "error", texto: error instanceof Error ? error.message : "No se pudo conectar con el servidor." });
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  async function aprobar(event: FormEvent) {
+    event.preventDefault();
+    if (!solicitudAprobando) return;
+    setBanner(null);
+    const parseado = aprobarSolicitudTransfusionSchema.safeParse({
+      operador: operadorAprobacion,
+      opinionMedica: opinionAprobacion,
+    });
+    if (!parseado.success) {
+      setBanner({
+        tipo: "error",
+        texto: parseado.error.issues[0]?.message ?? "Revisá los datos de aprobación.",
+      });
+      return;
+    }
+
+    setGuardando(true);
+    try {
+      const respuesta = await fetch(
+        `${API_URL}/api/solicitudes-transfusiones/${solicitudAprobando}/aprobar`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(parseado.data),
+        },
+      );
+      const datos = await respuesta.json().catch(() => null);
+      if (!respuesta.ok) throw new Error(datos?.error ?? "No se pudo aprobar la solicitud.");
+      setBanner({
+        tipo: "ok",
+        texto: `Solicitud #${datos.id} aprobada por ${datos.aprobadaPor}.`,
+      });
+      setSolicitudAprobando(null);
+      setOperadorAprobacion("");
+      setOpinionAprobacion("");
+      const params = new URLSearchParams();
+      if (estadoFiltro) params.set("estado", estadoFiltro);
+      const lista = await fetch(`${API_URL}/api/solicitudes-transfusiones?${params}`);
+      if (lista.ok) setSolicitudes((await lista.json()) as Solicitud[]);
+    } catch (error) {
+      setBanner({
+        tipo: "error",
+        texto: error instanceof Error ? error.message : "No se pudo conectar con el servidor.",
+      });
     } finally {
       setGuardando(false);
     }
@@ -589,7 +655,7 @@ export default function GestionSolicitudesTransfusion() {
     <main className="solicitudes">
       <header className="solicitudes-header">
         <h1>Solicitudes de transfusión</h1>
-        <p>Registrá, actualizá y cancelá solicitudes asociadas a pacientes.</p>
+        <p>Registrá, aprobá, actualizá y cancelá (rechazá) solicitudes asociadas a pacientes.</p>
       </header>
 
       {banner && <div className={`solicitudes-banner solicitudes-banner-${banner.tipo}`} role={banner.tipo === "error" ? "alert" : "status"}>{banner.texto}</div>}
@@ -781,6 +847,11 @@ export default function GestionSolicitudesTransfusion() {
               <div className="solicitudes-field"><label htmlFor="operadorSolicitud">Operador</label><input id="operadorSolicitud" required value={form.operador} onChange={(event) => cambiarCampo("operador", event.target.value)} /></div>
             </div><p className="solicitudes-nota">La recepción se registra automáticamente al guardar. El estado inicial es Pendiente.</p>
               <div className="solicitudes-field"><label htmlFor="observacionesSolicitud">Observaciones</label><textarea id="observacionesSolicitud" rows={3} value={form.observaciones} onChange={(event) => cambiarCampo("observaciones", event.target.value)} /></div>
+              {solicitudEditando && solicitudEditandoEstado === "APROBADA" && (
+                <p className="solicitudes-alerta-revocacion" role="alert">
+                  Esta solicitud está aprobada. Al guardar la modificación volverá a Pendiente y deberá aprobarse de nuevo.
+                </p>
+              )}
               {solicitudEditando && <div className="solicitudes-field"><label htmlFor="motivoModificacion">Motivo de modificación</label><textarea id="motivoModificacion" required rows={2} value={form.motivoModificacion} onChange={(event) => cambiarCampo("motivoModificacion", event.target.value)} /></div>}
             </fieldset>
 
@@ -795,8 +866,72 @@ export default function GestionSolicitudesTransfusion() {
           <div className="solicitudes-lista">{solicitudes.map((solicitud) => <article className="solicitud-item" key={solicitud.id}>
             <div className="solicitud-item-cabecera"><div><h3>Solicitud #{solicitud.id} · {solicitud.nombrePaciente}</h3><p>DNI: {solicitud.dniPaciente} · Pedido: {formatearFechaHora(solicitud.fechaHora)} · Recepción: {formatearFechaHora(solicitud.fechaHoraRecepcion)}</p></div><span className={`solicitud-estado solicitud-estado-${solicitud.estado.toLowerCase()}`}>{etiqueta(solicitud.estado)}</span></div>
             <div className="solicitud-resumen"><span>{etiqueta(solicitud.tipoHemocomponente)} · {solicitud.cantidad} unidad(es)</span><span>{etiqueta(solicitud.caracter)}</span><span>{solicitud.grupoABO}{solicitud.factorRhD === "POSITIVO" ? "+" : "−"}</span><span>{etiqueta(solicitud.modalidad)} · {lugarSolicitud(solicitud)}</span><span>{solicitud.operador}</span></div>
-            <div className="solicitudes-item-acciones">{solicitud.estado !== "CANCELADA" && <><button type="button" className="solicitudes-secundario" onClick={() => editarSolicitud(solicitud)}>Editar</button><button type="button" className="solicitudes-peligro" onClick={() => { setSolicitudCancelando(solicitud.id); setMotivoCancelacion(""); setOperadorCancelacion(""); }}>Cancelar</button></>}</div>
-            {solicitudCancelando === solicitud.id && <form className="solicitud-cancelacion" onSubmit={cancelar}><div className="solicitudes-grid"><div className="solicitudes-field"><label htmlFor="operadorCancelacion">Operador</label><input id="operadorCancelacion" required value={operadorCancelacion} onChange={(event) => setOperadorCancelacion(event.target.value)} /></div><div className="solicitudes-field"><label htmlFor="motivoCancelacion">Motivo de cancelación</label><input id="motivoCancelacion" required value={motivoCancelacion} onChange={(event) => setMotivoCancelacion(event.target.value)} /></div></div><div className="solicitudes-actions"><button type="submit" disabled={guardando}>Confirmar cancelación</button><button type="button" className="solicitudes-secundario" onClick={() => setSolicitudCancelando(null)}>Volver</button></div></form>}
+            {solicitud.estado === "APROBADA" && (
+              <div className="solicitud-aprobacion-info">
+                <p>
+                  Aprobada por <strong>{solicitud.aprobadaPor ?? "No registrado"}</strong> el{" "}
+                  {formatearFechaHora(solicitud.fechaHoraAprobacion)}
+                </p>
+                {solicitud.opinionMedica && (
+                  <p className="solicitud-opinion-medica">
+                    Opinión sobre la indicación: {solicitud.opinionMedica}
+                  </p>
+                )}
+              </div>
+            )}
+            <div className="solicitudes-item-acciones">
+              {solicitud.estado === "PENDIENTE" && (
+                <button
+                  type="button"
+                  className="solicitudes-aprobar"
+                  onClick={() => {
+                    setSolicitudAprobando(solicitud.id);
+                    setSolicitudCancelando(null);
+                    setOperadorAprobacion("");
+                    setOpinionAprobacion("");
+                  }}
+                >
+                  Aprobar
+                </button>
+              )}
+              {solicitud.estado !== "CANCELADA" && (
+                <>
+                  <button type="button" className="solicitudes-secundario" onClick={() => editarSolicitud(solicitud)}>Editar</button>
+                  <button type="button" className="solicitudes-peligro" onClick={() => { setSolicitudCancelando(solicitud.id); setSolicitudAprobando(null); setMotivoCancelacion(""); setOperadorCancelacion(""); }}>Cancelar</button>
+                </>
+              )}
+            </div>
+            {solicitudAprobando === solicitud.id && (
+              <form className="solicitud-aprobacion" onSubmit={aprobar} noValidate>
+                <div className="solicitudes-grid">
+                  <div className="solicitudes-field">
+                    <label htmlFor={`operadorAprobacion-${solicitud.id}`}>Operador (médico del STH)</label>
+                    <input
+                      id={`operadorAprobacion-${solicitud.id}`}
+                      required
+                      maxLength={120}
+                      value={operadorAprobacion}
+                      onChange={(event) => setOperadorAprobacion(event.target.value)}
+                    />
+                  </div>
+                  <div className="solicitudes-field solicitudes-field-span">
+                    <label htmlFor={`opinionAprobacion-${solicitud.id}`}>Opinión sobre la indicación (opcional)</label>
+                    <textarea
+                      id={`opinionAprobacion-${solicitud.id}`}
+                      rows={2}
+                      maxLength={1000}
+                      value={opinionAprobacion}
+                      onChange={(event) => setOpinionAprobacion(event.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="solicitudes-actions">
+                  <button type="submit" disabled={guardando}>{guardando ? "Aprobando…" : "Confirmar aprobación"}</button>
+                  <button type="button" className="solicitudes-secundario" onClick={() => setSolicitudAprobando(null)}>Volver</button>
+                </div>
+              </form>
+            )}
+            {solicitudCancelando === solicitud.id && <form className="solicitud-cancelacion" onSubmit={cancelar}><p className="solicitudes-nota">Cancelar una solicitud equivale a rechazarla por ser incompleta o inadecuada; el motivo queda registrado en auditoría.</p><div className="solicitudes-grid"><div className="solicitudes-field"><label htmlFor="operadorCancelacion">Operador</label><input id="operadorCancelacion" required value={operadorCancelacion} onChange={(event) => setOperadorCancelacion(event.target.value)} /></div><div className="solicitudes-field"><label htmlFor="motivoCancelacion">Motivo de cancelación / rechazo</label><input id="motivoCancelacion" required value={motivoCancelacion} onChange={(event) => setMotivoCancelacion(event.target.value)} /></div></div><div className="solicitudes-actions"><button type="submit" disabled={guardando}>Confirmar cancelación</button><button type="button" className="solicitudes-secundario" onClick={() => setSolicitudCancelando(null)}>Volver</button></div></form>}
             <details className="solicitud-auditoria"><summary>Ver trazabilidad ({solicitud.auditoria?.length ?? 0})</summary><ol>{solicitud.auditoria?.map((evento) => <li key={evento.id}><strong>{etiqueta(evento.accion)}</strong> · {evento.datoModificado} · {evento.operador} · {formatearFechaHora(evento.fechaHora)}{evento.motivo && <p>Motivo: {evento.motivo}</p>}<p>Anterior: {textoAuditoria(evento.valorAnterior)} → Nuevo: {textoAuditoria(evento.valorNuevo)}</p></li>)}</ol></details>
           </article>)}</div>
         )}

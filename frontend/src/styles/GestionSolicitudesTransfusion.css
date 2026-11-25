@@ -182,6 +182,17 @@
   border-color: #d7a4aa;
 }
 
+.solicitudes-item-acciones .solicitudes-aprobar {
+  color: #fff;
+  background: var(--ok);
+  border-color: var(--ok);
+}
+
+.solicitudes-item-acciones .solicitudes-aprobar:hover:not(:disabled) {
+  background: #15523c;
+  border-color: #15523c;
+}
+
 .solicitudes-banner {
   margin-bottom: 1rem;
   padding: 0.8rem 1rem;
@@ -266,15 +277,20 @@
   cursor: pointer;
 }
 
-.solicitudes-alerta-pediatrica {
+.solicitudes-alerta-pediatrica,
+.solicitudes-alerta-revocacion {
   margin: 0.8rem 0 0;
   padding: 0.75rem 0.9rem;
   color: #684300;
-  background: #fff8e6;
+  background: #faf0da;
   border: 1px solid #ead49a;
-  border-left: 5px solid #805200;
+  border-left: 5px solid #946200;
   border-radius: 7px;
   font-size: 0.86rem;
+}
+
+.solicitudes-alerta-revocacion {
+  margin-bottom: 0.8rem;
 }
 
 .solicitudes-dialog-backdrop {
@@ -422,6 +438,44 @@
   font-size: 0.84rem;
 }
 
+.solicitud-aprobacion-info {
+  margin: 0 0 0.8rem;
+  padding: 0.65rem 0.85rem;
+  color: #176b35;
+  background: #e6f3ea;
+  border: 1px solid #a6d8b5;
+  border-left: 4px solid #1c7a45;
+  border-radius: 7px;
+  font-size: 0.84rem;
+}
+
+.solicitud-aprobacion-info p {
+  margin: 0;
+}
+
+.solicitud-opinion-medica {
+  margin-top: 0.3rem;
+  color: #294635;
+  overflow-wrap: anywhere;
+}
+
+.solicitud-aprobacion {
+  margin-top: 0.8rem;
+  padding: 0.8rem;
+  background: #f3faf6;
+  border: 1px solid #a6d8b5;
+  border-radius: 7px;
+}
+
+.solicitud-aprobacion .solicitudes-actions,
+.solicitud-cancelacion .solicitudes-actions {
+  margin-top: 0.75rem;
+}
+
+.solicitudes-field-span {
+  grid-column: span 2;
+}
+
 .solicitud-cancelacion {
   margin-top: 0.8rem;
   padding: 0.8rem;
@@ -474,6 +528,10 @@
 
   .solicitudes-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .solicitudes-field-span {
+    grid-column: span 1;
   }
 
   .solicitudes-panel-header,

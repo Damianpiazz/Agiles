@@ -98,3 +98,17 @@ export const solicitudTransfusionFormSchema = z
 export type SolicitudTransfusionFormInput = z.infer<
   typeof solicitudTransfusionFormSchema
 >;
+
+export const aprobarSolicitudTransfusionSchema = z.object({
+  operador: requerido.max(120, "El operador no puede superar los 120 caracteres"),
+  opinionMedica: z
+    .string()
+    .trim()
+    .max(1000, "La opinión médica no puede superar los 1000 caracteres")
+    .transform((valor) => (valor ? valor : undefined))
+    .optional(),
+});
+
+export type AprobarSolicitudTransfusionInput = z.infer<
+  typeof aprobarSolicitudTransfusionSchema
+>;

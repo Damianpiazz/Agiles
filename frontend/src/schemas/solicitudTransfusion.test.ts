@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { solicitudTransfusionFormSchema } from "./solicitudTransfusion";
+import {
+  aprobarSolicitudTransfusionSchema,
+  solicitudTransfusionFormSchema,
+} from "./solicitudTransfusion";
 
 const pedido = new Date(Date.now() - 10 * 60 * 1000);
 const base = {
@@ -84,5 +87,43 @@ describe("solicitudTransfusionFormSchema", () => {
         cama: "",
       }).success,
     ).toBe(true);
+  });
+});
+
+describe("aprobarSolicitudTransfusionSchema", () => {
+  it("acepta operador válido con o sin opinión médica", () => {
+    const sinOpinion = aprobarSolicitudTransfusionSchema.safeParse({
+      operador: "Dra. Laura Méndez",
+      opinionMedica: "   ",
+    });
+    expect(sinOpinion.success).toBe(true);
+    if (sinOpinion.success) {
+      expect(sinOpinion.data.opinionMedica).toBeUndefined();
+    }
+
+    const conOpinion = aprobarSolicitudTransfusionSchema.safeParse({
+      operador: "Dr. Martín Ruiz",
+      opinionMedica: "Indicación acorde a hemoglobina",
+    });
+    expect(conOpinion.success).toBe(true);
+    if (conOpinion.success) {
+      expect(conOpinion.data.opinionMedica).toBe("Indicación acorde a hemoglobina");
+    }
+  });
+
+  it("rechaza operador vacío o que supere 120 caracteres y opinión mayor a 1000", () => {
+    expect(
+      aprobarSolicitudTransfusionSchema.safeParse({ operador: "  " }).success,
+    ).toBe(false);
+    expect(
+      aprobarSolicitudTransfusionSchema.safeParse({ operador: "a".repeat(121) })
+        .success,
+    ).toBe(false);
+    expect(
+      aprobarSolicitudTransfusionSchema.safeParse({
+        operador: "Dra. Laura Méndez",
+        opinionMedica: "x".repeat(1001),
+      }).success,
+    ).toBe(false);
   });
 });
