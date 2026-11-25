@@ -209,7 +209,6 @@
   border-left-color: var(--error);
 }
 
-.donacion-donante,
 .donacion-resultado {
   display: flex;
   justify-content: space-between;
@@ -226,7 +225,6 @@
   margin-top: 0.85rem;
 }
 
-.donacion-donante p,
 .donacion-resultado p {
   margin-top: 0.25rem;
   color: #706d78;
@@ -243,11 +241,6 @@
     padding: 1.25rem 0.85rem 2rem;
   }
 
-  .donacion fieldset {
-    padding: 1rem;
-  }
-
-  .donacion-donante,
   .donacion-resultado {
     align-items: flex-start;
     flex-direction: column;
@@ -261,3 +254,55 @@
     width: 100%;
   }
 }
+
+.donacion-seleccion-donante {
+  margin-bottom: 1.5rem;
+}
+
+.donacion-seleccion-actual {
+  margin: 0 0 0.85rem;
+  color: var(--tinta);
+  font-size: 0.95rem;
+}
+
+/* Los estilos generales del módulo no deben alterar los controles de la tabla. */
+.donacion .ui-data-table .ui-search input {
+  min-height: 38px;
+  padding: 7px 12px 7px 34px;
+  font-size: 13px;
+}
+
+.donacion .ui-data-table .ui-sort-button {
+  min-height: 0;
+  padding: 0;
+  color: inherit;
+  background: none;
+  border: 0;
+  font-size: 11px;
+}
+
+.donacion .ui-data-table .ui-btn {
+  min-height: 32px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.donacion .ui-data-table .ui-btn-secondary {
+  color: var(--tinta);
+  background: var(--superficie);
+  border-color: #d8dbe2;
+}
+
+.donacion .ui-data-table .ui-btn-secondary:hover:not(:disabled) {
+  background: var(--papel);
+}
+
+.donacion .ui-table tbody tr.donacion-fila-seleccionada,
+.donacion .ui-table tbody tr.donacion-fila-seleccionada:hover {
+  background: #f9e9ed;
+}
+
+.donacion-col-seleccion {
+  min-width: 120px;
+}
+

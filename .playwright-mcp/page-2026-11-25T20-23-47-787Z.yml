@@ -1,0 +1,232 @@
+- generic [ref=f76e3]:
+  - link "Saltar al contenido principal" [ref=f76e4] [cursor=pointer]:
+    - /url: "#contenido-principal"
+  - complementary "Navegación principal" [ref=f76e5]:
+    - generic [ref=f76e6]:
+      - generic [aria-hidden] [ref=f76e7]:
+        - generic [ref=f76e8]: F
+        - generic [ref=f76e9]: +
+      - generic [ref=f76e10]:
+        - heading "FLORHEMA" [level=1] [ref=f76e11]
+        - paragraph [ref=f76e12]: Sistema de Gestión de Hemoterapia
+    - navigation "Módulos del sistema" [ref=f76e13]:
+      - generic [ref=f76e14]:
+        - paragraph [ref=f76e15]: Inicio
+        - button "Resumen" [ref=f76e16] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e17]: ◫
+        - button "Buscar donante" [ref=f76e19] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e20]: ⌕
+        - button "Alta de donante" [ref=f76e22] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e23]: ＋
+      - generic [ref=f76e25]:
+        - paragraph [ref=f76e26]: Donación y calificación
+        - button "Entrevista pre-donación" [ref=f76e27] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e28]: ▤
+        - button "Registrar donación" [ref=f76e30] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e31]: ♥
+        - button "Calificación biológica" [ref=f76e33] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e34]: ✓
+        - button "Tipificación sanguínea" [ref=f76e36] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e37]: ⊕
+        - button "Tamizaje de infecciones" [ref=f76e39] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e40]: ◉
+        - button "Consultar resultados" [ref=f76e42] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e43]: ⌕
+      - generic [ref=f76e45]:
+        - paragraph [ref=f76e46]: Pacientes y transfusión
+        - button "Alta de paciente" [ref=f76e47] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e48]: ＋
+        - button "Buscar paciente" [ref=f76e50] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e51]: ⌕
+        - button "Solicitudes de transfusión" [ref=f76e53] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e54]: ▤
+        - button "Estudios pretransfusionales" [ref=f76e56] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e57]: ◈
+        - button "Seleccionar componente" [ref=f76e59] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e60]: ⚕
+        - button "Emitir sangre" [ref=f76e62] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e63]: ↗
+      - generic [ref=f76e65]:
+        - paragraph [ref=f76e66]: Inventario
+        - button "Recepción de unidades" [ref=f76e67] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e68]: ＋
+        - button "Liberar unidad" [ref=f76e70] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e71]: ✓
+        - button "Dar de baja unidad" [ref=f76e73] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f76e74]: ⊘
+    - generic [ref=f76e76]:
+      - paragraph [ref=f76e77]:
+        - generic [ref=f76e79]: Servicio de Hemoterapia
+      - button "Colapsar menú lateral" [ref=f76e200] [cursor=pointer]:
+        - generic [aria-hidden] [ref=f76e201]: «
+        - generic [ref=f76e202]: Colapsar menú
+  - generic [ref=f76e80]:
+    - banner [ref=f76e81]:
+      - navigation "Ruta de navegación" [ref=f76e83]:
+        - generic [ref=f76e84]: Inicio
+        - generic [aria-hidden] [ref=f76e85]: /
+        - generic [ref=f76e86]: Pacientes y transfusión
+        - generic [aria-hidden] [ref=f76e87]: /
+        - strong [ref=f76e88]: Emitir sangre
+      - generic [ref=f76e203]:
+        - generic [ref=f76e204]: FLORHEMA
+        - generic [ref=f76e205]: Servicio de Hemoterapia
+    - main [ref=f76e89]:
+      - generic [ref=f76e272]:
+        - generic [ref=f76e274]:
+          - heading "Emitir sangre para transfusión" [level=1] [ref=f76e275]
+          - paragraph [ref=f76e276]: Registrá la salida de unidades reservadas para solicitudes aprobadas, emití la etiqueta de transfusión y consultá el historial de emisiones.
+        - generic [ref=f76e278]:
+          - list "Progreso del formulario" [ref=f76e279]:
+            - listitem [ref=f76e280]:
+              - generic [aria-hidden] [ref=f76e281]: ✓
+              - generic [ref=f76e282]: Solicitud y donante
+            - listitem [ref=f76e283]:
+              - generic [aria-hidden] [ref=f76e284]: "2"
+              - generic [ref=f76e285]: Unidades y compatibilidad
+            - listitem [ref=f76e286]:
+              - generic [aria-hidden] [ref=f76e287]: "3"
+              - generic [ref=f76e288]: Confirmación y emisión
+          - group "Unidades reservadas de la solicitud" [ref=f76e316]:
+            - generic [ref=f76e318]:
+              - generic [ref=f76e320]:
+                - generic [aria-hidden] [ref=f76e321]: ⌕
+                - generic [ref=f76e322]: Buscar por unidad, componente, grupo, vencimiento o compatibilidad…
+                - searchbox "Buscar por unidad, componente, grupo, vencimiento o compatibilidad…" [ref=f76e323]
+              - status [ref=f76e324]: 3 registros · mostrando 1–3
+              - region "Unidades reservadas de la solicitud" [ref=f76e325]:
+                - table "Unidades reservadas de la solicitud" [ref=f76e326]:
+                  - caption [ref=f76e327]: Unidades reservadas de la solicitud
+                  - rowgroup [ref=f76e328]:
+                    - row [ref=f76e329]:
+                      - columnheader "Unidad" [ref=f76e330]:
+                        - button "Unidad" [ref=f76e331] [cursor=pointer]: Unidad ↕
+                      - columnheader "Hemocomponente" [ref=f76e332]:
+                        - button "Hemocomponente" [ref=f76e333] [cursor=pointer]: Hemocomponente ↕
+                      - columnheader "Grupo" [ref=f76e334]:
+                        - button "Grupo" [ref=f76e335] [cursor=pointer]: Grupo ↕
+                      - columnheader "Vencimiento" [ref=f76e336]:
+                        - button "Vencimiento" [ref=f76e337] [cursor=pointer]: Vencimiento ↕
+                      - columnheader "Estado" [ref=f76e338]:
+                        - button "Estado" [ref=f76e339] [cursor=pointer]: Estado ↕
+                      - columnheader "Prueba cruzada" [ref=f76e340]:
+                        - button "Prueba cruzada" [ref=f76e341] [cursor=pointer]: Prueba cruzada ↕
+                      - columnheader "Acciones" [ref=f76e342]
+                  - rowgroup [ref=f76e343]:
+                    - row [ref=f76e344]:
+                      - cell [ref=f76e345]:
+                        - strong [ref=f76e346]: U-1001
+                      - cell "Glóbulos rojos" [ref=f76e347]
+                      - cell [ref=f76e348]:
+                        - strong [ref=f76e349]: A+
+                      - cell "29/11/2026" [ref=f76e350]
+                      - cell "Reservada" [ref=f76e351]
+                      - cell "Sin prueba cruzada" [ref=f76e353]
+                      - cell [ref=f76e355]:
+                        - button "Emitir unidad" [active] [pressed] [ref=f76e357] [cursor=pointer]
+                    - row [ref=f76e358]:
+                      - cell [ref=f76e359]:
+                        - strong [ref=f76e360]: U-1002
+                      - cell "Glóbulos rojos" [ref=f76e361]
+                      - cell [ref=f76e362]:
+                        - strong [ref=f76e363]: O+
+                      - cell "24/11/2026 (VENCIDA)" [ref=f76e364]
+                      - cell "Reservada" [ref=f76e365]
+                      - cell "Sin prueba cruzada" [ref=f76e367]
+                      - cell [ref=f76e369]:
+                        - button "Emitir unidad" [ref=f76e371] [cursor=pointer]
+                    - row [ref=f76e372]:
+                      - cell [ref=f76e373]:
+                        - strong [ref=f76e374]: U-1003
+                      - cell "Glóbulos rojos" [ref=f76e375]
+                      - cell [ref=f76e376]:
+                        - strong [ref=f76e377]: O−
+                      - cell "19/11/2026 (VENCIDA)" [ref=f76e378]
+                      - cell "Reservada" [ref=f76e379]
+                      - cell "Sin prueba cruzada" [ref=f76e381]
+                      - cell [ref=f76e383]:
+                        - button "Emitir unidad" [ref=f76e385] [cursor=pointer]
+              - generic [ref=f76e386]:
+                - generic [ref=f76e387]:
+                  - generic [ref=f76e388]: Registros por página
+                  - combobox "Registros por página" [ref=f76e389]:
+                    - option "10" [selected]
+                    - option "25"
+                    - option "50"
+                - generic [ref=f76e390]:
+                  - button "Página anterior" [disabled] [ref=f76e391]: ← Anterior
+                  - generic [ref=f76e392]: Página 1 de 1
+                  - button "Página siguiente" [disabled] [ref=f76e393]: Siguiente →
+          - generic [ref=f76e295]:
+            - button "Anterior" [ref=f76e394] [cursor=pointer]
+            - button "Siguiente" [ref=f76e296] [cursor=pointer]
+        - generic [ref=f76e311]:
+          - heading "3. Emisiones registradas de esta solicitud" [level=2] [ref=f76e312]
+          - generic [ref=f76e313]:
+            - generic [aria-hidden] [ref=f76e314]: ⌕
+            - paragraph [ref=f76e315]: Todavía no se emitieron unidades para esta solicitud.
+        - group "Consultar historial de emisiones por unidad" [ref=f76e298]:
+          - generic [ref=f76e301]:
+            - generic [ref=f76e302]: Unidad de inventario
+            - combobox "Unidad de inventario" [ref=f76e303]:
+              - option "Seleccioná una unidad para ver su historial" [selected]
+              - option "U-2171 · Plasma A+ (Reservada)"
+              - option "U-3959 · Plasma O− (Bloqueada)"
+              - option "U-8602 · Plaquetas O− (Reservada)"
+              - option "U-8304 · Glóbulos rojos B+ (Vencida)"
+              - option "U-8515 · Plasma O− (Dada de baja)"
+              - option "U-2252 · Crioprecipitado AB+ (Disponible)"
+              - option "U-9546 · Plaquetas A+ (Dada de baja)"
+              - option "U-3446 · Glóbulos rojos O− (Dada de baja)"
+              - option "U-6038 · Crioprecipitado B+ (Dada de baja)"
+              - option "U-5596 · Plasma AB− (Reservada)"
+              - option "U-7726 · Plaquetas A+ (Bloqueada)"
+              - option "U-5864 · Plasma A+ (Reservada)"
+              - option "U-7164 · Plaquetas A− (Dada de baja)"
+              - option "U-5589 · Crioprecipitado O− (Bloqueada)"
+              - option "U-5527 · Crioprecipitado O− (Vencida)"
+              - option "U-4217 · Glóbulos rojos AB− (Bloqueada)"
+              - option "U-2793 · Glóbulos rojos O− (Disponible)"
+              - option "U-2946 · Glóbulos rojos A+ (Bloqueada)"
+              - option "U-2283 · Crioprecipitado B+ (Dada de baja)"
+              - option "U-4347 · Glóbulos rojos A− (Bloqueada)"
+              - option "U-2917 · Glóbulos rojos B+ (Reservada)"
+              - option "U-6196 · Plaquetas A+ (Reservada)"
+              - option "U-3324 · Glóbulos rojos B+ (Disponible)"
+              - option "U-5714 · Glóbulos rojos O+ (Disponible)"
+              - option "U-6160 · Crioprecipitado B+ (Reservada)"
+              - option "U-6031 · Plasma AB+ (Bloqueada)"
+              - option "U-6413 · Plasma A− (Vencida)"
+              - option "U-4296 · Crioprecipitado O− (Disponible)"
+              - option "U-8071 · Plasma B+ (Bloqueada)"
+              - option "U-5734 · Glóbulos rojos B+ (Dada de baja)"
+              - option "U-4195 · Crioprecipitado A+ (Bloqueada)"
+              - option "U-3891 · Plaquetas A+ (Vencida)"
+              - option "U-6968 · Crioprecipitado O+ (Dada de baja)"
+              - option "U-2440 · Plasma AB− (Bloqueada)"
+              - option "U-8631 · Glóbulos rojos A+ (Bloqueada)"
+              - option "U-4105 · Crioprecipitado B− (Dada de baja)"
+              - option "U-9279 · Plasma A− (Vencida)"
+              - option "U-6177 · Glóbulos rojos O+ (Reservada)"
+              - option "U-4323 · Glóbulos rojos B− (Vencida)"
+              - option "U-4052 · Glóbulos rojos B+ (Reservada)"
+              - option "U-4442 · Crioprecipitado A− (Reservada)"
+              - option "U-7569 · Plasma A+ (Disponible)"
+              - option "U-5239 · Plasma A− (Bloqueada)"
+              - option "U-6402 · Glóbulos rojos A− (Reservada)"
+              - option "U-9844 · Crioprecipitado A− (Reservada)"
+              - option "U-3306 · Crioprecipitado A− (Bloqueada)"
+              - option "U-5267 · Plasma A+ (Vencida)"
+              - option "U-4946 · Crioprecipitado B− (Dada de baja)"
+              - option "U-5203 · Plaquetas O+ (Dada de baja)"
+              - option "U-5941 · Crioprecipitado AB− (Dada de baja)"
+              - option "U-9159 · Crioprecipitado AB+ (Bloqueada)"
+              - option "U-6558 · Crioprecipitado AB− (Disponible)"
+              - option "U-1008 · Plasma O+ (Disponible)"
+              - option "U-1007 · Glóbulos rojos A+ (Bloqueada)"
+              - option "U-1006 · Glóbulos rojos O− (Disponible)"
+              - option "U-1005 · Glóbulos rojos AB− (Disponible)"
+              - option "U-1004 · Glóbulos rojos B+ (Disponible)"
+              - option "U-1003 · Glóbulos rojos O− (Reservada)"
+              - option "U-1002 · Glóbulos rojos O+ (Reservada)"
+              - option "U-1001 · Glóbulos rojos A+ (Reservada)"

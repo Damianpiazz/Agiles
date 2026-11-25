@@ -238,6 +238,38 @@ export async function registrar(
   };
 }
 
+// Consulta global de estudios, con la solicitud y la unidad asociadas.
+
+export async function listar(
+  db: EstudioPretransfusionalDb = dbPredeterminada,
+) {
+  const estudios = await db.estudioPretransfusional.findMany({
+    include: {
+      solicitud: {
+        select: {
+          id: true,
+          dniPaciente: true,
+          nombrePaciente: true,
+          estado: true,
+          fechaHora: true,
+        },
+      },
+      unidadSangre: {
+        select: {
+          id: true,
+          numeroUnidad: true,
+        },
+      },
+    },
+    orderBy: [{ fechaHora: "desc" }, { id: "desc" }],
+  });
+
+  return estudios.map((estudio) => ({
+    ...estudio,
+    alerta: generarAlerta(estudio),
+  }));
+}
+
 // Consulta el historial de estudios de una solicitud.
 
 export async function listarPorSolicitud(

@@ -76,7 +76,7 @@ Verificá que ambos servicios estén en `Up`:
 docker compose ps
 ```
 
-Y que la API responda: abrí <http://localhost:3000>. Tiene que devolver un JSON con `"ok": true`.
+Y que la API responda: abrí <http://localhost:3001>. Tiene que devolver un JSON con `"ok": true`.
 
 ### 3. Crear las tablas
 
@@ -104,7 +104,7 @@ Después, en VS Code: `Ctrl+Shift+P` → "TypeScript: Restart TS Server".
 Creá `frontend/.env` con:
 
 ```env
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=http://localhost:3001
 ```
 
 ```bash
@@ -118,7 +118,7 @@ npm run dev
 | Servicio | URL |
 |----------|-----|
 | Frontend | <http://localhost:5173> |
-| API | <http://localhost:3000> |
+| API | <http://localhost:3001> |
 | PostgreSQL | `localhost:5432` |
 
 ## Endpoints

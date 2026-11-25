@@ -1,6 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { z } from "zod";
+import { Banner } from "../components/Banner";
+import { DataTable } from "../components/DataTable";
+import { PageHeader } from "../components/PageHeader";
+import type { DataTableColumn } from "../components/DataTable";
+import { StatusBadge } from "../components/StatusBadge";
 import {
   obtenerFechaHoyArgentina,
   recepcionUnidadSchema,
@@ -9,7 +14,7 @@ import {
 import "../styles/RecepcionUnidad.css";
 
 const API_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:3000"
+  import.meta.env.VITE_API_URL || "http://localhost:3001"
 ).replace(/\/+$/, "");
 
 type Campo = keyof RecepcionUnidadForm;
@@ -74,6 +79,8 @@ export default function RecepcionUnidad() {
   const [enviando, setEnviando] = useState(false);
   const [unidades, setUnidades] = useState<UnidadInventario[]>([]);
   const [cargandoInventario, setCargandoInventario] = useState(true);
+  const [filtroEstado, setFiltroEstado] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
 
   const hoy = obtenerFechaHoyArgentina();
 
@@ -103,6 +110,14 @@ export default function RecepcionUnidad() {
     return errores[campo]?.[0];
   }
 
+  function focoPrimerError() {
+    requestAnimationFrame(() => {
+      formRef.current
+        ?.querySelector<HTMLElement>('[aria-invalid="true"]')
+        ?.focus();
+    });
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setBanner(null);
@@ -111,6 +126,7 @@ export default function RecepcionUnidad() {
     if (!parsed.success) {
       setErrores(z.flattenError(parsed.error).fieldErrors as Errores);
       setBanner({ tipo: "error", texto: "Revisá los campos marcados." });
+      focoPrimerError();
       return;
     }
 
@@ -138,6 +154,7 @@ export default function RecepcionUnidad() {
       if (res.status === 400 && data.campos) {
         setErrores(data.campos as Errores);
         setBanner({ tipo: "error", texto: "Revisá los campos marcados." });
+        focoPrimerError();
         return;
       }
       if (res.status === 409) {
@@ -161,26 +178,74 @@ export default function RecepcionUnidad() {
     }
   }
 
+  const columnas = useMemo<DataTableColumn<UnidadInventario>[]>(
+    () => [
+      {
+        id: "numeroUnidad",
+        header: "Unidad",
+        sortValue: (u) => u.numeroUnidad,
+        render: (u) => <strong>{u.numeroUnidad}</strong>,
+      },
+      {
+        id: "tipo",
+        header: "Hemocomponente",
+        sortValue: (u) => u.tipoHemocomponente,
+        render: (u) => etiquetasHemocomponente[u.tipoHemocomponente] ?? u.tipoHemocomponente,
+      },
+      {
+        id: "grupo",
+        header: "Grupo / Factor",
+        sortValue: (u) => `${u.grupoABO}${u.factorRhD}`,
+        render: (u) => `${u.grupoABO} ${u.factorRhD === "POSITIVO" ? "+" : "-"}`,
+      },
+      {
+        id: "vencimiento",
+        header: "Vencimiento",
+        sortValue: (u) => u.fechaVencimiento,
+        render: (u) => formatearFechaVencimiento(u.fechaVencimiento),
+      },
+      {
+        id: "estado",
+        header: "Estado",
+        sortValue: (u) => u.estado,
+        render: (u) => <StatusBadge estado={u.estado} />,
+      },
+      {
+        id: "operador",
+        header: "Operador",
+        sortValue: (u) => u.operador,
+        render: (u) => u.operador || "—",
+      },
+      {
+        id: "recepcion",
+        header: "Recepción",
+        sortValue: (u) => u.fechaRecepcion,
+        render: (u) => formatearFechaHoraArgentina(u.fechaRecepcion),
+      },
+    ],
+    [],
+  );
+
+  const textoBusqueda = (u: UnidadInventario) =>
+    [
+      u.numeroUnidad,
+      etiquetasHemocomponente[u.tipoHemocomponente] ?? u.tipoHemocomponente,
+      u.grupoABO,
+      u.factorRhD,
+      u.estado,
+      u.operador,
+    ].join(" ");
+
   return (
-    <main className="recepcion">
-      <header className="recepcion-header">
-        <h1>Registrar recepción de unidades</h1>
-        <p>
-          Incorporá unidades de hemocomponentes al inventario manteniendo su
-          disponibilidad y trazabilidad.
-        </p>
-      </header>
+    <div className="recepcion">
+      <PageHeader
+        title="Registrar recepción de unidades"
+        description="Incorporá unidades de hemocomponentes al inventario manteniendo su disponibilidad y trazabilidad."
+      />
 
-      {banner && (
-        <div
-          className={`recepcion-banner ${banner.tipo === "ok" ? "recepcion-banner-ok" : "recepcion-banner-error"}`}
-          role="status"
-        >
-          {banner.texto}
-        </div>
-      )}
+      {banner ? <Banner tone={banner.tipo}>{banner.texto}</Banner> : null}
 
-      <form onSubmit={onSubmit} noValidate>
+      <form ref={formRef} onSubmit={onSubmit} noValidate>
         <fieldset>
           <legend>Datos de la unidad</legend>
           <div className="recepcion-grid">
@@ -322,48 +387,36 @@ export default function RecepcionUnidad() {
 
       <section className="recepcion-inventario">
         <h2>Unidades registradas en inventario</h2>
-        {cargandoInventario ? (
-          <p className="recepcion-vacio">Cargando inventario…</p>
-        ) : unidades.length === 0 ? (
-          <p className="recepcion-vacio">
-            Todavía no hay unidades registradas en el inventario.
-          </p>
-        ) : (
-          <div className="recepcion-tabla-contenedor">
-            <table className="recepcion-tabla">
-              <thead>
-                <tr>
-                  <th>Unidad</th>
-                  <th>Hemocomponente</th>
-                  <th>Grupo / Factor</th>
-                  <th>Vencimiento</th>
-                  <th>Estado</th>
-                  <th>Operador</th>
-                  <th>Fecha y hora de recepción</th>
-                </tr>
-              </thead>
-              <tbody>
-                {unidades.map((u) => (
-                  <tr key={u.id}>
-                    <td>{u.numeroUnidad}</td>
-                    <td>
-                      {etiquetasHemocomponente[u.tipoHemocomponente] ??
-                        u.tipoHemocomponente}
-                    </td>
-                    <td>
-                      {u.grupoABO} {u.factorRhD === "POSITIVO" ? "+" : "-"}
-                    </td>
-                    <td>{formatearFechaVencimiento(u.fechaVencimiento)}</td>
-                    <td>{etiquetasEstado[u.estado] ?? u.estado}</td>
-                    <td>{u.operador || "—"}</td>
-                    <td>{formatearFechaHoraArgentina(u.fechaRecepcion)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <DataTable
+          rows={unidades}
+          columns={columnas}
+          rowKey={(u) => u.id}
+          searchText={textoBusqueda}
+          searchPlaceholder="Buscar por unidad, grupo, operador o estado…"
+          loading={cargandoInventario}
+          filters={[
+            {
+              id: "estado",
+              label: "Estado",
+              value: filtroEstado,
+              options: [
+                { value: "", label: "Todos los estados" },
+                ...["DISPONIBLE", "RESERVADA", "EMITIDA", "BLOQUEADA", "VENCIDA", "DADA_DE_BAJA"].map(
+                  (estado) => ({
+                    value: estado,
+                    label: etiquetasEstado[estado] ?? estado,
+                  }),
+                ),
+              ],
+              onChange: setFiltroEstado,
+            },
+          ]}
+          filterRow={(u) => !filtroEstado || u.estado === filtroEstado}
+          emptyTitle="No hay unidades registradas"
+          emptyDescription="Las unidades recepcionadas aparecerán aquí con su estado y trazabilidad."
+          caption="Inventario de hemocomponentes"
+        />
       </section>
-    </main>
+    </div>
   );
 }

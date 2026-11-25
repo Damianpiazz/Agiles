@@ -55,6 +55,14 @@ export async function emitir(req: Request, res: Response) {
   }
 }
 
+export async function listar(_req: Request, res: Response) {
+  try {
+    return res.status(200).json(await emisionService.listar());
+  } catch (error) {
+    return responderError(error, res);
+  }
+}
+
 export async function listarPorUnidad(req: Request, res: Response) {
   const unidadId = idUnidadEmisionSchema.safeParse(req.params.id);
   if (!unidadId.success) {

@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
-import type { ChangeEvent, FormEvent } from "react";
+import type { ChangeEvent } from "react";
+import {
+  DataTable,
+  type DataTableColumn,
+  type DataTableFilter,
+} from "../components/DataTable";
+import { StatusBadge } from "../components/StatusBadge";
 import "../styles/SeleccionarComponente.css";
 
 const API_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:3000"
+  import.meta.env.VITE_API_URL || "http://localhost:3001"
 ).replace(/\/+$/, "");
 
 type GrupoABO = "A" | "B" | "AB" | "O";
@@ -73,6 +79,12 @@ export default function SeleccionarComponente() {
   const [unidadesPreparadas, setUnidadesPreparadas] = useState(0);
   const [unidadesRestantes, setUnidadesRestantes] = useState(0);
   const [operador, setOperador] = useState("");
+  const [filtroComponente, setFiltroComponente] = useState("");
+  const [filtroGrupo, setFiltroGrupo] = useState("");
+  const [filtroUnidadesGrupo, setFiltroUnidadesGrupo] = useState("");
+  const [filtroUnidadesVencimiento, setFiltroUnidadesVencimiento] = useState("");
+  const [filtroPreparadasGrupo, setFiltroPreparadasGrupo] = useState("");
+  const [filtroPreparadasVencimiento, setFiltroPreparadasVencimiento] = useState("");
 
   const [banner, setBanner] = useState<Banner>(null);
   const [cargandoSolicitudes, setCargandoSolicitudes] = useState(true);
@@ -95,11 +107,15 @@ export default function SeleccionarComponente() {
           );
         }
 
+        if (!Array.isArray(datos)) {
+          throw new Error("La respuesta del servidor no tiene el formato esperado.");
+        }
+
         if (cancelado) return;
 
         setSolicitudes(datos as Solicitud[]);
 
-        if ((datos as Solicitud[]).length === 0) {
+        if (datos.length === 0) {
           setBanner({
             tipo: "aviso",
             texto: "No hay solicitudes de transfusión aprobadas para preparar componentes.",
@@ -159,6 +175,10 @@ export default function SeleccionarComponente() {
         throw new Error(datos?.error || "No se pudieron consultar las unidades.");
       }
 
+      if (!datos || !Array.isArray(datos.unidades)) {
+        throw new Error("La respuesta del servidor no tiene el formato esperado.");
+      }
+
       setUnidades(datos.unidades as Unidad[]);
       setMensajeServidor(datos.mensaje as string);
       setCantidadRequerida(Number(datos.cantidadRequerida ?? 0));
@@ -180,7 +200,11 @@ export default function SeleccionarComponente() {
         );
       }
 
-      setPreparadas((datosPreparadas.unidades ?? []) as Unidad[]);
+      if (!datosPreparadas || !Array.isArray(datosPreparadas.unidades)) {
+        throw new Error("La respuesta del servidor no tiene el formato esperado.");
+      }
+
+      setPreparadas(datosPreparadas.unidades as Unidad[]);
       setMensajePreparadas((datosPreparadas.mensaje ?? "") as string);
       setUnidadesPreparadas(
         Number(datosPreparadas.unidadesPreparadas ?? datos.unidadesPreparadas ?? 0),
@@ -207,8 +231,7 @@ export default function SeleccionarComponente() {
     void consultarUnidades(valor);
   }
 
-  async function preparar(unidad: Unidad, evento: FormEvent<HTMLFormElement>) {
-    evento.preventDefault();
+  async function preparar(unidad: Unidad) {
     setBanner(null);
 
     if (!solicitudId) return;
@@ -258,8 +281,237 @@ export default function SeleccionarComponente() {
     (solicitud) => String(solicitud.id) === solicitudId,
   );
 
+  const columnasSolicitudes: DataTableColumn<Solicitud>[] = [
+    {
+      id: "id",
+      header: "Solicitud",
+      render: (solicitud) => <strong>#{solicitud.id}</strong>,
+      sortValue: (solicitud) => solicitud.id,
+    },
+    {
+      id: "paciente",
+      header: "Paciente",
+      render: (solicitud) => solicitud.nombrePaciente,
+      sortValue: (solicitud) => solicitud.nombrePaciente,
+    },
+    {
+      id: "dni",
+      header: "DNI",
+      render: (solicitud) => solicitud.dniPaciente,
+      sortValue: (solicitud) => solicitud.dniPaciente,
+    },
+    {
+      id: "receptor",
+      header: "Receptor",
+      render: (solicitud) => etiquetaReceptor(solicitud),
+      sortValue: (solicitud) => etiquetaReceptor(solicitud),
+    },
+    {
+      id: "componente",
+      header: "Componente",
+      render: (solicitud) =>
+        etiquetasHemocomponente[solicitud.tipoHemocomponente] ??
+        solicitud.tipoHemocomponente,
+      sortValue: (solicitud) => solicitud.tipoHemocomponente,
+    },
+    {
+      id: "cantidad",
+      header: "Cantidad",
+      render: (solicitud) => solicitud.cantidad,
+      sortValue: (solicitud) => solicitud.cantidad,
+    },
+  ];
+
+  const opcionesGrupo: DataTableFilter["options"] = [
+    { value: "", label: "Todos" },
+    { value: "A", label: "A" },
+    { value: "B", label: "B" },
+    { value: "AB", label: "AB" },
+    { value: "O", label: "O" },
+  ];
+
+  const opcionesVencimiento: DataTableFilter["options"] = [
+    { value: "", label: "Todas" },
+    { value: "vigente", label: "Vigente" },
+    { value: "vencida", label: "Vencida" },
+  ];
+
+  const filtrosUnidades: DataTableFilter[] = [
+    {
+      id: "grupoUnidades",
+      label: "Grupo",
+      value: filtroUnidadesGrupo,
+      options: opcionesGrupo,
+      onChange: setFiltroUnidadesGrupo,
+    },
+    {
+      id: "vencimientoUnidades",
+      label: "Vencimiento",
+      value: filtroUnidadesVencimiento,
+      options: opcionesVencimiento,
+      onChange: setFiltroUnidadesVencimiento,
+    },
+  ];
+
+  const filtrosPreparadas: DataTableFilter[] = [
+    {
+      id: "grupoPreparadas",
+      label: "Grupo",
+      value: filtroPreparadasGrupo,
+      options: opcionesGrupo,
+      onChange: setFiltroPreparadasGrupo,
+    },
+    {
+      id: "vencimientoPreparadas",
+      label: "Vencimiento",
+      value: filtroPreparadasVencimiento,
+      options: opcionesVencimiento,
+      onChange: setFiltroPreparadasVencimiento,
+    },
+  ];
+
+  const columnasUnidades: DataTableColumn<Unidad>[] = [
+    {
+      id: "unidad",
+      header: "Unidad",
+      render: (unidad) => <strong>{unidad.numeroUnidad}</strong>,
+      sortValue: (unidad) => unidad.numeroUnidad,
+    },
+    {
+      id: "grupo",
+      header: "Grupo",
+      render: (unidad) => unidad.grupoABO,
+      sortValue: (unidad) => unidad.grupoABO,
+    },
+    {
+      id: "factor",
+      header: "Factor",
+      render: (unidad) =>
+        unidad.factorRhD === "POSITIVO" ? "Positivo (+)" : "Negativo (-)",
+      sortValue: (unidad) => unidad.factorRhD,
+    },
+    {
+      id: "vencimiento",
+      header: "Vencimiento",
+      render: (unidad) =>
+        new Date(unidad.fechaVencimiento).toLocaleDateString("es-AR"),
+      sortValue: (unidad) => unidad.fechaVencimiento,
+    },
+    {
+      id: "estado",
+      header: "Estado",
+      render: (unidad) => (
+        <StatusBadge
+          estado={unidad.vencida ? "VENCIDA" : unidad.estado}
+          etiqueta={unidad.vencida ? "Vencida" : etiquetasEstado[unidad.estado] ?? unidad.estado}
+        />
+      ),
+      sortValue: (unidad) => unidad.vencida ? "VENCIDA" : unidad.estado,
+    },
+    {
+      id: "acciones",
+      header: "Acciones",
+      className: "ui-col-acciones",
+      render: (unidad) => (
+        <div className="ui-row-actions">
+          <button
+            type="button"
+            className="ui-btn ui-btn-small ui-btn-primary"
+            disabled={
+              preparandoId !== null ||
+              !operador.trim() ||
+              unidadesRestantes <= 0
+            }
+            onClick={() => void preparar(unidad)}
+          >
+            {preparandoId === unidad.id ? "Preparando..." : "Preparar"}
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  const columnasPreparadas: DataTableColumn<Unidad>[] = [
+    {
+      id: "unidad",
+      header: "Unidad",
+      render: (unidad) => <strong>{unidad.numeroUnidad}</strong>,
+      sortValue: (unidad) => unidad.numeroUnidad,
+    },
+    {
+      id: "grupo",
+      header: "Grupo",
+      render: (unidad) => unidad.grupoABO,
+      sortValue: (unidad) => unidad.grupoABO,
+    },
+    {
+      id: "factor",
+      header: "Factor",
+      render: (unidad) =>
+        unidad.factorRhD === "POSITIVO" ? "Positivo (+)" : "Negativo (-)",
+      sortValue: (unidad) => unidad.factorRhD,
+    },
+    {
+      id: "vencimiento",
+      header: "Vencimiento",
+      render: (unidad) =>
+        new Date(unidad.fechaVencimiento).toLocaleDateString("es-AR"),
+      sortValue: (unidad) => unidad.fechaVencimiento,
+    },
+    {
+      id: "estado",
+      header: "Estado",
+      render: (unidad) => (
+        <StatusBadge
+          estado={unidad.vencida ? "VENCIDA" : unidad.estado}
+          etiqueta={unidad.vencida ? "Vencida" : etiquetasEstado[unidad.estado] ?? unidad.estado}
+        />
+      ),
+      sortValue: (unidad) => unidad.vencida ? "VENCIDA" : unidad.estado,
+    },
+    {
+      id: "reservadaPor",
+      header: "Reservada por",
+      render: (unidad) => unidad.reservadaPor ?? "—",
+      sortValue: (unidad) => unidad.reservadaPor ?? "",
+    },
+    {
+      id: "reservadaEn",
+      header: "Fecha de reserva",
+      render: (unidad) =>
+        unidad.reservadaEn
+          ? new Date(unidad.reservadaEn).toLocaleString("es-AR")
+          : "—",
+      sortValue: (unidad) => unidad.reservadaEn ?? "",
+    },
+  ];
+
+  function textoUnidad(unidad: Unidad) {
+    return [
+      unidad.numeroUnidad,
+      unidad.grupoABO,
+      unidad.factorRhD,
+      unidad.fechaVencimiento,
+      unidad.estado,
+      unidad.reservadaPor ?? "",
+      unidad.reservadaEn ?? "",
+    ].join(" ");
+  }
+
+  function cumpleFiltrosUnidad(
+    unidad: Unidad,
+    grupo: string,
+    vencimiento: string,
+  ) {
+    return (
+      (!grupo || unidad.grupoABO === grupo) &&
+      (!vencimiento ||
+        (vencimiento === "vencida" ? unidad.vencida : !unidad.vencida))
+    );
+  }
+
   return (
-    <main className="seleccion-container">
+    <div className="seleccion-container">
       <header className="seleccion-header">
         <h1>Seleccionar y preparar componente</h1>
         <p>
@@ -279,6 +531,57 @@ export default function SeleccionarComponente() {
 
       <section className="seleccion-card">
         <h2>Solicitud de transfusión</h2>
+
+        <DataTable
+          rows={solicitudes}
+          columns={columnasSolicitudes}
+          rowKey={(solicitud) => solicitud.id}
+          searchText={(solicitud) =>
+            `${solicitud.id} ${solicitud.nombrePaciente} ${solicitud.dniPaciente} ${solicitud.tipoHemocomponente}`
+          }
+          searchPlaceholder="Buscar por solicitud, paciente, DNI o componente…"
+          filters={[
+            {
+              id: "componente",
+              label: "Componente",
+              value: filtroComponente,
+              options: [
+                { value: "", label: "Todos" },
+                ...Object.entries(etiquetasHemocomponente).map(
+                  ([valor, etiqueta]) => ({ value: valor, label: etiqueta }),
+                ),
+              ],
+              onChange: setFiltroComponente,
+            },
+            {
+              id: "grupo",
+              label: "Grupo",
+              value: filtroGrupo,
+              options: [
+                { value: "", label: "Todos" },
+                { value: "A", label: "A" },
+                { value: "B", label: "B" },
+                { value: "AB", label: "AB" },
+                { value: "O", label: "O" },
+              ],
+              onChange: setFiltroGrupo,
+            },
+          ]}
+          filterRow={(solicitud) =>
+            (!filtroComponente ||
+              solicitud.tipoHemocomponente === filtroComponente) &&
+            (!filtroGrupo || solicitud.grupoABO === filtroGrupo)
+          }
+          loading={cargandoSolicitudes}
+          emptyTitle="No hay solicitudes aprobadas"
+          emptyDescription="No hay solicitudes de transfusión aprobadas para preparar componentes."
+          caption="Solicitudes aprobadas disponibles para seleccionar."
+          onRowClick={(solicitud) => {
+            const valor = String(solicitud.id);
+            setSolicitudId(valor);
+            void consultarUnidades(valor);
+          }}
+        />
 
         <div className="seleccion-field">
           <label htmlFor="seleccionSolicitud">Solicitud aprobada</label>
@@ -350,11 +653,7 @@ export default function SeleccionarComponente() {
             </p>
           )}
 
-          {!consultando && unidades.length === 0 && (
-            <p className="seleccion-vacio">{mensajeServidor}</p>
-          )}
-
-          {!consultando && unidades.length > 0 && (
+          {!consultando && (
             <>
               <form
                 className="seleccion-operador"
@@ -377,60 +676,28 @@ export default function SeleccionarComponente() {
                 </p>
               </form>
 
-              <div className="seleccion-tabla-contenedor">
-                <table className="seleccion-tabla">
-                  <thead>
-                    <tr>
-                      <th>Unidad</th>
-                      <th>Grupo</th>
-                      <th>Factor</th>
-                      <th>Vencimiento</th>
-                      <th>Estado</th>
-                      <th>Acción</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {unidades.map((unidad) => (
-                      <tr key={unidad.id}>
-                        <td>{unidad.numeroUnidad}</td>
-                        <td>{unidad.grupoABO}</td>
-                        <td>
-                          {unidad.factorRhD === "POSITIVO"
-                            ? "Positivo (+)"
-                            : "Negativo (-)"}
-                        </td>
-                        <td>
-                          {new Date(unidad.fechaVencimiento).toLocaleDateString(
-                            "es-AR",
-                          )}
-                        </td>
-                        <td>
-                          {etiquetasEstado[unidad.estado] ?? unidad.estado}
-                        </td>
-                        <td>
-                          <form
-                            className="seleccion-accion"
-                            onSubmit={(evento) => preparar(unidad, evento)}
-                          >
-                            <button
-                              type="submit"
-                              disabled={
-                                preparandoId !== null ||
-                                !operador.trim() ||
-                                unidadesRestantes <= 0
-                              }
-                            >
-                              {preparandoId === unidad.id
-                                ? "Preparando..."
-                                : "Preparar"}
-                            </button>
-                          </form>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataTable
+                rows={unidades}
+                columns={columnasUnidades}
+                rowKey={(unidad) => unidad.id}
+                searchText={textoUnidad}
+                searchPlaceholder="Buscar por unidad, grupo, factor, vencimiento o estado…"
+                filters={filtrosUnidades}
+                filterRow={(unidad) =>
+                  cumpleFiltrosUnidad(
+                    unidad,
+                    filtroUnidadesGrupo,
+                    filtroUnidadesVencimiento,
+                  )
+                }
+                loading={consultando}
+                emptyTitle="No hay unidades compatibles"
+                emptyDescription={
+                  mensajeServidor ||
+                  "No hay unidades compatibles disponibles para esta solicitud."
+                }
+                caption="Unidades compatibles disponibles para preparar."
+              />
             </>
           )}
         </section>
@@ -446,62 +713,33 @@ export default function SeleccionarComponente() {
                 "Todavía no hay unidades preparadas para esta solicitud."}
             </p>
           ) : (
-            <>
-              <p className="seleccion-nota">
-                {mensajePreparadas} Se mantienen en esta pantalla hasta que la
-                solicitud cambie de estado.
-              </p>
-
-              <div className="seleccion-tabla-contenedor">
-                <table className="seleccion-tabla">
-                  <thead>
-                    <tr>
-                      <th>Unidad</th>
-                      <th>Grupo</th>
-                      <th>Factor</th>
-                      <th>Vencimiento</th>
-                      <th>Estado</th>
-                      <th>Reservada por</th>
-                      <th>Fecha de reserva</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {preparadas.map((unidad) => (
-                      <tr key={unidad.id}>
-                        <td>{unidad.numeroUnidad}</td>
-                        <td>{unidad.grupoABO}</td>
-                        <td>
-                          {unidad.factorRhD === "POSITIVO"
-                            ? "Positivo (+)"
-                            : "Negativo (-)"}
-                        </td>
-                        <td>
-                          {new Date(unidad.fechaVencimiento).toLocaleDateString(
-                            "es-AR",
-                          )}
-                        </td>
-                        <td>
-                          <span className="seleccion-estado-preparada">
-                            {etiquetasEstado[unidad.estado] ?? unidad.estado}
-                          </span>
-                        </td>
-                        <td>{unidad.reservadaPor ?? "—"}</td>
-                        <td>
-                          {unidad.reservadaEn
-                            ? new Date(unidad.reservadaEn).toLocaleString(
-                                "es-AR",
-                              )
-                            : "—"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
+            <p className="seleccion-nota">
+              {mensajePreparadas} Se mantienen en esta pantalla hasta que la
+              solicitud cambie de estado.
+            </p>
           )}
+
+          <DataTable
+            rows={preparadas}
+            columns={columnasPreparadas}
+            rowKey={(unidad) => unidad.id}
+            searchText={textoUnidad}
+            searchPlaceholder="Buscar por unidad, grupo, factor, vencimiento o reserva…"
+            filters={filtrosPreparadas}
+            filterRow={(unidad) =>
+              cumpleFiltrosUnidad(
+                unidad,
+                filtroPreparadasGrupo,
+                filtroPreparadasVencimiento,
+              )
+            }
+            loading={consultando}
+            emptyTitle="No hay unidades preparadas"
+            emptyDescription="Todavía no hay unidades preparadas para esta solicitud."
+            caption="Unidades preparadas para la solicitud seleccionada."
+          />
         </section>
       )}
-    </main>
+    </div>
   );
 }

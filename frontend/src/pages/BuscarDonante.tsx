@@ -1,10 +1,12 @@
 import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { z } from "zod";
-import {
-  buscarDonanteSchema,
-  type BuscarDonanteForm,
-} from "../schemas/buscarDonante";
+import { Banner } from "../components/Banner";
+import { ConfirmDialog } from "../components/ConfirmDialog";
+import { DonantesTable } from "../components/DonantesTable";
+import { PageHeader } from "../components/PageHeader";
+import { StatusBadge } from "../components/StatusBadge";
+import { useDonantesActivos } from "../hooks/useDatos";
 import {
   actualizarDonanteSchema,
   type ActualizarDonanteForm,
@@ -60,12 +62,6 @@ type FormEdicionState = Record<CampoEdicion, string>;
 type ErroresEdicion = Partial<Record<CampoEdicion, string[]>>;
 type BannerEdicion = { tipo: "ok" | "error"; texto: string } | null;
 
-const formInicial: BuscarDonanteForm = {
-  dni: "",
-  nombre: "",
-  apellido: "",
-};
-
 const formEdicionVacio: FormEdicionState = {
   domicilio: "",
   codigoPostal: "",
@@ -76,11 +72,17 @@ const formEdicionVacio: FormEdicionState = {
 };
 
 export default function BuscarDonante({ onRegistrarDonacion }: Props) {
-  const [form, setForm] = useState<BuscarDonanteForm>(formInicial);
-  const [resultados, setResultados] = useState<DonanteDetalle[]>([]);
+  const {
+    datos: resultados,
+    cargando,
+    error: errorListado,
+    recargar,
+  } = useDonantesActivos();
   const [seleccionado, setSeleccionado] = useState<DonanteDetalle | null>(null);
   const [mensaje, setMensaje] = useState("");
-  const [buscando, setBuscando] = useState(false);
+  const [mensajeEsError, setMensajeEsError] = useState(false);
+  const [donanteABaja, setDonanteABaja] = useState<Donante | null>(null);
+  const [dandoDeBaja, setDandoDeBaja] = useState(false);
 
   const [editando, setEditando] = useState(false);
   const [formEdicion, setFormEdicion] = useState<FormEdicionState>(formEdicionVacio);
@@ -147,8 +149,11 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
 
     const parsed = actualizarDonanteSchema.safeParse(formEdicion);
     if (!parsed.success) {
-      setErroresEdicion(z.flattenError(parsed.error).fieldErrors as ErroresEdicion);
+      const errores = z.flattenError(parsed.error).fieldErrors as ErroresEdicion;
+      setErroresEdicion(errores);
       setBannerEdicion({ tipo: "error", texto: "Revisá los campos marcados." });
+      const primerCampo = Object.keys(errores)[0];
+      if (primerCampo) document.getElementById(`edicion${primerCampo.charAt(0).toUpperCase()}${primerCampo.slice(1)}`)?.focus();
       return;
     }
 
@@ -169,8 +174,11 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
 
       if (!res.ok) {
         if (res.status === 400 && data?.campos) {
-          setErroresEdicion(data.campos as ErroresEdicion);
+          const campos = data.campos as ErroresEdicion;
+          setErroresEdicion(campos);
           setBannerEdicion({ tipo: "error", texto: "Revisá los campos marcados." });
+          const primerCampo = Object.keys(campos)[0];
+          if (primerCampo) document.getElementById(`edicion${primerCampo.charAt(0).toUpperCase()}${primerCampo.slice(1)}`)?.focus();
           return;
         }
         setBannerEdicion({
@@ -182,9 +190,7 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
 
       const actualizado: DonanteDetalle = data;
       setSeleccionado(actualizado);
-      setResultados((prev) =>
-        prev.map((d) => (d.id === actualizado.id ? { ...d, ...actualizado } : d)),
-      );
+      void recargar();
       setEditando(false);
       setBannerEdicion({
         tipo: "ok",
@@ -200,60 +206,49 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
     }
   }
 
-  async function buscar(e: FormEvent) {
-    e.preventDefault();
+  function avisar(texto: string, esError = false) {
+    setMensaje(texto);
+    setMensajeEsError(esError);
+  }
 
-    setMensaje("");
-    setSeleccionado(null);
-    setEditando(false);
-    setBannerEdicion(null);
+  function pedirBaja(donante: Donante) {
+    avisar("");
+    setDonanteABaja(donante);
+  }
 
-    const parsed = buscarDonanteSchema.safeParse(form);
-
-    if (!parsed.success) {
-      setMensaje(parsed.error.issues[0]?.message ?? "Revisá los datos ingresados.");
-      return;
-    }
-
-    const params = new URLSearchParams();
-
-    if (parsed.data.dni) {
-      params.set("dni", parsed.data.dni);
-    } else {
-      params.set("nombre", parsed.data.nombre);
-      params.set("apellido", parsed.data.apellido);
-    }
-
-    setBuscando(true);
+  async function confirmarBaja() {
+    if (!donanteABaja) return;
+    setDandoDeBaja(true);
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/donantes?${params.toString()}`,
+        `${import.meta.env.VITE_API_URL}/api/donantes/${donanteABaja.id}/baja`,
+        { method: "PATCH" },
       );
-
       const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        setResultados([]);
-        setMensaje(data?.error ?? "No se pudo realizar la búsqueda.");
+        avisar(data?.error ?? "No se pudo dar de baja al donante.", true);
         return;
       }
 
-      setResultados(data);
-
-      if (data.length === 0) {
-        setMensaje("No se encontraron resultados.");
-      }
+      setSeleccionado((prev) =>
+        prev?.id === donanteABaja.id ? { ...prev, activo: false } : prev,
+      );
+      setDonanteABaja(null);
+      avisar(
+        `${donanteABaja.nombre} ${donanteABaja.apellido} fue dado de baja. Su historial se conserva y ya no aparece en las búsquedas.`,
+      );
+      await recargar();
     } catch {
-      setResultados([]);
-      setMensaje("No se pudo conectar con el servidor.");
+      avisar("No se pudo conectar con el servidor.", true);
     } finally {
-      setBuscando(false);
+      setDandoDeBaja(false);
     }
   }
 
   async function verDetalle(id: number) {
-    setMensaje("");
+    avisar("");
     setEditando(false);
     setBannerEdicion(null);
     setErroresEdicion({});
@@ -266,131 +261,52 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
       const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        setMensaje(data?.error ?? "No se pudo consultar el donante.");
+        avisar(data?.error ?? "No se pudo consultar el donante.", true);
         return;
       }
 
       setSeleccionado(data);
     } catch {
-      setMensaje("No se pudo conectar con el servidor.");
+      avisar("No se pudo conectar con el servidor.", true);
     }
   }
 
   return (
-    <main className="consulta">
-      <header className="consulta-header">
-        <h1>Buscar donante</h1>
-        <p>
-          Buscá un donante por DNI o por nombre y apellido.
-        </p>
-      </header>
+    <div className="consulta">
+      <PageHeader
+        title="Buscar donante"
+        description="Consultá el listado completo de donantes. Buscá por DNI, filtrá, ordená y abrí la ficha de cada persona."
+      />
 
-      <form onSubmit={buscar} noValidate>
-        <fieldset>
-          <legend>Criterios de búsqueda</legend>
+      {mensaje ? (
+        <Banner tone={mensajeEsError ? "error" : "info"}>{mensaje}</Banner>
+      ) : null}
 
-          <div className="consulta-grid">
-            <div className="consulta-field">
-              <label htmlFor="dniBusqueda">DNI</label>
-              <input
-                id="dniBusqueda"
-                value={form.dni}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    dni: e.target.value,
-                  }))
-                }
-              />
-            </div>
-
-            <div className="consulta-separador">o</div>
-
-            <div className="consulta-field">
-              <label htmlFor="nombreBusqueda">Nombre</label>
-              <input
-                id="nombreBusqueda"
-                value={form.nombre}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    nombre: e.target.value,
-                  }))
-                }
-              />
-            </div>
-
-            <div className="consulta-field">
-              <label htmlFor="apellidoBusqueda">Apellido</label>
-              <input
-                id="apellidoBusqueda"
-                value={form.apellido}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    apellido: e.target.value,
-                  }))
-                }
-              />
-            </div>
-          </div>
-        </fieldset>
-
-        <div className="consulta-actions">
-          <button type="submit" disabled={buscando}>
-            {buscando ? "Buscando…" : "Buscar"}
-          </button>
-        </div>
-      </form>
-
-      {mensaje && (
-        <div className="consulta-banner" role="status">
-          {mensaje}
-        </div>
-      )}
-
-      {resultados.length > 0 && (
-        <section className="consulta-resultados">
-          <h2>Resultados</h2>
-
-          {resultados.map((donante) => (
-            <div className="consulta-resultado" key={donante.id}>
-              <div>
-                <strong>
-                  {donante.nombre} {donante.apellido}
-                </strong>
-                <p>DNI: {donante.dni}</p>
-              </div>
-
-              <div className="consulta-resultado-acciones">
-                <button
-                  type="button"
-                  onClick={() => verDetalle(donante.id)}
-                >
-                  Ver detalle
-                </button>
-              </div>
-            </div>
-          ))}
-        </section>
-      )}
+      <section className="consulta-resultados" aria-labelledby="resultadosDonantesTitulo">
+        <h2 id="resultadosDonantesTitulo">Donantes</h2>
+        <DonantesTable
+          rows={resultados}
+          loading={cargando}
+          onVerDetalle={(donante) => void verDetalle(donante.id)}
+          onModificar={(donante) => {
+            setSeleccionado(donante);
+            iniciarEdicion(donante);
+          }}
+          onDarDeBaja={pedirBaja}
+          onRegistrarDonacion={onRegistrarDonacion}
+        />
+        {errorListado ? (
+          <Banner tone="error">{errorListado}</Banner>
+        ) : null}
+      </section>
 
       {seleccionado && (
         <section className="consulta-detalle">
           <h2>Datos del donante</h2>
 
-          {bannerEdicion && (
-            <div
-              className={`consulta-banner ${
-                bannerEdicion.tipo === "ok"
-                  ? "consulta-banner-ok"
-                  : "consulta-banner-error"
-              }`}
-              role="status"
-            >
-              {bannerEdicion.texto}
-            </div>
-          )}
+          {bannerEdicion ? (
+            <Banner tone={bannerEdicion.tipo}>{bannerEdicion.texto}</Banner>
+          ) : null}
 
           {seleccionado.operadorModificacion && seleccionado.updatedAt && (
             <p className="consulta-trazabilidad">
@@ -500,9 +416,10 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
                       value={formEdicion.domicilio}
                       onChange={onChangeEdicion}
                       aria-invalid={Boolean(errorDeEdicion("domicilio"))}
+                       aria-describedby={errorDeEdicion("domicilio") ? "edicionDomicilio-error" : undefined}
                     />
                     {errorDeEdicion("domicilio") && (
-                      <p className="consulta-error">{errorDeEdicion("domicilio")}</p>
+                      <p className="consulta-error" id="edicionDomicilio-error" role="alert">{errorDeEdicion("domicilio")}</p>
                     )}
                   </div>
 
@@ -514,9 +431,10 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
                       value={formEdicion.codigoPostal}
                       onChange={onChangeEdicion}
                       aria-invalid={Boolean(errorDeEdicion("codigoPostal"))}
+                       aria-describedby={errorDeEdicion("codigoPostal") ? "edicionCodigoPostal-error" : undefined}
                     />
                     {errorDeEdicion("codigoPostal") && (
-                      <p className="consulta-error">{errorDeEdicion("codigoPostal")}</p>
+                      <p className="consulta-error" id="edicionCodigoPostal-error" role="alert">{errorDeEdicion("codigoPostal")}</p>
                     )}
                   </div>
 
@@ -529,9 +447,10 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
                       value={formEdicion.email}
                       onChange={onChangeEdicion}
                       aria-invalid={Boolean(errorDeEdicion("email"))}
+                       aria-describedby={errorDeEdicion("email") ? "edicionEmail-error" : undefined}
                     />
                     {errorDeEdicion("email") && (
-                      <p className="consulta-error">{errorDeEdicion("email")}</p>
+                      <p className="consulta-error" id="edicionEmail-error" role="alert">{errorDeEdicion("email")}</p>
                     )}
                   </div>
 
@@ -545,9 +464,10 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
                       value={formEdicion.telefonoFijo}
                       onChange={onChangeEdicion}
                       aria-invalid={Boolean(errorDeEdicion("telefonoFijo"))}
+                       aria-describedby={errorDeEdicion("telefonoFijo") ? "edicionTelefonoFijo-error" : undefined}
                     />
                     {errorDeEdicion("telefonoFijo") && (
-                      <p className="consulta-error">{errorDeEdicion("telefonoFijo")}</p>
+                      <p className="consulta-error" id="edicionTelefonoFijo-error" role="alert">{errorDeEdicion("telefonoFijo")}</p>
                     )}
                   </div>
 
@@ -559,9 +479,10 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
                       value={formEdicion.telefonoCelular}
                       onChange={onChangeEdicion}
                       aria-invalid={Boolean(errorDeEdicion("telefonoCelular"))}
+                       aria-describedby={errorDeEdicion("telefonoCelular") ? "edicionTelefonoCelular-error" : undefined}
                     />
                     {errorDeEdicion("telefonoCelular") && (
-                      <p className="consulta-error">{errorDeEdicion("telefonoCelular")}</p>
+                      <p className="consulta-error" id="edicionTelefonoCelular-error" role="alert">{errorDeEdicion("telefonoCelular")}</p>
                     )}
                   </div>
                 </div>
@@ -579,9 +500,10 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
                       onChange={onChangeEdicion}
                       placeholder="Nombre y apellido del operador"
                       aria-invalid={Boolean(errorDeEdicion("operador"))}
+                       aria-describedby={errorDeEdicion("operador") ? "edicionOperador-error" : undefined}
                     />
                     {errorDeEdicion("operador") && (
-                      <p className="consulta-error">{errorDeEdicion("operador")}</p>
+                      <p className="consulta-error" id="edicionOperador-error" role="alert">{errorDeEdicion("operador")}</p>
                     )}
                   </div>
                 </div>
@@ -658,9 +580,10 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
                   <article className="consulta-donacion" key={donacion.id}>
                     <div className="consulta-donacion-header">
                       <h3>Donación #{donacion.id}</h3>
-                      <span className={`consulta-estado consulta-estado-${donacion.estado.toLowerCase()}`}>
-                        {estadoDonacion(donacion.estado)}
-                      </span>
+                      <StatusBadge
+                        estado={donacion.estado}
+                        etiqueta={estadoDonacion(donacion.estado)}
+                      />
                     </div>
                     <div className="consulta-datos">
                       <p>
@@ -782,6 +705,23 @@ export default function BuscarDonante({ onRegistrarDonacion }: Props) {
 
         </section>
       )}
-    </main>
+
+      <ConfirmDialog
+        open={donanteABaja !== null}
+        title="Dar de baja donante"
+        description={
+          <>
+            Vas a dar de baja a <strong>{donanteABaja?.nombre} {donanteABaja?.apellido}</strong>{" "}
+            (DNI {donanteABaja?.dni}). El donante dejará de aparecer en las búsquedas y no
+            podrá recibir nuevas donaciones, pero se conserva todo su historial clínico.
+          </>
+        }
+        confirmLabel="Confirmar baja"
+        destructive
+        busy={dandoDeBaja}
+        onConfirm={() => void confirmarBaja()}
+        onCancel={() => setDonanteABaja(null)}
+      />
+    </div>
   );
 }

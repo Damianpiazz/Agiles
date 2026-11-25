@@ -11,6 +11,7 @@ export type Donante = {
   email: string;
   telefonoFijo: string | null;
   telefonoCelular: string;
+  activo?: boolean;
   operadorModificacion?: string | null;
   createdAt?: string;
   updatedAt?: string;

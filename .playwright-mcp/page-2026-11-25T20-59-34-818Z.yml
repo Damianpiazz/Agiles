@@ -1,0 +1,296 @@
+- generic [ref=f78e3]:
+  - link "Saltar al contenido principal" [ref=f78e4] [cursor=pointer]:
+    - /url: "#contenido-principal"
+  - complementary "Navegación principal" [ref=f78e5]:
+    - generic [ref=f78e6]:
+      - generic [aria-hidden] [ref=f78e7]:
+        - generic [ref=f78e8]: F
+        - generic [ref=f78e9]: +
+      - generic [ref=f78e10]:
+        - heading "FLORHEMA" [level=1] [ref=f78e11]
+        - paragraph [ref=f78e12]: Sistema de Gestión de Hemoterapia
+    - navigation "Módulos del sistema" [ref=f78e13]:
+      - generic [ref=f78e14]:
+        - paragraph [ref=f78e15]: Inicio
+        - button "Resumen" [ref=f78e16] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e17]: ◫
+        - button "Buscar donante" [ref=f78e19] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e20]: ⌕
+        - button "Alta de donante" [ref=f78e22] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e23]: ＋
+      - generic [ref=f78e25]:
+        - paragraph [ref=f78e26]: Donación y calificación
+        - button "Registrar donación" [ref=f78e27] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e28]: ♥
+        - button "Calificación biológica" [ref=f78e30] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e31]: ✓
+        - button "Tipificación sanguínea" [ref=f78e33] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e34]: ⊕
+        - button "Tamizaje de infecciones" [ref=f78e36] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e37]: ◉
+        - button "Consultar resultados" [ref=f78e39] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e40]: ⌕
+      - generic [ref=f78e42]:
+        - paragraph [ref=f78e43]: Pacientes y transfusión
+        - button "Alta de paciente" [ref=f78e44] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e45]: ＋
+        - button "Buscar paciente" [ref=f78e47] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e48]: ⌕
+        - button "Solicitudes de transfusión" [ref=f78e50] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e51]: ▤
+        - button "Estudios pretransfusionales" [ref=f78e53] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e54]: ◈
+        - button "Seleccionar componente" [ref=f78e56] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e57]: ⚕
+        - button "Emitir sangre" [ref=f78e59] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e60]: ↗
+      - generic [ref=f78e62]:
+        - paragraph [ref=f78e63]: Inventario
+        - button "Recepción de unidades" [ref=f78e64] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e65]: ＋
+        - button "Liberar unidad" [ref=f78e67] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e68]: ✓
+        - button "Dar de baja unidad" [ref=f78e70] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f78e71]: ⊘
+    - generic [ref=f78e73]:
+      - paragraph [ref=f78e74]:
+        - generic [ref=f78e76]: Servicio de Hemoterapia
+      - button "Colapsar menú lateral" [ref=f78e77] [cursor=pointer]:
+        - generic [aria-hidden] [ref=f78e78]: «
+        - generic [ref=f78e79]: Colapsar menú
+  - generic [ref=f78e80]:
+    - banner [ref=f78e81]:
+      - navigation "Ruta de navegación" [ref=f78e82]:
+        - generic [ref=f78e83]: Inicio
+        - generic [aria-hidden] [ref=f78e84]: /
+        - generic [ref=f78e85]: Donación y calificación
+        - generic [aria-hidden] [ref=f78e86]: /
+        - strong [ref=f78e87]: Calificación biológica
+      - generic [ref=f78e88]:
+        - generic [ref=f78e89]: FLORHEMA
+        - generic [ref=f78e90]: Servicio de Hemoterapia
+    - main [ref=f78e91]:
+      - generic [ref=f78e101]:
+        - generic [ref=f78e103]:
+          - heading "Calificación biológica" [level=1] [ref=f78e104]
+          - paragraph [ref=f78e105]: Elegí una donación de la tabla para iniciar su calificación y registrar el resultado inmune.
+        - region "Donaciones registradas" [ref=f78e106]:
+          - heading "Donaciones registradas" [level=2] [ref=f78e107]
+          - generic [ref=f78e109]:
+            - generic [ref=f78e110]:
+              - generic [ref=f78e111]:
+                - generic [aria-hidden] [ref=f78e112]: ⌕
+                - generic [ref=f78e113]: Buscar donación por donante, DNI, ID u operador…
+                - searchbox "Buscar donación por donante, DNI, ID u operador…" [ref=f78e114]
+              - generic [ref=f78e115]:
+                - generic [ref=f78e116]: Estado de la donación
+                - combobox "Estado de la donación" [ref=f78e117]:
+                  - option "Todos" [selected]
+                  - option "Registrada"
+                  - option "En calificación"
+                  - option "Calificada"
+                  - option "Rechazada"
+              - generic [ref=f78e118]:
+                - generic [ref=f78e119]: Estado de la unidad
+                - combobox "Estado de la unidad" [ref=f78e120]:
+                  - option "Todos" [selected]
+                  - option "Pendiente"
+                  - option "Liberada"
+                  - option "Bloqueada"
+              - generic [ref=f78e121]:
+                - generic [ref=f78e122]: Estudios
+                - combobox "Estudios" [ref=f78e123]:
+                  - option "Todas" [selected]
+                  - option "Sin calificación"
+                  - option "Con calificación"
+                  - option "Sin tipificación"
+            - status [ref=f78e124]: 60 registros · mostrando 1–10
+            - region "Donaciones registradas en el sistema" [ref=f78e125]:
+              - table "Donaciones registradas en el sistema" [ref=f78e126]:
+                - caption [ref=f78e127]: Donaciones registradas en el sistema
+                - rowgroup [ref=f78e128]:
+                  - row [ref=f78e129]:
+                    - columnheader "ID" [ref=f78e130]:
+                      - button "ID" [ref=f78e131] [cursor=pointer]: ID ↕
+                    - columnheader "Donante" [ref=f78e132]:
+                      - button "Donante" [ref=f78e133] [cursor=pointer]: Donante ↕
+                    - columnheader "DNI" [ref=f78e134]:
+                      - button "DNI" [ref=f78e135] [cursor=pointer]: DNI ↕
+                    - columnheader "Fecha y hora" [ref=f78e136]:
+                      - button "Fecha y hora" [ref=f78e137] [cursor=pointer]: Fecha y hora ↕
+                    - columnheader "Estado" [ref=f78e138]:
+                      - button "Estado" [ref=f78e139] [cursor=pointer]: Estado ↕
+                    - columnheader "Unidad" [ref=f78e140]:
+                      - button "Unidad" [ref=f78e141] [cursor=pointer]: Unidad ↕
+                    - columnheader "Operador" [ref=f78e142]:
+                      - button "Operador" [ref=f78e143] [cursor=pointer]: Operador ↕
+                    - columnheader "Calificación" [ref=f78e144]:
+                      - button "Calificación" [ref=f78e145] [cursor=pointer]: Calificación ↕
+                    - columnheader "Tipificación" [ref=f78e146]:
+                      - button "Tipificación" [ref=f78e147] [cursor=pointer]: Tipificación ↕
+                    - columnheader "Anticuerpos" [ref=f78e148]:
+                      - button "Anticuerpos" [ref=f78e149] [cursor=pointer]: Anticuerpos ↕
+                    - columnheader "Acciones" [ref=f78e150]
+                - rowgroup [ref=f78e151]:
+                  - row [ref=f78e339] [cursor=pointer]:
+                    - cell "3" [ref=f78e153]
+                    - cell [ref=f78e154]:
+                      - strong [ref=f78e155]: Archuleta Lerma, David
+                    - cell "55049324" [ref=f78e156]
+                    - cell "13/11/26, 9:10 p. m." [ref=f78e157]
+                    - cell "Registrada" [ref=f78e158]
+                    - cell "Pendiente" [ref=f78e160]
+                    - cell "Seeder" [ref=f78e162]
+                    - cell "Sin iniciar" [ref=f78e163]
+                    - cell "—" [ref=f78e164]
+                    - cell "Sin registrar" [ref=f78e165]
+                    - cell [ref=f78e340]:
+                      - button "Seleccionada" [active] [pressed] [ref=f78e341]
+                  - row [ref=f78e169] [cursor=pointer]:
+                    - cell "1" [ref=f78e170]
+                    - cell [ref=f78e171]:
+                      - strong [ref=f78e172]: Ramírez, Carlos
+                    - cell "27123456" [ref=f78e173]
+                    - cell "1/10/26, 9:00 a. m." [ref=f78e174]
+                    - cell "Registrada" [ref=f78e175]
+                    - cell "Pendiente" [ref=f78e177]
+                    - cell "Seeder" [ref=f78e179]
+                    - cell "Sin iniciar" [ref=f78e180]
+                    - cell "—" [ref=f78e181]
+                    - cell "Sin registrar" [ref=f78e182]
+                    - cell [ref=f78e183]:
+                      - button "Calificar" [ref=f78e185]
+                  - row [ref=f78e186] [cursor=pointer]:
+                    - cell "4" [ref=f78e187]
+                    - cell [ref=f78e188]:
+                      - strong [ref=f78e189]: Archuleta Lerma, David
+                    - cell "55049324" [ref=f78e190]
+                    - cell "6/9/26, 6:32 p. m." [ref=f78e191]
+                    - cell "En calificación" [ref=f78e192]
+                    - cell "Pendiente" [ref=f78e194]
+                    - cell "msosa" [ref=f78e196]
+                    - cell "Sin iniciar" [ref=f78e197]
+                    - cell "—" [ref=f78e198]
+                    - cell "Sin registrar" [ref=f78e199]
+                    - cell [ref=f78e200]:
+                      - button "Calificar" [ref=f78e202]
+                  - row [ref=f78e203] [cursor=pointer]:
+                    - cell "23" [ref=f78e204]
+                    - cell [ref=f78e205]:
+                      - strong [ref=f78e206]: Acosta Naranjo, Roser
+                    - cell "87661052" [ref=f78e207]
+                    - cell "19/8/26, 9:13 p. m." [ref=f78e208]
+                    - cell "Calificada" [ref=f78e209]
+                    - cell "Pendiente" [ref=f78e211]
+                    - cell "Seeder" [ref=f78e213]
+                    - cell "Sin iniciar" [ref=f78e214]
+                    - cell "—" [ref=f78e215]
+                    - cell "Sin registrar" [ref=f78e216]
+                    - cell [ref=f78e217]:
+                      - button "Calificar" [ref=f78e219]
+                  - row [ref=f78e220] [cursor=pointer]:
+                    - cell "6" [ref=f78e221]
+                    - cell [ref=f78e222]:
+                      - strong [ref=f78e223]: Amador Matos, Nicolás
+                    - cell "40025474" [ref=f78e224]
+                    - cell "13/8/26, 2:54 a. m." [ref=f78e225]
+                    - cell "Registrada" [ref=f78e226]
+                    - cell "Pendiente" [ref=f78e228]
+                    - cell "jramirez" [ref=f78e230]
+                    - cell "Sin iniciar" [ref=f78e231]
+                    - cell "—" [ref=f78e232]
+                    - cell "Sin registrar" [ref=f78e233]
+                    - cell [ref=f78e234]:
+                      - button "Calificar" [ref=f78e236]
+                  - row [ref=f78e237] [cursor=pointer]:
+                    - cell "46" [ref=f78e238]
+                    - cell [ref=f78e239]:
+                      - strong [ref=f78e240]: Fierro Bueno, Carolina
+                    - cell "78361606" [ref=f78e241]
+                    - cell "7/8/26, 5:12 a. m." [ref=f78e242]
+                    - cell "Registrada" [ref=f78e243]
+                    - cell "Pendiente" [ref=f78e245]
+                    - cell "fperez" [ref=f78e247]
+                    - cell "Sin iniciar" [ref=f78e248]
+                    - cell "—" [ref=f78e249]
+                    - cell "Sin registrar" [ref=f78e250]
+                    - cell [ref=f78e251]:
+                      - button "Calificar" [ref=f78e253]
+                  - row [ref=f78e254] [cursor=pointer]:
+                    - cell "37" [ref=f78e255]
+                    - cell [ref=f78e256]:
+                      - strong [ref=f78e257]: Benítez, Sofía
+                    - cell "31222333" [ref=f78e258]
+                    - cell "1/7/26, 8:57 p. m." [ref=f78e259]
+                    - cell "No apta / rechazada" [ref=f78e260]
+                    - cell "Pendiente" [ref=f78e262]
+                    - cell "msosa" [ref=f78e264]
+                    - cell "Sin iniciar" [ref=f78e265]
+                    - cell "—" [ref=f78e266]
+                    - cell "Sin registrar" [ref=f78e267]
+                    - cell [ref=f78e268]:
+                      - button "Calificar" [ref=f78e270]
+                  - row [ref=f78e271] [cursor=pointer]:
+                    - cell "30" [ref=f78e272]
+                    - cell [ref=f78e273]:
+                      - strong [ref=f78e274]: Villegas Riojas, Germán
+                    - cell "43172007" [ref=f78e275]
+                    - cell "12/6/26, 7:50 p. m." [ref=f78e276]
+                    - cell "No apta / rechazada" [ref=f78e277]
+                    - cell "Pendiente" [ref=f78e279]
+                    - cell "maternidad" [ref=f78e281]
+                    - cell "Sin iniciar" [ref=f78e282]
+                    - cell "—" [ref=f78e283]
+                    - cell "Sin registrar" [ref=f78e284]
+                    - cell [ref=f78e285]:
+                      - button "Calificar" [ref=f78e287]
+                  - row [ref=f78e288] [cursor=pointer]:
+                    - cell "9" [ref=f78e289]
+                    - cell [ref=f78e290]:
+                      - strong [ref=f78e291]: Samaniego Sedillo, Mariana
+                    - cell "99222665" [ref=f78e292]
+                    - cell "26/5/26, 7:13 a. m." [ref=f78e293]
+                    - cell "En calificación" [ref=f78e294]
+                    - cell "Pendiente" [ref=f78e296]
+                    - cell "Seeder" [ref=f78e298]
+                    - cell "Sin iniciar" [ref=f78e299]
+                    - cell "—" [ref=f78e300]
+                    - cell "Sin registrar" [ref=f78e301]
+                    - cell [ref=f78e302]:
+                      - button "Calificar" [ref=f78e304]
+                  - row [ref=f78e305] [cursor=pointer]:
+                    - cell "8" [ref=f78e306]
+                    - cell [ref=f78e307]:
+                      - strong [ref=f78e308]: Olivárez Mayorga, Alicia
+                    - cell "80919170" [ref=f78e309]
+                    - cell "22/5/26, 8:51 a. m." [ref=f78e310]
+                    - cell "Registrada" [ref=f78e311]
+                    - cell "Pendiente" [ref=f78e313]
+                    - cell "maternidad" [ref=f78e315]
+                    - cell "Sin iniciar" [ref=f78e316]
+                    - cell "—" [ref=f78e317]
+                    - cell "Sin registrar" [ref=f78e318]
+                    - cell [ref=f78e319]:
+                      - button "Calificar" [ref=f78e321]
+            - generic [ref=f78e322]:
+              - generic [ref=f78e323]:
+                - generic [ref=f78e324]: Registros por página
+                - combobox "Registros por página" [ref=f78e325]:
+                  - option "10" [selected]
+                  - option "25"
+                  - option "50"
+              - generic [ref=f78e326]:
+                - button "Página anterior" [disabled] [ref=f78e327]: ← Anterior
+                - generic [ref=f78e328]: Página 1 de 6
+                - button "Página siguiente" [ref=f78e329] [cursor=pointer]: Siguiente →
+        - generic [ref=f78e330]:
+          - heading "Donación seleccionada" [level=2] [ref=f78e331]
+          - paragraph [ref=f78e332]:
+            - strong [ref=f78e342]: "Donación #3"
+            - text: · Archuleta Lerma, David (DNI 55049324) · 13/11/2026, 09:10:00
+        - generic [ref=f78e333]:
+          - generic [ref=f78e335]:
+            - generic [ref=f78e336]: Operador*
+            - textbox "Operador" [ref=f78e337]:
+              - /placeholder: Nombre del operador
+          - button "Iniciar calificación" [ref=f78e338] [cursor=pointer]

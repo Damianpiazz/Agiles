@@ -250,6 +250,17 @@
   background: #fcf8f9;
 }
 
+.tipificacion-card h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  color: var(--color-primary-dark, #70182d);
+}
+
+.tipificacion-seleccion {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+}
+
 @media (min-width: 640px) {
   .tipificacion-form {
     gap: 1.25rem;

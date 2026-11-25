@@ -1,0 +1,194 @@
+- generic [ref=f77e3]:
+  - link "Saltar al contenido principal" [ref=f77e4] [cursor=pointer]:
+    - /url: "#contenido-principal"
+  - complementary "Navegación principal" [ref=f77e5]:
+    - generic [ref=f77e6]:
+      - generic [aria-hidden] [ref=f77e7]:
+        - generic [ref=f77e8]: F
+        - generic [ref=f77e9]: +
+      - generic [ref=f77e10]:
+        - heading "FLORHEMA" [level=1] [ref=f77e11]
+        - paragraph [ref=f77e12]: Sistema de Gestión de Hemoterapia
+    - navigation "Módulos del sistema" [ref=f77e13]:
+      - generic [ref=f77e14]:
+        - paragraph [ref=f77e15]: Inicio
+        - button "Resumen" [ref=f77e16] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e17]: ◫
+        - button "Buscar donante" [ref=f77e19] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e20]: ⌕
+        - button "Alta de donante" [ref=f77e22] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e23]: ＋
+      - generic [ref=f77e25]:
+        - paragraph [ref=f77e26]: Donación y calificación
+        - button "Registrar donación" [ref=f77e27] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e28]: ♥
+        - button "Calificación biológica" [ref=f77e30] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e31]: ✓
+        - button "Tipificación sanguínea" [ref=f77e33] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e34]: ⊕
+        - button "Tamizaje de infecciones" [ref=f77e36] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e37]: ◉
+        - button "Consultar resultados" [ref=f77e39] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e40]: ⌕
+      - generic [ref=f77e42]:
+        - paragraph [ref=f77e43]: Pacientes y transfusión
+        - button "Alta de paciente" [ref=f77e44] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e45]: ＋
+        - button "Buscar paciente" [ref=f77e47] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e48]: ⌕
+        - button "Solicitudes de transfusión" [ref=f77e50] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e51]: ▤
+        - button "Estudios pretransfusionales" [ref=f77e53] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e54]: ◈
+        - button "Seleccionar componente" [ref=f77e56] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e57]: ⚕
+        - button "Emitir sangre" [ref=f77e59] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e60]: ↗
+      - generic [ref=f77e62]:
+        - paragraph [ref=f77e63]: Inventario
+        - button "Recepción de unidades" [ref=f77e64] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e65]: ＋
+        - button "Liberar unidad" [ref=f77e67] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e68]: ✓
+        - button "Dar de baja unidad" [ref=f77e70] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f77e71]: ⊘
+    - generic [ref=f77e73]:
+      - paragraph [ref=f77e74]:
+        - generic [ref=f77e76]: Servicio de Hemoterapia
+      - button "Colapsar menú lateral" [ref=f77e77] [cursor=pointer]:
+        - generic [aria-hidden] [ref=f77e78]: «
+        - generic [ref=f77e79]: Colapsar menú
+  - generic [ref=f77e80]:
+    - banner [ref=f77e81]:
+      - navigation "Ruta de navegación" [ref=f77e82]:
+        - generic [ref=f77e83]: Inicio
+        - generic [aria-hidden] [ref=f77e84]: /
+        - generic [ref=f77e85]: Inicio
+        - generic [aria-hidden] [ref=f77e86]: /
+        - strong [ref=f77e87]: Buscar donante
+      - generic [ref=f77e88]:
+        - generic [ref=f77e89]: FLORHEMA
+        - generic [ref=f77e90]: Servicio de Hemoterapia
+    - main [ref=f77e91]:
+      - generic [ref=f77e95]:
+        - generic [ref=f77e97]:
+          - heading "Buscar donante" [level=1] [ref=f77e98]
+          - paragraph [ref=f77e99]: Consultá el listado completo de donantes. Buscá por DNI, filtrá, ordená y abrí la ficha de cada persona.
+        - region "Donantes" [ref=f77e100]:
+          - heading "Donantes" [level=2] [ref=f77e101]
+          - generic [ref=f77e102]:
+            - generic [ref=f77e103]:
+              - generic [ref=f77e104]:
+                - generic [aria-hidden] [ref=f77e105]: ⌕
+                - generic [ref=f77e106]: Buscar donante por DNI, nombre, apellido o contacto…
+                - searchbox "Buscar donante por DNI, nombre, apellido o contacto…" [active] [ref=f77e107]: "87661052"
+              - generic [ref=f77e108]:
+                - generic [ref=f77e109]: Sexo biológico
+                - combobox "Sexo biológico" [ref=f77e110]:
+                  - option "Todos"
+                  - option "Femenino" [selected]
+                  - option "Masculino"
+              - generic [ref=f77e111]:
+                - generic [ref=f77e112]: Estado
+                - combobox "Estado" [ref=f77e113]:
+                  - option "Todos" [selected]
+                  - option "Activo"
+                  - option "Dado de baja"
+            - status [ref=f77e114]: 1 registro · mostrando 1–1
+            - region "Donantes registrados en el sistema" [ref=f77e115]:
+              - table "Donantes registrados en el sistema" [ref=f77e116]:
+                - caption [ref=f77e117]: Donantes registrados en el sistema
+                - rowgroup [ref=f77e118]:
+                  - row [ref=f77e119]:
+                    - columnheader "ID" [ref=f77e120]:
+                      - button "ID" [ref=f77e121] [cursor=pointer]:
+                        - text: ID
+                        - generic [aria-hidden] [ref=f77e122]: ↕
+                    - columnheader "Nombre" [ref=f77e123]:
+                      - button "Nombre" [ref=f77e124] [cursor=pointer]:
+                        - text: Nombre
+                        - generic [aria-hidden] [ref=f77e125]: ↕
+                    - columnheader "Apellido" [ref=f77e126]:
+                      - button "Apellido" [ref=f77e127] [cursor=pointer]:
+                        - text: Apellido
+                        - generic [aria-hidden] [ref=f77e128]: ↕
+                    - columnheader "DNI" [ref=f77e129]:
+                      - button "DNI" [ref=f77e130] [cursor=pointer]:
+                        - text: DNI
+                        - generic [aria-hidden] [ref=f77e131]: ↕
+                    - columnheader "Fecha de nacimiento" [ref=f77e132]:
+                      - button "Fecha de nacimiento" [ref=f77e133] [cursor=pointer]:
+                        - text: Fecha de nacimiento
+                        - generic [aria-hidden] [ref=f77e134]: ↕
+                    - columnheader "Lugar de nacimiento" [ref=f77e135]:
+                      - button "Lugar de nacimiento" [ref=f77e136] [cursor=pointer]:
+                        - text: Lugar de nacimiento
+                        - generic [aria-hidden] [ref=f77e137]: ↕
+                    - columnheader "Sexo biológico" [ref=f77e138]:
+                      - button "Sexo biológico" [ref=f77e139] [cursor=pointer]:
+                        - text: Sexo biológico
+                        - generic [aria-hidden] [ref=f77e140]: ↕
+                    - columnheader "Domicilio" [ref=f77e141]:
+                      - button "Domicilio" [ref=f77e142] [cursor=pointer]:
+                        - text: Domicilio
+                        - generic [aria-hidden] [ref=f77e143]: ↕
+                    - columnheader "Código postal" [ref=f77e144]:
+                      - button "Código postal" [ref=f77e145] [cursor=pointer]:
+                        - text: Código postal
+                        - generic [aria-hidden] [ref=f77e146]: ↕
+                    - columnheader "Email" [ref=f77e147]:
+                      - button "Email" [ref=f77e148] [cursor=pointer]:
+                        - text: Email
+                        - generic [aria-hidden] [ref=f77e149]: ↕
+                    - columnheader "Teléfono fijo" [ref=f77e150]:
+                      - button "Teléfono fijo" [ref=f77e151] [cursor=pointer]:
+                        - text: Teléfono fijo
+                        - generic [aria-hidden] [ref=f77e152]: ↕
+                    - columnheader "Teléfono celular" [ref=f77e153]:
+                      - button "Teléfono celular" [ref=f77e154] [cursor=pointer]:
+                        - text: Teléfono celular
+                        - generic [aria-hidden] [ref=f77e155]: ↕
+                    - columnheader "Estado" [ref=f77e156]:
+                      - button "Estado" [ref=f77e157] [cursor=pointer]:
+                        - text: Estado
+                        - generic [aria-hidden] [ref=f77e158]: ↕
+                    - columnheader "Última modificación" [ref=f77e159]:
+                      - button "Última modificación" [ref=f77e160] [cursor=pointer]:
+                        - text: Última modificación
+                        - generic [aria-hidden] [ref=f77e161]: ↕
+                    - columnheader "Acciones" [ref=f77e162]
+                - rowgroup [ref=f77e163]:
+                  - row [ref=f77e164] [cursor=pointer]:
+                    - cell "5" [ref=f77e165]
+                    - cell [ref=f77e166]:
+                      - strong [ref=f77e167]: Roser
+                    - cell [ref=f77e168]:
+                      - strong [ref=f77e169]: Acosta Naranjo
+                    - cell "87661052" [ref=f77e170]
+                    - cell "9/7/1983" [ref=f77e171]
+                    - cell "Barranqueras" [ref=f77e172]
+                    - cell "Femenino" [ref=f77e173]
+                    - cell "Independencia 7675" [ref=f77e174]
+                    - cell "3400" [ref=f77e175]
+                    - cell "roser_acostanaranjo52148@example.com" [ref=f77e176]
+                    - cell "362479365" [ref=f77e177]
+                    - cell "362497267" [ref=f77e178]
+                    - cell "Activo" [ref=f77e179]
+                    - cell "—" [ref=f77e181]
+                    - cell [ref=f77e182]:
+                      - generic [ref=f77e183]:
+                        - button "Ver detalle" [ref=f77e184]
+                        - button "Modificar" [ref=f77e185]
+                        - button "Dar de baja" [ref=f77e186]
+                        - button "Registrar donación" [ref=f77e187]
+            - generic [ref=f77e404]:
+              - generic [ref=f77e405]:
+                - generic [ref=f77e406]: Registros por página
+                - combobox "Registros por página" [ref=f77e407]:
+                  - option "10" [selected]
+                  - option "25"
+                  - option "50"
+              - generic [ref=f77e408]:
+                - button "Página anterior" [disabled] [ref=f77e409]: ← Anterior
+                - generic [ref=f77e410]: Página 1 de 1
+                - button "Página siguiente" [disabled] [ref=f77e411]: Siguiente →

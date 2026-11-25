@@ -1,0 +1,76 @@
+- generic [ref=f85e3]:
+  - link "Saltar al contenido principal" [ref=f85e4] [cursor=pointer]:
+    - /url: "#contenido-principal"
+  - complementary "Navegación principal" [ref=f85e5]:
+    - generic [ref=f85e6]:
+      - generic [aria-hidden] [ref=f85e7]:
+        - generic [ref=f85e8]: F
+        - generic [ref=f85e9]: +
+      - generic [ref=f85e10]:
+        - heading "FLORHEMA" [level=1] [ref=f85e11]
+        - paragraph [ref=f85e12]: Sistema de Gestión de Hemoterapia
+    - navigation "Módulos del sistema" [ref=f85e13]:
+      - generic [ref=f85e14]:
+        - paragraph [ref=f85e15]: Inicio
+        - button "Resumen" [ref=f85e16] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e17]: ◫
+        - button "Buscar donante" [ref=f85e19] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e20]: ⌕
+        - button "Alta de donante" [ref=f85e22] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e23]: ＋
+      - generic [ref=f85e25]:
+        - paragraph [ref=f85e26]: Donación y calificación
+        - button "Registrar donación" [ref=f85e27] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e28]: ♥
+        - button "Calificación biológica" [ref=f85e30] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e31]: ✓
+        - button "Tipificación sanguínea" [ref=f85e33] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e34]: ⊕
+        - button "Tamizaje de infecciones" [ref=f85e36] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e37]: ◉
+        - button "Consultar resultados" [ref=f85e39] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e40]: ⌕
+      - generic [ref=f85e42]:
+        - paragraph [ref=f85e43]: Pacientes y transfusión
+        - button "Alta de paciente" [ref=f85e44] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e45]: ＋
+        - button "Buscar paciente" [ref=f85e47] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e48]: ⌕
+        - button "Historia integral de persona" [ref=f85e50] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e51]: ◷
+        - button "Solicitudes de transfusión" [ref=f85e53] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e54]: ▤
+        - button "Estudios pretransfusionales" [ref=f85e56] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e57]: ◈
+        - button "Seleccionar componente" [ref=f85e59] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e60]: ⚕
+        - button "Emitir sangre" [ref=f85e62] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e63]: ↗
+      - generic [ref=f85e65]:
+        - paragraph [ref=f85e66]: Inventario
+        - button "Recepción de unidades" [ref=f85e67] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e68]: ＋
+        - button "Liberar unidad" [ref=f85e70] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e71]: ✓
+        - button "Dar de baja unidad" [ref=f85e73] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f85e74]: ⊘
+    - generic [ref=f85e76]:
+      - paragraph [ref=f85e77]:
+        - generic [ref=f85e79]: Servicio de Hemoterapia
+      - button "Colapsar menú lateral" [ref=f85e80] [cursor=pointer]:
+        - generic [aria-hidden] [ref=f85e81]: «
+        - generic [ref=f85e82]: Colapsar menú
+  - generic [ref=f85e83]:
+    - banner [ref=f85e84]:
+      - navigation "Ruta de navegación" [ref=f85e85]:
+        - generic [ref=f85e86]: Inicio
+        - generic [aria-hidden] [ref=f85e87]: /
+        - generic [ref=f85e88]: Inicio
+        - generic [aria-hidden] [ref=f85e89]: /
+        - strong [ref=f85e90]: Resumen
+      - generic [ref=f85e91]:
+        - generic [ref=f85e92]: FLORHEMA
+        - generic [ref=f85e93]: Servicio de Hemoterapia
+    - main [ref=f85e94]:
+      - status [ref=f85e95]:
+        - paragraph [ref=f85e97]: Cargando módulo…

@@ -1,0 +1,68 @@
+- generic [ref=f89e3]:
+  - link "Saltar al contenido principal" [ref=f89e4] [cursor=pointer]:
+    - /url: "#contenido-principal"
+  - complementary "Navegación principal" [ref=f89e5]:
+    - generic [ref=f89e6]:
+      - generic [aria-hidden] [ref=f89e7]:
+        - generic [ref=f89e8]: F
+        - generic [ref=f89e9]: +
+      - heading "FLORHEMA" [level=1] [ref=f89e11]
+    - navigation "Módulos del sistema" [ref=f89e12]:
+      - generic [ref=f89e13]:
+        - paragraph [ref=f89e14]: Inicio
+        - button "Resumen" [ref=f89e15] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e16]: ◫
+        - button "Buscar donante" [ref=f89e18] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e19]: ⌕
+        - button "Alta de donante" [ref=f89e21] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e22]: ＋
+      - generic [ref=f89e24]:
+        - paragraph [ref=f89e25]: Donación y calificación
+        - button "Registrar donación" [ref=f89e26] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e27]: ♥
+        - button "Calificación biológica" [ref=f89e29] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e30]: ✓
+        - button "Tipificación sanguínea" [ref=f89e32] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e33]: ⊕
+        - button "Tamizaje de infecciones" [ref=f89e35] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e36]: ◉
+        - button "Consultar resultados" [ref=f89e38] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e39]: ⌕
+      - generic [ref=f89e41]:
+        - paragraph [ref=f89e42]: Pacientes y transfusión
+        - button "Alta de paciente" [ref=f89e43] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e44]: ＋
+        - button "Buscar paciente" [ref=f89e46] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e47]: ⌕
+        - button "Historia integral de persona" [ref=f89e49] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e50]: ◷
+        - button "Solicitudes de transfusión" [ref=f89e52] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e53]: ▤
+        - button "Estudios pretransfusionales" [ref=f89e55] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e56]: ◈
+        - button "Seleccionar componente" [ref=f89e58] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e59]: ⚕
+        - button "Emitir sangre" [ref=f89e61] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e62]: ↗
+      - generic [ref=f89e64]:
+        - paragraph [ref=f89e65]: Inventario
+        - button "Recepción de unidades" [ref=f89e66] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e67]: ＋
+        - button "Liberar unidad" [ref=f89e69] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e70]: ✓
+        - button "Dar de baja unidad" [ref=f89e72] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e73]: ⊘
+    - button "Colapsar menú lateral" [ref=f89e76] [cursor=pointer]:
+      - generic [aria-hidden] [ref=f89e77]: «
+      - generic [ref=f89e78]: Colapsar menú
+  - generic [ref=f89e79]:
+    - banner [ref=f89e80]:
+      - navigation "Ruta de navegación" [ref=f89e81]:
+        - generic [ref=f89e82]: Inicio
+        - generic [aria-hidden] [ref=f89e83]: /
+        - generic [ref=f89e84]: Inicio
+        - generic [aria-hidden] [ref=f89e85]: /
+        - strong [ref=f89e86]: Resumen
+    - main [ref=f89e87]:
+      - status [ref=f89e88]:
+        - paragraph [ref=f89e90]: Cargando módulo…

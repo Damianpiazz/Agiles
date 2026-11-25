@@ -1,0 +1,79 @@
+- generic [ref=f146e3]:
+  - banner [ref=f146e4]:
+    - generic [ref=f146e5]:
+      - generic [ref=f146e6]: Constantes
+      - generic [ref=f146e7]: Hemoterapia · Hospital de Las Flores
+    - search [ref=f146e8]:
+      - generic [aria-hidden] [ref=f146e9]: ⌕
+      - textbox "Buscar por DNI, nombre o historia clínica" [ref=f146e10]:
+        - /placeholder: Buscar por DNI, nombre o HC
+      - generic [ref=f146e11]: Ctrl K
+    - generic [ref=f146e12]:
+      - generic [ref=f146e13]: Facundo Pérez
+      - generic [ref=f146e14]: Consulta (solo lectura)
+      - button "Salir" [ref=f146e15] [cursor=pointer]
+  - navigation "Navegación principal" [ref=f146e16]:
+    - generic [ref=f146e17]:
+      - generic [ref=f146e18]: Operación
+      - link "Búsqueda" [ref=f146e19] [cursor=pointer]:
+        - /url: /
+        - generic [aria-hidden] [ref=f146e20]: ⌕
+      - link "Personas" [ref=f146e22] [cursor=pointer]:
+        - /url: /personas
+        - generic [aria-hidden] [ref=f146e23]: ◫
+      - link "Posta fija" [ref=f146e25] [cursor=pointer]:
+        - /url: /posta-fija
+        - generic [aria-hidden] [ref=f146e26]: ♥
+      - link "Donaciones y estudios" [ref=f146e28] [cursor=pointer]:
+        - /url: /donaciones-estudios
+        - generic [aria-hidden] [ref=f146e29]: ◉
+      - link "Unidad transfusional" [ref=f146e31] [cursor=pointer]:
+        - /url: /unidad-transfusional
+        - generic [aria-hidden] [ref=f146e32]: ⊕
+      - link "Consulta de estudios" [ref=f146e34] [cursor=pointer]:
+        - /url: /maternidad
+        - generic [aria-hidden] [ref=f146e35]: 👁
+      - link "Reportes HEMO" [ref=f146e37] [cursor=pointer]:
+        - /url: /reportes
+        - generic [aria-hidden] [ref=f146e38]: ▤
+    - generic [ref=f146e40]: Registro de cargas con trazabilidad
+  - main [ref=f146e41]:
+    - generic [ref=f146e43]:
+      - heading "Búsqueda unificada" [level=1] [ref=f146e44]
+      - paragraph [ref=f146e45]: Ingresá el DNI para ver historial clínico, donaciones, transfusiones y antecedentes obstétricos.
+    - generic [ref=f146e46]:
+      - generic [ref=f146e48]:
+        - heading "Búsqueda" [level=2] [ref=f146e49]
+        - paragraph [ref=f146e50]: DNI, nombre o historia clínica (Ctrl K)
+      - generic [ref=f146e52]:
+        - generic [ref=f146e53]:
+          - generic [ref=f146e54]: DNI (documento)
+          - textbox "DNI (documento)" [active] [ref=f146e55]:
+            - /placeholder: Buscar por DNI, nombre o HC
+        - button "Buscar" [ref=f146e57] [cursor=pointer]
+    - generic [ref=f146e58]:
+      - generic [ref=f146e60]:
+        - heading "Accesos rápidos" [level=2] [ref=f146e61]
+        - paragraph [ref=f146e62]: Acciones frecuentes del servicio
+      - generic [ref=f146e64]:
+        - link "Registrar donación (Posta fija)" [ref=f146e65] [cursor=pointer]:
+          - /url: /posta-fija
+          - generic [ref=f146e66]: ♥ Registrar donación (Posta fija)
+          - generic [aria-hidden] [ref=f146e67]: →
+        - link "Registrar transfusión" [ref=f146e68] [cursor=pointer]:
+          - /url: /unidad-transfusional
+          - generic [ref=f146e69]: ⊕ Registrar transfusión
+          - generic [aria-hidden] [ref=f146e70]: →
+        - link "Cargar estudio de gestante" [ref=f146e71] [cursor=pointer]:
+          - /url: /gestantes
+          - generic [ref=f146e72]: ◌ Cargar estudio de gestante
+          - generic [aria-hidden] [ref=f146e73]: →
+        - link "Cargar serologías y PCI" [ref=f146e74] [cursor=pointer]:
+          - /url: /donaciones-estudios
+          - generic [ref=f146e75]: ◉ Cargar serologías y PCI
+          - generic [aria-hidden] [ref=f146e76]: →
+    - generic [ref=f146e77]:
+      - generic [ref=f146e79]:
+        - heading "Donantes en revisión" [level=2] [ref=f146e80]
+        - paragraph [ref=f146e81]: Serología dudosa pendiente de segunda muestra
+      - paragraph [ref=f146e83]: Cargando…

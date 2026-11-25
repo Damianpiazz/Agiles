@@ -1,47 +1,24 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { Banner } from "../components/Banner";
+import { DataTable, type DataTableColumn } from "../components/DataTable";
+import { FormField, FormGrid, FormSection } from "../components/FormField";
+import { PageHeader } from "../components/PageHeader";
+import { usePacientesListado } from "../hooks/useDatos";
+import type { PacienteListado } from "../types/datosGlobales";
 import "../styles/BuscarDonante.css";
 
-type Paciente = {
-  id: number;
-  nombre: string;
-  apellido: string;
-  dni: string;
-  fechaNacimiento: string;
-  operador: string;
-  createdAt: string;
+type Props = {
+  onVerHistorial: (dni: string) => void;
 };
 
-type FormularioBusqueda = {
-  dni: string;
-  nombre: string;
-  apellido: string;
-};
+type FiltroSolicitudes = "todos" | "con" | "sin";
 
-const API_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:3000"
-).replace(/\/+$/, "");
-
-const formularioInicial: FormularioBusqueda = {
-  dni: "",
-  nombre: "",
-  apellido: "",
-};
-
-function esPaciente(value: unknown): value is Paciente {
-  if (!value || typeof value !== "object") return false;
-
-  const paciente = value as Record<string, unknown>;
-  return (
-    Number.isInteger(paciente.id) &&
-    typeof paciente.nombre === "string" &&
-    typeof paciente.apellido === "string" &&
-    typeof paciente.dni === "string" &&
-    typeof paciente.fechaNacimiento === "string" &&
-    typeof paciente.operador === "string" &&
-    typeof paciente.createdAt === "string"
-  );
-}
+const ETIQUETAS_FILTRO = [
+  { value: "todos", label: "Todos" },
+  { value: "con", label: "Con solicitudes" },
+  { value: "sin", label: "Sin solicitudes" },
+] as const;
 
 function formatearFecha(fecha: string) {
   const [anio, mes, dia] = fecha.slice(0, 10).split("-");
@@ -55,153 +32,188 @@ function formatearFechaHora(fecha: string) {
   }).format(new Date(fecha));
 }
 
-export default function BuscarPaciente() {
-  const [form, setForm] = useState(formularioInicial);
-  const [resultados, setResultados] = useState<Paciente[]>([]);
-  const [mensaje, setMensaje] = useState("");
-  const [buscando, setBuscando] = useState(false);
+function columnasPaciente(
+  onVerHistorial: (dni: string) => void,
+): DataTableColumn<PacienteListado>[] {
+  return [
+    {
+      id: "paciente",
+      header: "Paciente",
+      render: (paciente) => (
+        <strong>
+          {paciente.nombre} {paciente.apellido}
+        </strong>
+      ),
+      sortValue: (paciente) => `${paciente.nombre} ${paciente.apellido}`,
+    },
+    {
+      id: "dni",
+      header: "DNI",
+      render: (paciente) => paciente.dni,
+      sortValue: (paciente) => paciente.dni,
+    },
+    {
+      id: "nacimiento",
+      header: "Fecha de nacimiento",
+      render: (paciente) => formatearFecha(paciente.fechaNacimiento),
+      sortValue: (paciente) => paciente.fechaNacimiento,
+    },
+    {
+      id: "solicitudes",
+      header: "Solicitudes",
+      render: (paciente) => paciente._count?.solicitudesTransfusion ?? 0,
+      sortValue: (paciente) => paciente._count?.solicitudesTransfusion ?? 0,
+    },
+    {
+      id: "operador",
+      header: "Registrado por",
+      render: (paciente) => paciente.operador,
+      sortValue: (paciente) => paciente.operador,
+    },
+    {
+      id: "alta",
+      header: "Fecha y hora de alta",
+      render: (paciente) => formatearFechaHora(paciente.createdAt),
+      sortValue: (paciente) => paciente.createdAt,
+    },
+    {
+      id: "acciones",
+      header: "Acciones",
+      className: "ui-col-acciones",
+      render: (paciente) => (
+        <div className="ui-row-actions">
+          <button
+            type="button"
+            className="ui-btn ui-btn-small ui-btn-secondary"
+            onClick={() => onVerHistorial(paciente.dni)}
+          >
+            Ver detalle
+          </button>
+          <button
+            type="button"
+            className="ui-btn ui-btn-small ui-btn-primary"
+            onClick={() => onVerHistorial(paciente.dni)}
+          >
+            Ver historial
+          </button>
+        </div>
+      ),
+    },
+  ];
+}
 
-  async function buscar(event: FormEvent) {
-    event.preventDefault();
-    setMensaje("");
-    setResultados([]);
+export default function BuscarPaciente({ onVerHistorial }: Props) {
+  const { datos: pacientes, cargando, error, recargar } = usePacientesListado();
+  const [dniDirecto, setDniDirecto] = useState("");
+  const [errorDni, setErrorDni] = useState("");
+  const [filtroSolicitudes, setFiltroSolicitudes] =
+    useState<FiltroSolicitudes>("todos");
 
-    const dni = form.dni.trim();
-    const nombre = form.nombre.trim();
-    const apellido = form.apellido.trim();
-
-    if (dni && !/^\d{7,8}$/.test(dni)) {
-      setMensaje("Ingresá un DNI válido de 7 u 8 dígitos.");
+  function irAlHistorial(evento: FormEvent) {
+    evento.preventDefault();
+    const dni = dniDirecto.trim();
+    if (!/^\d{7,8}$/.test(dni)) {
+      setErrorDni("Ingresá un DNI válido de 7 u 8 dígitos.");
+      document.getElementById("historiaDniDirecto")?.focus();
       return;
     }
-
-    if (!dni && (!nombre || !apellido)) {
-      setMensaje("Ingresá un DNI o completá nombre y apellido.");
-      return;
-    }
-
-    const params = new URLSearchParams();
-    if (dni) {
-      params.set("dni", dni);
-    } else {
-      params.set("nombre", nombre);
-      params.set("apellido", apellido);
-    }
-
-    setBuscando(true);
-    try {
-      const response = await fetch(
-        `${API_URL}/api/pacientes?${params.toString()}`,
-      );
-      const data: unknown = await response.json().catch(() => null);
-
-      if (!response.ok) {
-        const detalle =
-          data && typeof data === "object" && "error" in data
-            ? data.error
-            : null;
-        setMensaje(
-          typeof detalle === "string"
-            ? detalle
-            : "No se pudo realizar la búsqueda.",
-        );
-        return;
-      }
-
-      if (!Array.isArray(data) || !data.every(esPaciente)) {
-        setMensaje("El servidor devolvió resultados con un formato inválido.");
-        return;
-      }
-
-      setResultados(data);
-      if (data.length === 0) setMensaje("No se encontraron pacientes.");
-    } catch {
-      setMensaje("No se pudo conectar con el servidor.");
-    } finally {
-      setBuscando(false);
-    }
+    setErrorDni("");
+    onVerHistorial(dni);
   }
 
   return (
-    <main className="consulta">
-      <header className="consulta-header">
-        <h1>Buscar paciente</h1>
-        <p>Buscá pacientes o receptores por DNI, o por nombre y apellido.</p>
-      </header>
+    <div className="consulta">
+      <PageHeader
+        title="Buscar paciente"
+        description="Consultá todos los pacientes registrados, buscá por DNI o nombre y accedé a su historia integral."
+      />
 
-      <form onSubmit={buscar} noValidate>
-        <fieldset>
-          <legend>Criterios de búsqueda</legend>
-          <div className="consulta-grid">
-            <div className="consulta-field">
-              <label htmlFor="dniPacienteBusqueda">DNI</label>
-              <input
-                id="dniPacienteBusqueda"
-                inputMode="numeric"
-                value={form.dni}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, dni: event.target.value }))
-                }
-              />
-            </div>
-
-            <div className="consulta-separador">o</div>
-
-            <div className="consulta-field">
-              <label htmlFor="nombrePacienteBusqueda">Nombre</label>
-              <input
-                id="nombrePacienteBusqueda"
-                value={form.nombre}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, nombre: event.target.value }))
-                }
-              />
-            </div>
-
-            <div className="consulta-field">
-              <label htmlFor="apellidoPacienteBusqueda">Apellido</label>
-              <input
-                id="apellidoPacienteBusqueda"
-                value={form.apellido}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, apellido: event.target.value }))
-                }
-              />
-            </div>
-          </div>
-        </fieldset>
-
-        <div className="consulta-actions">
-          <button type="submit" disabled={buscando}>
-            {buscando ? "Buscando…" : "Buscar"}
+      {error ? (
+        <Banner tone="error">
+          {error}{" "}
+          <button
+            type="button"
+            className="ui-btn ui-btn-small ui-btn-secondary"
+            onClick={() => void recargar()}
+          >
+            Reintentar
           </button>
-        </div>
-      </form>
+        </Banner>
+      ) : null}
 
-      {mensaje && (
-        <div className="consulta-banner" role="status">
-          {mensaje}
-        </div>
-      )}
+      <FormSection
+        title="Acceso directo por DNI"
+        description="Si conocés el DNI, podés abrir directamente la historia completa de la persona."
+      >
+        <form onSubmit={irAlHistorial} noValidate>
+          <FormGrid columns={2}>
+            <FormField
+              id="historiaDniDirecto"
+              label="DNI"
+              hint="7 u 8 dígitos"
+              error={errorDni}
+            >
+              <input
+                id="historiaDniDirecto"
+                inputMode="numeric"
+                value={dniDirecto}
+                aria-invalid={Boolean(errorDni)}
+                onChange={(evento) => {
+                  setDniDirecto(evento.target.value);
+                  setErrorDni("");
+                }}
+              />
+            </FormField>
+          </FormGrid>
+          <div className="ui-step-actions">
+            <button type="submit" className="ui-btn ui-btn-primary">
+              Ver historia
+            </button>
+          </div>
+        </form>
+      </FormSection>
 
-      {resultados.length > 0 && (
-        <section className="consulta-resultados" aria-live="polite">
-          <h2>Resultados</h2>
-          {resultados.map((paciente) => (
-            <article className="consulta-resultado" key={paciente.id}>
-              <div>
-                <strong>
-                  {paciente.nombre} {paciente.apellido}
-                </strong>
-                <p>DNI: {paciente.dni}</p>
-                <p>Fecha de nacimiento: {formatearFecha(paciente.fechaNacimiento)}</p>
-                <p>Registrado por: {paciente.operador}</p>
-                <p>Fecha y hora de alta: {formatearFechaHora(paciente.createdAt)}</p>
-              </div>
-            </article>
-          ))}
-        </section>
-      )}
-    </main>
+      <section className="consulta-resultados" aria-labelledby="listadoPacientesTitulo">
+        <h2 id="listadoPacientesTitulo">Todos los pacientes</h2>
+        <DataTable
+          rows={pacientes}
+          columns={columnasPaciente(onVerHistorial)}
+          rowKey={(paciente) => paciente.id}
+          searchText={(paciente) =>
+            [
+              paciente.nombre,
+              paciente.apellido,
+              paciente.dni,
+              paciente.operador,
+            ].join(" ")
+          }
+          searchPlaceholder="Buscar por DNI, nombre, apellido u operador…"
+          filters={[
+            {
+              id: "solicitudes",
+              label: "Solicitudes",
+              value: filtroSolicitudes,
+              options: ETIQUETAS_FILTRO,
+              onChange: (valor) =>
+                setFiltroSolicitudes(valor as FiltroSolicitudes),
+            },
+          ]}
+          filterRow={(paciente) => {
+            const total = paciente._count?.solicitudesTransfusion ?? 0;
+            if (filtroSolicitudes === "con") return total > 0;
+            if (filtroSolicitudes === "sin") return total === 0;
+            return true;
+          }}
+          loading={cargando}
+          emptyTitle={error ? "No se pudieron cargar los pacientes" : "No hay pacientes registrados"}
+          emptyDescription={
+            error
+              ? "Revisá la conexión con el servidor e intentá nuevamente."
+              : "Los pacientes registrados aparecerán en este listado."
+          }
+          caption="Pacientes registrados con búsqueda, filtros, orden y paginación."
+        />
+      </section>
+    </div>
   );
 }

@@ -1,0 +1,228 @@
+- generic [ref=f89e3]:
+  - link "Saltar al contenido principal" [ref=f89e4] [cursor=pointer]:
+    - /url: "#contenido-principal"
+  - complementary "Navegación principal" [ref=f89e5]:
+    - generic [ref=f89e6]:
+      - generic [aria-hidden] [ref=f89e7]:
+        - generic [ref=f89e8]: F
+        - generic [ref=f89e9]: +
+      - heading "FLORHEMA" [level=1] [ref=f89e11]
+    - navigation "Módulos del sistema" [ref=f89e12]:
+      - generic [ref=f89e13]:
+        - paragraph [ref=f89e14]: Inicio
+        - button "Resumen" [ref=f89e15] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e16]: ◫
+        - button "Buscar donante" [ref=f89e18] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e19]: ⌕
+        - button "Alta de donante" [ref=f89e21] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e22]: ＋
+      - generic [ref=f89e24]:
+        - paragraph [ref=f89e25]: Donación y calificación
+        - button "Registrar donación" [ref=f89e26] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e27]: ♥
+        - button "Calificación biológica" [ref=f89e29] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e30]: ✓
+        - button "Tipificación sanguínea" [ref=f89e32] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e33]: ⊕
+        - button "Tamizaje de infecciones" [ref=f89e35] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e36]: ◉
+        - button "Consultar resultados" [ref=f89e38] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e39]: ⌕
+      - generic [ref=f89e41]:
+        - paragraph [ref=f89e42]: Pacientes y transfusión
+        - button "Alta de paciente" [ref=f89e43] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e44]: ＋
+        - button "Buscar paciente" [ref=f89e46] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e47]: ⌕
+        - button "Historia integral de persona" [ref=f89e49] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e50]: ◷
+        - button "Solicitudes de transfusión" [ref=f89e52] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e53]: ▤
+        - button "Estudios pretransfusionales" [ref=f89e55] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e56]: ◈
+        - button "Seleccionar componente" [ref=f89e58] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e59]: ⚕
+        - button "Emitir sangre" [ref=f89e61] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e62]: ↗
+      - generic [ref=f89e64]:
+        - paragraph [ref=f89e65]: Inventario
+        - button "Recepción de unidades" [ref=f89e66] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e67]: ＋
+        - button "Liberar unidad" [ref=f89e69] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e70]: ✓
+        - button "Dar de baja unidad" [ref=f89e72] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f89e73]: ⊘
+    - button "Colapsar menú lateral" [ref=f89e76] [cursor=pointer]:
+      - generic [aria-hidden] [ref=f89e77]: «
+      - generic [ref=f89e78]: Colapsar menú
+  - generic [ref=f89e79]:
+    - banner [ref=f89e80]:
+      - navigation "Ruta de navegación" [ref=f89e81]:
+        - generic [ref=f89e82]: Inicio
+        - generic [aria-hidden] [ref=f89e83]: /
+        - generic [ref=f89e84]: Inicio
+        - generic [aria-hidden] [ref=f89e85]: /
+        - strong [ref=f89e86]: Resumen
+    - main [ref=f89e87]:
+      - generic [ref=f89e91]:
+        - generic [ref=f89e93]:
+          - paragraph [ref=f89e94]: Resumen operativo
+          - heading "Bienvenido a Florhema" [level=1] [ref=f89e95]
+          - paragraph [ref=f89e96]: Estado de los módulos disponibles y accesos a las operaciones más frecuentes.
+        - region "Indicadores del sistema" [ref=f89e97]:
+          - article [ref=f89e98]:
+            - generic [ref=f89e99]: Pacientes registrados
+            - strong [ref=f89e100]: "60"
+            - generic [ref=f89e101]: Fichas disponibles para transfusión
+          - article [ref=f89e102]:
+            - generic [ref=f89e103]: Unidades en inventario
+            - strong [ref=f89e104]: "60"
+            - generic [ref=f89e105]: Registros devueltos por el inventario
+          - article [ref=f89e106]:
+            - generic [ref=f89e107]: Solicitudes de transfusión
+            - strong [ref=f89e108]: "60"
+            - generic [ref=f89e109]: Registros devueltos por el sistema
+          - article [ref=f89e110]:
+            - generic [ref=f89e111]: Conectividad de la API
+            - strong [ref=f89e112]: Activa
+            - generic [ref=f89e113]: Servicio de Hemoterapia
+        - generic [ref=f89e114]:
+          - generic [ref=f89e115]:
+            - generic [ref=f89e116]:
+              - heading "Accesos rápidos" [level=2] [ref=f89e117]
+              - paragraph [ref=f89e118]: Operaciones frecuentes, sin salir del resumen.
+            - generic [ref=f89e119]:
+              - button "Buscar donante Localizar ficha y donaciones" [ref=f89e120] [cursor=pointer]:
+                - strong [ref=f89e121]: Buscar donante
+                - generic [ref=f89e122]: Localizar ficha y donaciones
+                - generic [aria-hidden] [ref=f89e123]: →
+              - button "Alta de donante Registrar un nuevo donante" [ref=f89e124] [cursor=pointer]:
+                - strong [ref=f89e125]: Alta de donante
+                - generic [ref=f89e126]: Registrar un nuevo donante
+                - generic [aria-hidden] [ref=f89e127]: →
+              - button "Registrar donación Donación directa" [ref=f89e128] [cursor=pointer]:
+                - strong [ref=f89e129]: Registrar donación
+                - generic [ref=f89e130]: Donación directa
+                - generic [aria-hidden] [ref=f89e131]: →
+              - button "Recepción de unidades Ingresar hemocomponentes" [ref=f89e132] [cursor=pointer]:
+                - strong [ref=f89e133]: Recepción de unidades
+                - generic [ref=f89e134]: Ingresar hemocomponentes
+                - generic [aria-hidden] [ref=f89e135]: →
+              - button "Nueva solicitud Solicitar transfusión" [ref=f89e136] [cursor=pointer]:
+                - strong [ref=f89e137]: Nueva solicitud
+                - generic [ref=f89e138]: Solicitar transfusión
+                - generic [aria-hidden] [ref=f89e139]: →
+              - button "Emitir sangre Preparar y emitir unidades" [ref=f89e140] [cursor=pointer]:
+                - strong [ref=f89e141]: Emitir sangre
+                - generic [ref=f89e142]: Preparar y emitir unidades
+                - generic [aria-hidden] [ref=f89e143]: →
+          - generic [ref=f89e144]:
+            - generic [ref=f89e145]:
+              - heading "Estado de los módulos" [level=2] [ref=f89e146]
+              - paragraph [ref=f89e147]: Información obtenida de los servicios reales.
+            - list [ref=f89e148]:
+              - listitem [ref=f89e149]:
+                - button "Pacientes y receptores 60 registros disponibles" [ref=f89e150] [cursor=pointer]:
+                  - generic [ref=f89e152]: Pacientes y receptores
+                  - generic [ref=f89e153]: 60 registros disponibles
+              - listitem [ref=f89e154]:
+                - button "Inventario de hemocomponentes 60 unidades registradas" [ref=f89e155] [cursor=pointer]:
+                  - generic [ref=f89e157]: Inventario de hemocomponentes
+                  - generic [ref=f89e158]: 60 unidades registradas
+              - listitem [ref=f89e159]:
+                - button "Solicitudes de transfusión 60 solicitudes registradas" [ref=f89e160] [cursor=pointer]:
+                  - generic [ref=f89e162]: Solicitudes de transfusión
+                  - generic [ref=f89e163]: 60 solicitudes registradas
+              - listitem [ref=f89e164]:
+                - button "Catálogos de calificación 18 antígenos · 7 determinaciones" [ref=f89e165] [cursor=pointer]:
+                  - generic [ref=f89e167]: Catálogos de calificación
+                  - generic [ref=f89e168]: 18 antígenos · 7 determinaciones
+        - generic [ref=f89e169]:
+          - generic [ref=f89e170]:
+            - heading "Altas de pacientes" [level=2] [ref=f89e171]
+            - paragraph [ref=f89e172]: Registros disponibles con búsqueda, filtros, orden y paginación.
+          - generic [ref=f89e173]:
+            - generic [ref=f89e174]:
+              - generic [ref=f89e175]:
+                - generic [aria-hidden] [ref=f89e176]: ⌕
+                - generic [ref=f89e177]: Buscar por paciente, DNI o fecha…
+                - searchbox "Buscar por paciente, DNI o fecha…" [ref=f89e178]
+              - generic [ref=f89e179]:
+                - generic [ref=f89e180]: Año de alta
+                - combobox "Año de alta" [ref=f89e181]:
+                  - option "Todos" [selected]
+                  - option "2026"
+            - status [ref=f89e182]: 60 registros · mostrando 1–10
+            - region "Altas de pacientes registradas en el sistema." [ref=f89e183]:
+              - table "Altas de pacientes registradas en el sistema." [ref=f89e184]:
+                - caption [ref=f89e185]: Altas de pacientes registradas en el sistema.
+                - rowgroup [ref=f89e186]:
+                  - row [ref=f89e187]:
+                    - columnheader "Paciente" [ref=f89e188]:
+                      - button "Paciente" [ref=f89e189] [cursor=pointer]: Paciente ↕
+                    - columnheader "DNI" [ref=f89e190]:
+                      - button "DNI" [ref=f89e191] [cursor=pointer]: DNI ↕
+                    - columnheader "Fecha de alta" [ref=f89e192]:
+                      - button "Fecha de alta" [ref=f89e193] [cursor=pointer]: Fecha de alta ↕
+                - rowgroup [ref=f89e194]:
+                  - row [ref=f89e195]:
+                    - cell [ref=f89e196]:
+                      - strong [ref=f89e197]: Abrego Delacrúz, Eduardo
+                    - cell "50647586" [ref=f89e198]
+                    - cell "17/11/26" [ref=f89e199]
+                  - row [ref=f89e200]:
+                    - cell [ref=f89e201]:
+                      - strong [ref=f89e202]: Acuña Olmos, Lola
+                    - cell "74126370" [ref=f89e203]
+                    - cell "17/11/26" [ref=f89e204]
+                  - row [ref=f89e205]:
+                    - cell [ref=f89e206]:
+                      - strong [ref=f89e207]: Adorno Aguilera, Rodrigo
+                    - cell "55481979" [ref=f89e208]
+                    - cell "17/11/26" [ref=f89e209]
+                  - row [ref=f89e210]:
+                    - cell [ref=f89e211]:
+                      - strong [ref=f89e212]: Adorno Valverde, Jorge
+                    - cell "95495897" [ref=f89e213]
+                    - cell "17/11/26" [ref=f89e214]
+                  - row [ref=f89e215]:
+                    - cell [ref=f89e216]:
+                      - strong [ref=f89e217]: Aguilera Preciado, Guillermina
+                    - cell "77247635" [ref=f89e218]
+                    - cell "17/11/26" [ref=f89e219]
+                  - row [ref=f89e220]:
+                    - cell [ref=f89e221]:
+                      - strong [ref=f89e222]: Alarcón Mora, Josefina
+                    - cell "68408107" [ref=f89e223]
+                    - cell "17/11/26" [ref=f89e224]
+                  - row [ref=f89e225]:
+                    - cell [ref=f89e226]:
+                      - strong [ref=f89e227]: Arevalo Armenta, Estela
+                    - cell "80191713" [ref=f89e228]
+                    - cell "17/11/26" [ref=f89e229]
+                  - row [ref=f89e230]:
+                    - cell [ref=f89e231]:
+                      - strong [ref=f89e232]: Armendáriz Delao, Ramón
+                    - cell "72813028" [ref=f89e233]
+                    - cell "17/11/26" [ref=f89e234]
+                  - row [ref=f89e235]:
+                    - cell [ref=f89e236]:
+                      - strong [ref=f89e237]: Armijo Solorzano, Elena
+                    - cell "79707521" [ref=f89e238]
+                    - cell "17/11/26" [ref=f89e239]
+                  - row [ref=f89e240]:
+                    - cell [ref=f89e241]:
+                      - strong [ref=f89e242]: Arreola Osorio, Raquel
+                    - cell "60966497" [ref=f89e243]
+                    - cell "17/11/26" [ref=f89e244]
+            - generic [ref=f89e245]:
+              - generic [ref=f89e246]:
+                - generic [ref=f89e247]: Registros por página
+                - combobox "Registros por página" [ref=f89e248]:
+                  - option "10" [selected]
+                  - option "25"
+                  - option "50"
+              - generic [ref=f89e249]:
+                - button "Página anterior" [disabled] [ref=f89e250]: ← Anterior
+                - generic [ref=f89e251]: Página 1 de 6
+                - button "Página siguiente" [ref=f89e252] [cursor=pointer]: Siguiente →

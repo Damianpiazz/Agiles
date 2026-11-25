@@ -1,5 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { Banner } from "../components/Banner";
+import { ConfirmDialog } from "../components/ConfirmDialog";
+import { DataTable, type DataTableColumn } from "../components/DataTable";
+import { FormSteps } from "../components/FormSteps";
+import { PageHeader } from "../components/PageHeader";
+import { EmptyState, LoadingState } from "../components/States";
+import { StatusBadge } from "../components/StatusBadge";
 import {
   aprobarSolicitudTransfusionSchema,
   solicitudTransfusionFormSchema,
@@ -8,10 +15,16 @@ import {
 import "../styles/GestionSolicitudesTransfusion.css";
 
 const API_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:3000"
+  import.meta.env.VITE_API_URL || "http://localhost:3001"
 ).replace(/\/+$/, "");
 const EDAD_PEDIATRICA_MIN = 0;
 const EDAD_PEDIATRICA_MAX = 17;
+
+const PASOS_SOLICITUD = [
+  "Paciente y modalidad",
+  "Diagnóstico y componente",
+  "Pedido y prescripción",
+] as const;
 
 const ESTADOS_ANTECEDENTE = ["SI", "NO", "IGNORADO"] as const;
 const COMPONENTES = [
@@ -300,6 +313,7 @@ function etiqueta(valor: string | null | undefined) {
 export default function GestionSolicitudesTransfusion() {
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [estadoFiltro, setEstadoFiltro] = useState("");
+  const [filtroComponenteTabla, setFiltroComponenteTabla] = useState("");
   const [form, setForm] = useState<FormState>(formularioInicial);
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState<Paciente | null>(null);
   const [pacienteBusqueda, setPacienteBusqueda] = useState({ dni: "" });
@@ -321,6 +335,9 @@ export default function GestionSolicitudesTransfusion() {
   const [confirmacionPediatricaAbierta, setConfirmacionPediatricaAbierta] = useState(false);
   const [solicitudPediatricaPendiente, setSolicitudPediatricaPendiente] =
     useState<SolicitudTransfusionFormInput | null>(null);
+  const [paso, setPaso] = useState(0);
+  const [cancelacionConfirmando, setCancelacionConfirmando] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
   const edadPaciente = pacienteSeleccionado
     ? edadEnAnios(pacienteSeleccionado.fechaNacimiento)
     : null;
@@ -407,6 +424,7 @@ export default function GestionSolicitudesTransfusion() {
   }
 
   function agregarSolicitudPaciente(paciente: Paciente) {
+    setPaso(0);
     setSolicitudEditando(null);
     setSolicitudEditandoEstado(null);
     setPacienteSeleccionado(paciente);
@@ -418,6 +436,7 @@ export default function GestionSolicitudesTransfusion() {
   }
 
   function nuevaSolicitud() {
+    setPaso(0);
     setSolicitudEditando(null);
     setSolicitudEditandoEstado(null);
     setForm(formularioInicial());
@@ -430,6 +449,7 @@ export default function GestionSolicitudesTransfusion() {
   function editarSolicitud(solicitud: Solicitud) {
     if (solicitud.estado === "CANCELADA") return;
     const paciente = pacienteDeSolicitud(solicitud);
+    setPaso(0);
     setSolicitudEditando(solicitud.id);
     setSolicitudEditandoEstado(solicitud.estado);
     setPacienteSeleccionado(paciente);
@@ -481,6 +501,11 @@ export default function GestionSolicitudesTransfusion() {
     event.preventDefault();
     setBanner(null);
     setErroresCampos([]);
+    if (paso < PASOS_SOLICITUD.length - 1) {
+      setPaso(paso + 1);
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     if (!pacienteSeleccionado || !form.pacienteId) {
       setBanner({ tipo: "error", texto: "Seleccioná un paciente registrado." });
       return;
@@ -550,6 +575,7 @@ export default function GestionSolicitudesTransfusion() {
           : `Solicitud #${datos.id} registrada con estado Pendiente.`,
       });
       setForm(formularioInicial());
+      setPaso(0);
       setPacienteSeleccionado(null);
       setSolicitudEditando(null);
       setSolicitudEditandoEstado(null);
@@ -614,9 +640,15 @@ export default function GestionSolicitudesTransfusion() {
     }
   }
 
-  async function cancelar(event: FormEvent) {
+  function confirmarCancelacion(event: FormEvent) {
     event.preventDefault();
     if (!solicitudCancelando) return;
+    setCancelacionConfirmando(true);
+  }
+
+  async function ejecutarCancelacion() {
+    if (!solicitudCancelando) return;
+    setCancelacionConfirmando(false);
     setGuardando(true);
     try {
       const respuesta = await fetch(
@@ -651,14 +683,105 @@ export default function GestionSolicitudesTransfusion() {
     }
   }
 
-  return (
-    <main className="solicitudes">
-      <header className="solicitudes-header">
-        <h1>Solicitudes de transfusión</h1>
-        <p>Registrá, aprobá, actualizá y cancelá (rechazá) solicitudes asociadas a pacientes.</p>
-      </header>
+  const columnasSolicitudes: DataTableColumn<Solicitud>[] = [
+    {
+      id: "id",
+      header: "Número",
+      render: (solicitud) => <strong>#{solicitud.id}</strong>,
+      sortValue: (solicitud) => solicitud.id,
+    },
+    {
+      id: "paciente",
+      header: "Paciente",
+      render: (solicitud) => solicitud.nombrePaciente,
+      sortValue: (solicitud) => solicitud.nombrePaciente,
+    },
+    {
+      id: "dni",
+      header: "DNI",
+      render: (solicitud) => solicitud.dniPaciente,
+      sortValue: (solicitud) => solicitud.dniPaciente,
+    },
+    {
+      id: "componente",
+      header: "Componente",
+      render: (solicitud) => etiqueta(solicitud.tipoHemocomponente),
+      sortValue: (solicitud) => solicitud.tipoHemocomponente,
+    },
+    {
+      id: "cantidad",
+      header: "Cantidad",
+      render: (solicitud) => solicitud.cantidad,
+      sortValue: (solicitud) => solicitud.cantidad,
+    },
+    {
+      id: "estado",
+      header: "Estado",
+      render: (solicitud) => <StatusBadge estado={solicitud.estado} />,
+      sortValue: (solicitud) => solicitud.estado,
+    },
+    {
+      id: "fecha",
+      header: "Fecha y hora",
+      render: (solicitud) => formatearFechaHora(solicitud.fechaHora),
+      sortValue: (solicitud) => solicitud.fechaHora,
+    },
+    {
+      id: "acciones",
+      header: "Acciones",
+      className: "ui-col-acciones",
+      render: (solicitud) => (
+        <div className="ui-row-actions">
+          {solicitud.estado === "PENDIENTE" ? (
+            <button
+              type="button"
+              className="ui-btn ui-btn-small ui-btn-primary"
+              onClick={() => {
+                setSolicitudAprobando(solicitud.id);
+                setSolicitudCancelando(null);
+                setOperadorAprobacion("");
+                setOpinionAprobacion("");
+              }}
+            >
+              Aprobar
+            </button>
+          ) : null}
+          {solicitud.estado !== "CANCELADA" ? (
+            <>
+              <button
+                type="button"
+                className="ui-btn ui-btn-small ui-btn-secondary"
+                onClick={() => editarSolicitud(solicitud)}
+              >
+                Editar
+              </button>
+              <button
+                type="button"
+                className="ui-btn ui-btn-small ui-btn-danger"
+                onClick={() => {
+                  setSolicitudCancelando(solicitud.id);
+                  setSolicitudAprobando(null);
+                  setMotivoCancelacion("");
+                  setOperadorCancelacion("");
+                }}
+              >
+                Cancelar
+              </button>
+            </>
+          ) : null}
+        </div>
+      ),
+    },
+  ];
 
-      {banner && <div className={`solicitudes-banner solicitudes-banner-${banner.tipo}`} role={banner.tipo === "error" ? "alert" : "status"}>{banner.texto}</div>}
+  return (
+    <div className="solicitudes">
+      <PageHeader
+        title="Solicitudes de transfusión"
+        description="Registrá, aprobá, actualizá y cancelá (rechazá) solicitudes asociadas a pacientes."
+      />
+
+      {banner ? <Banner tone={banner.tipo}>{banner.texto}</Banner> : null}
       {erroresCampos.length > 0 && (
         <div className="solicitudes-errores-campos" role="alert" aria-label="Errores del formulario">
           <strong>Revisá estos campos:</strong>
@@ -666,41 +789,25 @@ export default function GestionSolicitudesTransfusion() {
         </div>
       )}
 
-      {confirmacionPediatricaAbierta && pacienteSeleccionado && edadPaciente !== null && (
-        <div className="solicitudes-dialog-backdrop">
-          <section
-            className="solicitudes-dialog"
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="advertenciaPediatricaTitulo"
-            aria-describedby="advertenciaPediatricaTexto"
-          >
-            <h2 id="advertenciaPediatricaTitulo">Verificar fraccionado pediátrico</h2>
-            <p id="advertenciaPediatricaTexto">
-              El paciente tiene {edadPaciente} años y está fuera del rango pediátrico configurado ({EDAD_PEDIATRICA_MIN}–{EDAD_PEDIATRICA_MAX} años). Verificá la indicación antes de confirmar la solicitud.
-            </p>
-            <div className="solicitudes-actions">
-              <button
-                type="button"
-                className="solicitudes-secundario"
-                onClick={() => setConfirmacionPediatricaAbierta(false)}
-              >
-                Revisar solicitud
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setConfirmacionPediatricaAbierta(false);
-                  void confirmarSolicitudPediatrica();
-                }}
-                disabled={guardando}
-              >
-                Confirmar y registrar
-              </button>
-            </div>
-          </section>
-        </div>
-      )}
+      <ConfirmDialog
+        open={confirmacionPediatricaAbierta && pacienteSeleccionado !== null && edadPaciente !== null}
+        title="Verificar fraccionado pediátrico"
+        description={
+          <p>
+            El paciente tiene {edadPaciente} años y está fuera del rango pediátrico
+            configurado ({EDAD_PEDIATRICA_MIN}–{EDAD_PEDIATRICA_MAX} años). Verificá
+            la indicación antes de confirmar la solicitud.
+          </p>
+        }
+        confirmLabel="Confirmar y registrar"
+        cancelLabel="Revisar solicitud"
+        busy={guardando}
+        onCancel={() => setConfirmacionPediatricaAbierta(false)}
+        onConfirm={() => {
+          setConfirmacionPediatricaAbierta(false);
+          void confirmarSolicitudPediatrica();
+        }}
+      />
 
       <section className="solicitudes-panel">
         <div className="solicitudes-panel-header">
@@ -735,10 +842,12 @@ export default function GestionSolicitudesTransfusion() {
             )}
           </form>
         ) : (
-          <form className="solicitudes-form" onSubmit={guardar} noValidate>
+          <form ref={formRef} className="solicitudes-form" onSubmit={guardar} noValidate>
             <div className="solicitudes-paciente-seleccionado"><div><strong>{pacienteSeleccionado.apellido}, {pacienteSeleccionado.nombre}</strong><span>DNI: {pacienteSeleccionado.dni}</span></div><button type="button" className="solicitudes-secundario" onClick={() => { setPacienteSeleccionado(null); cambiarCampo("pacienteId", ""); }}>Cambiar paciente</button></div>
             <input type="hidden" value={form.pacienteId} readOnly />
+            <FormSteps pasos={PASOS_SOLICITUD} actual={paso} />
 
+            {paso === 0 && (
             <fieldset>
               <legend>Ámbito / modalidad de transfusión</legend>
               <div className="solicitudes-grid">
@@ -810,7 +919,10 @@ export default function GestionSolicitudesTransfusion() {
                 </div>
               )}
             </fieldset>
+            )}
 
+            {paso === 1 && (
+            <>
             <fieldset><legend>Diagnósticos y antecedentes</legend><div className="solicitudes-grid">
               <div className="solicitudes-field"><label htmlFor="diagnosticoBase">Diagnóstico de base</label><input id="diagnosticoBase" required value={form.diagnosticoBase} onChange={(event) => cambiarCampo("diagnosticoBase", event.target.value)} /></div>
               <div className="solicitudes-field"><label htmlFor="diagnosticoIndicacion">Diagnóstico por el que se indica</label><input id="diagnosticoIndicacion" required value={form.diagnosticoIndicacion} onChange={(event) => cambiarCampo("diagnosticoIndicacion", event.target.value)} /></div>
@@ -835,7 +947,10 @@ export default function GestionSolicitudesTransfusion() {
               </p>
             )}
             </fieldset>
+            </>
+            )}
 
+            {paso === 2 && (
             <fieldset><legend>Pedido y prescripción</legend><div className="solicitudes-grid">
               <div className="solicitudes-field"><label htmlFor="caracter">Carácter de la transfusión</label><select id="caracter" required value={form.caracter} onChange={(event) => cambiarCampo("caracter", event.target.value)}><option value="PROGRAMADA">Programada</option><option value="NO_URGENTE">No urgente</option><option value="RESERVA">Reserva</option><option value="URGENTE">Urgente</option><option value="EMERGENCIA">Emergencia</option></select></div>
               <div className="solicitudes-field"><label htmlFor="fechaHoraPedido">Fecha y hora del pedido</label><input id="fechaHoraPedido" type="datetime-local" required value={form.fechaHoraPedido} onChange={(event) => cambiarCampo("fechaHoraPedido", event.target.value)} /></div>
@@ -854,17 +969,79 @@ export default function GestionSolicitudesTransfusion() {
               )}
               {solicitudEditando && <div className="solicitudes-field"><label htmlFor="motivoModificacion">Motivo de modificación</label><textarea id="motivoModificacion" required rows={2} value={form.motivoModificacion} onChange={(event) => cambiarCampo("motivoModificacion", event.target.value)} /></div>}
             </fieldset>
+            )}
 
-            <div className="solicitudes-actions"><button type="submit" disabled={guardando}>{guardando ? "Guardando…" : solicitudEditando ? "Guardar modificación" : "Registrar solicitud"}</button></div>
+            <div className="ui-step-actions">
+              {paso > 0 && (
+                <button
+                  type="button"
+                  className="solicitudes-secundario"
+                  onClick={() => setPaso(paso - 1)}
+                >
+                  Anterior
+                </button>
+              )}
+              <button type="submit" disabled={guardando}>
+                {guardando
+                  ? "Guardando…"
+                  : paso < PASOS_SOLICITUD.length - 1
+                    ? "Siguiente"
+                    : solicitudEditando
+                      ? "Guardar modificación"
+                      : "Registrar solicitud"}
+              </button>
+            </div>
           </form>
         )}
       </section>
 
       <section className="solicitudes-panel">
         <div className="solicitudes-panel-header"><h2>Solicitudes registradas</h2><div className="solicitudes-filtro"><label htmlFor="estadoFiltro">Estado</label><select id="estadoFiltro" value={estadoFiltro} onChange={(event) => setEstadoFiltro(event.target.value)}><option value="">Todos</option><option value="PENDIENTE">Pendiente</option><option value="APROBADA">Aprobada</option><option value="CANCELADA">Cancelada</option></select></div></div>
-        {cargando ? <p>Cargando solicitudes…</p> : solicitudes.length === 0 ? <p>No hay solicitudes para mostrar.</p> : (
+
+        <DataTable
+          rows={solicitudes}
+          columns={columnasSolicitudes}
+          rowKey={(solicitud) => solicitud.id}
+          searchText={(solicitud) =>
+            `${solicitud.id} ${solicitud.nombrePaciente} ${solicitud.dniPaciente} ${solicitud.tipoHemocomponente} ${solicitud.operador}`
+          }
+          searchPlaceholder="Buscar por número, paciente, DNI, componente u operador…"
+          filters={[
+            {
+              id: "componente",
+              label: "Componente",
+              value: filtroComponenteTabla,
+              options: [
+                { value: "", label: "Todos" },
+                ...COMPONENTES.map(([valor, nombre]) => ({
+                  value: valor,
+                  label: nombre,
+                })),
+              ],
+              onChange: setFiltroComponenteTabla,
+            },
+          ]}
+          filterRow={(solicitud) =>
+            !filtroComponenteTabla ||
+            solicitud.tipoHemocomponente === filtroComponenteTabla
+          }
+          loading={cargando}
+          emptyTitle="No hay solicitudes para mostrar"
+          emptyDescription="Las solicitudes registradas aparecerán aquí con su estado y trazabilidad."
+          caption="Solicitudes de transfusión con búsqueda, filtros, orden y paginación."
+        />
+
+        <h3 className="solicitudes-subtitulo">Detalle y acciones</h3>
+        {cargando ? (
+          <LoadingState label="Cargando solicitudes…" />
+        ) : solicitudes.length === 0 ? (
+          <EmptyState
+            title="No hay solicitudes para mostrar"
+            description="Las solicitudes registradas aparecerán aquí con su estado y trazabilidad."
+          />
+        ) : (
           <div className="solicitudes-lista">{solicitudes.map((solicitud) => <article className="solicitud-item" key={solicitud.id}>
-            <div className="solicitud-item-cabecera"><div><h3>Solicitud #{solicitud.id} · {solicitud.nombrePaciente}</h3><p>DNI: {solicitud.dniPaciente} · Pedido: {formatearFechaHora(solicitud.fechaHora)} · Recepción: {formatearFechaHora(solicitud.fechaHoraRecepcion)}</p></div><span className={`solicitud-estado solicitud-estado-${solicitud.estado.toLowerCase()}`}>{etiqueta(solicitud.estado)}</span></div>
+            <div className="solicitud-item-cabecera"><div><h3>Solicitud #{solicitud.id} · {solicitud.nombrePaciente}</h3><p>DNI: {solicitud.dniPaciente} · Pedido: {formatearFechaHora(solicitud.fechaHora)} · Recepción: {formatearFechaHora(solicitud.fechaHoraRecepcion)}</p></div><StatusBadge estado={solicitud.estado} /></div>
             <div className="solicitud-resumen"><span>{etiqueta(solicitud.tipoHemocomponente)} · {solicitud.cantidad} unidad(es)</span><span>{etiqueta(solicitud.caracter)}</span><span>{solicitud.grupoABO}{solicitud.factorRhD === "POSITIVO" ? "+" : "−"}</span><span>{etiqueta(solicitud.modalidad)} · {lugarSolicitud(solicitud)}</span><span>{solicitud.operador}</span></div>
             {solicitud.estado === "APROBADA" && (
               <div className="solicitud-aprobacion-info">
@@ -931,11 +1108,33 @@ export default function GestionSolicitudesTransfusion() {
                 </div>
               </form>
             )}
-            {solicitudCancelando === solicitud.id && <form className="solicitud-cancelacion" onSubmit={cancelar}><p className="solicitudes-nota">Cancelar una solicitud equivale a rechazarla por ser incompleta o inadecuada; el motivo queda registrado en auditoría.</p><div className="solicitudes-grid"><div className="solicitudes-field"><label htmlFor="operadorCancelacion">Operador</label><input id="operadorCancelacion" required value={operadorCancelacion} onChange={(event) => setOperadorCancelacion(event.target.value)} /></div><div className="solicitudes-field"><label htmlFor="motivoCancelacion">Motivo de cancelación / rechazo</label><input id="motivoCancelacion" required value={motivoCancelacion} onChange={(event) => setMotivoCancelacion(event.target.value)} /></div></div><div className="solicitudes-actions"><button type="submit" disabled={guardando}>Confirmar cancelación</button><button type="button" className="solicitudes-secundario" onClick={() => setSolicitudCancelando(null)}>Volver</button></div></form>}
+            {solicitudCancelando === solicitud.id && <form className="solicitud-cancelacion" onSubmit={confirmarCancelacion}><p className="solicitudes-nota">Cancelar una solicitud equivale a rechazarla por ser incompleta o inadecuada; el motivo queda registrado en auditoría.</p><div className="solicitudes-grid"><div className="solicitudes-field"><label htmlFor="operadorCancelacion">Operador</label><input id="operadorCancelacion" required value={operadorCancelacion} onChange={(event) => setOperadorCancelacion(event.target.value)} /></div><div className="solicitudes-field"><label htmlFor="motivoCancelacion">Motivo de cancelación / rechazo</label><input id="motivoCancelacion" required value={motivoCancelacion} onChange={(event) => setMotivoCancelacion(event.target.value)} /></div></div><div className="solicitudes-actions"><button type="submit" disabled={guardando}>Confirmar cancelación</button><button type="button" className="solicitudes-secundario" onClick={() => setSolicitudCancelando(null)}>Volver</button></div></form>}
             <details className="solicitud-auditoria"><summary>Ver trazabilidad ({solicitud.auditoria?.length ?? 0})</summary><ol>{solicitud.auditoria?.map((evento) => <li key={evento.id}><strong>{etiqueta(evento.accion)}</strong> · {evento.datoModificado} · {evento.operador} · {formatearFechaHora(evento.fechaHora)}{evento.motivo && <p>Motivo: {evento.motivo}</p>}<p>Anterior: {textoAuditoria(evento.valorAnterior)} → Nuevo: {textoAuditoria(evento.valorNuevo)}</p></li>)}</ol></details>
           </article>)}</div>
         )}
       </section>
-    </main>
+
+      <ConfirmDialog
+        open={cancelacionConfirmando && solicitudCancelando !== null}
+        title="Confirmar cancelación de solicitud"
+        description={
+          <>
+            <p>
+              Se cancelará (rechazará) la solicitud{" "}
+              <strong>#{solicitudCancelando}</strong> registrada por{" "}
+              <strong>{operadorCancelacion.trim()}</strong>.
+            </p>
+            <p>Motivo: {motivoCancelacion.trim()}</p>
+            <p>La solicitud dejará de estar vigente y la acción quedará auditada.</p>
+          </>
+        }
+        confirmLabel="Confirmar cancelación"
+        cancelLabel="Volver"
+        destructive
+        busy={guardando}
+        onCancel={() => setCancelacionConfirmando(false)}
+        onConfirm={() => void ejecutarCancelacion()}
+      />
+    </div>
   );
 }

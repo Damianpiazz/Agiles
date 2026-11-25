@@ -74,6 +74,16 @@ export async function registrar(req: Request, res: Response) {
   }
 }
 
+// GET: consultar todos los estudios registrados.
+
+export async function listar(_req: Request, res: Response) {
+  try {
+    return res.status(200).json(await estudioService.listar());
+  } catch (error) {
+    return responderError(error, res);
+  }
+}
+
 // GET: consultar estudios asociados a una solicitud.
 
 export async function listarPorSolicitud(
