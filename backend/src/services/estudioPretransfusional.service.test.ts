@@ -40,6 +40,7 @@ const unidadBase = {
   numeroUnidad: "UNIDAD-007",
   solicitudId: 1,
   tipoHemocomponente: "GLOBULOS_ROJOS",
+  estado: "RESERVADA",
 };
 
 const datosBasicos: CrearEstudioPretransfusionalInput = {
@@ -283,6 +284,22 @@ describe("HU-016 - Estudios pretransfusionales", () => {
     ).rejects.toBeInstanceOf(
       UnidadEstudioNoValidaError,
     );
+  });
+
+  it("rechaza unidades en estado EMITIDA, DADA_DE_BAJA, VENCIDA o BLOQUEADA para prueba cruzada", async () => {
+    for (const estado of ["EMITIDA", "DADA_DE_BAJA", "VENCIDA", "BLOQUEADA"]) {
+      const { db, buscarUnidad, guardarEstudio } = crearDb();
+
+      buscarUnidad.mockResolvedValueOnce({
+        ...unidadBase,
+        estado,
+      });
+
+      await expect(
+        registrar(1, datosPruebaCruzada, db),
+      ).rejects.toBeInstanceOf(UnidadEstudioNoValidaError);
+      expect(guardarEstudio).not.toHaveBeenCalled();
+    }
   });
 
   // CA3: alerta ante incompatibilidad.

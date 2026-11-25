@@ -41,6 +41,7 @@ const etiquetasHemocomponente: Record<string, string> = {
 const etiquetasEstado: Record<string, string> = {
   DISPONIBLE: "Disponible",
   RESERVADA: "Reservada",
+  EMITIDA: "Emitida",
   BLOQUEADA: "Bloqueada",
   VENCIDA: "Vencida",
   DADA_DE_BAJA: "Dada de baja",
@@ -81,6 +82,10 @@ export default function DarDeBajaUnidad() {
   const unidadesElegibles = unidades.filter(
     (u) => u.estado !== "DADA_DE_BAJA",
   );
+  const unidadSeleccionada = unidades.find(
+    (u) => String(u.id) === form.unidadId,
+  );
+  const esUnidadEmitida = unidadSeleccionada?.estado === "EMITIDA";
 
   async function cargarInventario() {
     try {
@@ -101,7 +106,17 @@ export default function DarDeBajaUnidad() {
 
   function onChange(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => {
+      if (name === "unidadId") {
+        const elegida = unidades.find((u) => String(u.id) === value);
+        const motivoLimpio =
+          elegida?.estado === "EMITIDA" && prev.motivo === "VENCIDA"
+            ? ""
+            : prev.motivo;
+        return { ...prev, unidadId: value, motivo: motivoLimpio };
+      }
+      return { ...prev, [name]: value };
+    });
   }
 
   function errorDe(campo: Campo) {
@@ -223,10 +238,15 @@ export default function DarDeBajaUnidad() {
                 aria-invalid={Boolean(errorDe("motivo"))}
               >
                 <option value="">Seleccioná un motivo</option>
-                <option value="VENCIDA">Vencida</option>
+                {!esUnidadEmitida && <option value="VENCIDA">Vencida</option>}
                 <option value="TRANSFUNDIDA">Transfundida</option>
                 <option value="DESCARTADA">Descartada</option>
               </select>
+              {esUnidadEmitida && (
+                <p className="baja-vacio">
+                  Para unidades emitidas solo se admite destino final Transfundida o Descartada.
+                </p>
+              )}
               {errorDe("motivo") && (
                 <p className="baja-error">{errorDe("motivo")}</p>
               )}

@@ -39,6 +39,7 @@ const etiquetasHemocomponente: Record<string, string> = {
 const etiquetasEstado: Record<string, string> = {
   DISPONIBLE: "Disponible",
   RESERVADA: "Reservada",
+  EMITIDA: "Emitida",
   BLOQUEADA: "Bloqueada",
   VENCIDA: "VENCIDA",
   DADA_DE_BAJA: "Dada de baja",

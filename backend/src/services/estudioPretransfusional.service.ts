@@ -19,7 +19,15 @@ type UnidadResumen = {
   numeroUnidad: string;
   solicitudId: number | null;
   tipoHemocomponente: string;
+  estado?: string;
 };
+
+const ESTADOS_UNIDAD_NO_APTOS_ESTUDIO = new Set([
+  "EMITIDA",
+  "DADA_DE_BAJA",
+  "VENCIDA",
+  "BLOQUEADA",
+]);
 
 type EstudioGuardado = {
   tipo: string;
@@ -151,11 +159,18 @@ export async function registrar(
         numeroUnidad: true,
         solicitudId: true,
         tipoHemocomponente: true,
+        estado: true,
       },
     });
 
     if (!unidad) {
       throw new UnidadEstudioNoEncontradaError();
+    }
+
+    if (unidad.estado && ESTADOS_UNIDAD_NO_APTOS_ESTUDIO.has(unidad.estado)) {
+      throw new UnidadEstudioNoValidaError(
+        `La unidad está en estado ${unidad.estado} y no puede utilizarse para una prueba cruzada.`,
+      );
     }
 
     if (
